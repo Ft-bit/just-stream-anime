@@ -18,6 +18,7 @@
     .custom-gradient { background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%); }
     .anime-card { transition: box-shadow 0.2s, transform 0.2s; }
     .modal-bg { background: rgba(0,0,0,0.92); }
+    #debug { color: red; font-weight: bold; padding: 20px; font-size: 1.2em;}
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white min-h-screen">
@@ -35,6 +36,8 @@
       </div>
     </div>
   </header>
+
+  <div id="debug"></div>
 
   <!-- Hero Section -->
   <section class="bg-black">
@@ -74,6 +77,10 @@
     let currentHeroId = null;
     let totalPages = 10; // initial, to be updated from API
 
+    function showDebug(msg) {
+      document.getElementById('debug').textContent = msg;
+    }
+
     // Helper to fix image URLs
     function fixUrl(url) {
       return url ? url.replace(/\\/g, '') : '';
@@ -81,24 +88,42 @@
 
     // Fetch trending/top anime from API
     async function fetchTrendingAnime(page = 1) {
-      const res = await fetch(`https://api.jikan.moe/v4/top/anime?limit=${pageSize}&page=${page}`);
-      const data = await res.json();
-      totalPages = data.pagination?.last_visible_page || 10;
-      return data.data.map(a => ({
-        id: a.mal_id,
-        title: a.title,
-        image: fixUrl(a.images.jpg.large_image_url || a.images.jpg.image_url),
-        description: a.synopsis,
-        rating: a.score,
-        year: a.year || (a.aired?.from ? a.aired.from.slice(0,4) : ""),
-        episodes: a.episodes,
-        link: `https://myanimelist.net/anime/${a.mal_id}`
-      }));
+      try {
+        const res = await fetch(`https://api.jikan.moe/v4/top/anime?limit=${pageSize}&page=${page}`);
+        if (!res.ok) {
+          showDebug("API Error: " + res.status + " " + res.statusText);
+          return [];
+        }
+        const data = await res.json();
+        totalPages = data.pagination?.last_visible_page || 10;
+        if (!data.data || !Array.isArray(data.data) || data.data.length === 0) {
+          showDebug("No anime found from API.");
+          return [];
+        }
+        showDebug(""); // Clear debug on success
+        return data.data.map(a => ({
+          id: a.mal_id,
+          title: a.title,
+          image: fixUrl(a.images.jpg.large_image_url || a.images.jpg.image_url),
+          description: a.synopsis,
+          rating: a.score,
+          year: a.year || (a.aired?.from ? a.aired.from.slice(0,4) : ""),
+          episodes: a.episodes,
+          link: `https://myanimelist.net/anime/${a.mal_id}`
+        }));
+      } catch (err) {
+        showDebug("Network or JS Error: " + err);
+        return [];
+      }
     }
 
     // Hero Section
     function updateHero() {
-      if (animeData.length === 0) return;
+      if (animeData.length === 0) {
+        document.getElementById("heroImage").src = "";
+        document.getElementById("heroLink").href = "#";
+        return;
+      }
       const anime = animeData[0]; // top trending anime
       currentHeroId = anime.id;
       document.getElementById("heroImage").src = anime.image;
@@ -108,6 +133,10 @@
     // Anime Grid
     function renderAnimeGrid() {
       const grid = document.getElementById("animeGrid");
+      if (animeData.length === 0) {
+        grid.innerHTML = "<div class='text-red-500'>No anime found.</div>";
+        return;
+      }
       grid.innerHTML = animeData.map(anime => `
         <div class="anime-card bg-gray-900 rounded-lg overflow-hidden shadow-lg cursor-pointer relative group" onclick="showAnimeDetail('${anime.id}')">
           <img src="${anime.image}" alt="${anime.title}" class="w-full h-56 object-cover" onerror="this.style.display='none'">
@@ -135,12 +164,11 @@
       pagDiv.innerHTML = buttons;
     }
     async function changePage(page) {
-      currentPage = page;
       animeData = await fetchTrendingAnime(page);
+      currentPage = page;
       updateHero();
       renderAnimeGrid();
       renderPagination();
-      // Scroll to top for a smoother UX
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -183,25 +211,34 @@
         dropdown.classList.add("hidden");
         return;
       }
-      // Search for anime by title using Jikan's search endpoint
-      const res = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(input)}&limit=10`);
-      const data = await res.json();
-      if (!data.data || data.data.length === 0) {
-        resultsContainer.innerHTML = "";
-        noResults.classList.remove("hidden");
-      } else {
-        noResults.classList.add("hidden");
-        resultsContainer.innerHTML = data.data.map(anime => `
-          <div class="p-3 hover:bg-gray-700 cursor-pointer flex items-center" onclick="showAnimeDetail('${anime.mal_id}'); dropdown.classList.add('hidden');">
-            <img src="${fixUrl(anime.images.jpg.large_image_url || anime.images.jpg.image_url)}" alt="${anime.title}" class="w-12 h-12 object-cover rounded mr-3" onerror="this.style.display='none'">
-            <div>
-              <h4 class="text-white font-semibold">${anime.title}</h4>
-              <p class="text-sm text-gray-400">${anime.year || (anime.aired?.from ? anime.aired.from.slice(0,4) : "")} • ${anime.episodes || "?"} eps</p>
+      try {
+        const res = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(input)}&limit=10`);
+        if (!res.ok) {
+          resultsContainer.innerHTML = `<div class="text-red-500">API Error: ${res.status}</div>`;
+          dropdown.classList.remove("hidden");
+          return;
+        }
+        const data = await res.json();
+        if (!data.data || data.data.length === 0) {
+          resultsContainer.innerHTML = "";
+          noResults.classList.remove("hidden");
+        } else {
+          noResults.classList.add("hidden");
+          resultsContainer.innerHTML = data.data.map(anime => `
+            <div class="p-3 hover:bg-gray-700 cursor-pointer flex items-center" onclick="showAnimeDetail('${anime.mal_id}'); dropdown.classList.add('hidden');">
+              <img src="${fixUrl(anime.images.jpg.large_image_url || anime.images.jpg.image_url)}" alt="${anime.title}" class="w-12 h-12 object-cover rounded mr-3" onerror="this.style.display='none'">
+              <div>
+                <h4 class="text-white font-semibold">${anime.title}</h4>
+                <p class="text-sm text-gray-400">${anime.year || (anime.aired?.from ? anime.aired.from.slice(0,4) : "")} • ${anime.episodes || "?"} eps</p>
+              </div>
             </div>
-          </div>
-        `).join("");
+          `).join("");
+        }
+        dropdown.classList.remove("hidden");
+      } catch (err) {
+        resultsContainer.innerHTML = `<div class="text-red-500">Network or JS Error: ${err}</div>`;
+        dropdown.classList.remove("hidden");
       }
-      dropdown.classList.remove("hidden");
     }
 
     // Init
