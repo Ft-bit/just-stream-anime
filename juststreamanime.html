@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>just stream anime - Trending Now</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-pacifico { font-family: 'Pacifico', serif; }
+    .anime-card:hover { transform: translateY(-8px) scale(1.04); box-shadow: 0 12px 36px rgba(0,0,0,0.50); }
+    .anime-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 2rem; }
+    ::selection { background: #6366f1; color: #fff; }
+    #pagination button.active { background: #6366f1; color: #fff; border-radius: 0.375rem;}
+    #pagination button { transition: background 0.2s, color 0.2s;}
+    .custom-gradient { background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%); }
+    .anime-card { transition: box-shadow 0.2s, transform 0.2s; }
+    .modal-bg { background: rgba(0,0,0,0.92); }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white min-h-screen">
+
+  <!-- Header -->
+  <header class="custom-gradient backdrop-blur border-b border-gray-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+      <h1 class="text-3xl font-bold font-pacifico text-white drop-shadow">just stream anime</h1>
+      <div class="relative">
+        <input type="text" id="searchInput" placeholder="Search anime..." oninput="searchAnime()" class="bg-gray-800 text-white pl-10 pr-4 py-2 rounded-lg border border-gray-700 w-64 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <div id="searchDropdown" class="absolute top-full left-0 right-0 mt-1 bg-gray-800 rounded-lg shadow-lg border border-gray-700 hidden z-50">
+          <div id="searchResults"></div>
+          <div id="noSearchResults" class="p-4 text-center text-gray-400 hidden">No anime found</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="bg-black">
+    <div class="w-full h-[60vh] flex items-center justify-center overflow-hidden">
+      <img id="heroImage" class="w-full h-full object-cover transition-all duration-700 rounded-xl shadow-2xl" alt="Hero Anime" />
+    </div>
+    <div class="flex justify-center space-x-4 py-6">
+      <a id="heroLink" href="#" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 px-6 py-2 rounded-lg font-semibold">Watch Now</a>
+      <button onclick="showAnimeDetail(currentHeroId)" class="bg-gray-700 hover:bg-gray-600 px-6 py-2 rounded-lg font-semibold">More Info</button>
+    </div>
+  </section>
+
+  <!-- Anime Grid -->
+  <main class="max-w-7xl mx-auto px-4 py-12">
+    <h2 id="mainTitle" class="text-3xl font-bold mb-6 text-indigo-400">Trending Anime</h2>
+    <div id="animeGrid" class="anime-grid"></div>
+    <div id="pagination" class="flex justify-center items-center gap-2 mt-8"></div>
+  </main>
+
+  <!-- Modal -->
+  <div id="animeModal" class="fixed inset-0 modal-bg z-50 hidden overflow-y-auto">
+    <div class="min-h-screen p-4">
+      <div class="max-w-4xl mx-auto bg-gray-900 rounded-lg overflow-hidden relative">
+        <button onclick="closeModal()" class="absolute top-4 right-4 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75">
+          <i class="ri-close-line"></i>
+        </button>
+        <div id="modalContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Globals
+    let animeData = [];
+    let currentPage = 1;
+    const pageSize = 100; // 100 cards per page
+    let currentHeroId = null;
+    let totalPages = 10; // initial, to be updated from API
+
+    // Helper to fix image URLs
+    function fixUrl(url) {
+      return url ? url.replace(/\\/g, '') : '';
+    }
+
+    // Fetch trending/top anime from API
+    async function fetchTrendingAnime(page = 1) {
+      const res = await fetch(`https://api.jikan.moe/v4/top/anime?limit=${pageSize}&page=${page}`);
+      const data = await res.json();
+      totalPages = data.pagination?.last_visible_page || 10;
+      return data.data.map(a => ({
+        id: a.mal_id,
+        title: a.title,
+        image: fixUrl(a.images.jpg.large_image_url || a.images.jpg.image_url),
+        description: a.synopsis,
+        rating: a.score,
+        year: a.year || (a.aired?.from ? a.aired.from.slice(0,4) : ""),
+        episodes: a.episodes,
+        link: `https://myanimelist.net/anime/${a.mal_id}`
+      }));
+    }
+
+    // Hero Section
+    function updateHero() {
+      if (animeData.length === 0) return;
+      const anime = animeData[0]; // top trending anime
+      currentHeroId = anime.id;
+      document.getElementById("heroImage").src = anime.image;
+      document.getElementById("heroLink").href = anime.link;
+    }
+
+    // Anime Grid
+    function renderAnimeGrid() {
+      const grid = document.getElementById("animeGrid");
+      grid.innerHTML = animeData.map(anime => `
+        <div class="anime-card bg-gray-900 rounded-lg overflow-hidden shadow-lg cursor-pointer relative group" onclick="showAnimeDetail('${anime.id}')">
+          <img src="${anime.image}" alt="${anime.title}" class="w-full h-56 object-cover" onerror="this.style.display='none'">
+          <div class="p-4">
+            <h3 class="text-lg font-semibold text-white mb-1">${anime.title}</h3>
+            <div class="mt-2 flex items-center text-sm text-gray-300 space-x-2">
+              <i class="ri-star-fill text-yellow-400"></i><span>${anime.rating}</span>
+              <span>•</span><span>${anime.year}</span>
+              <span>•</span><span>${anime.episodes || "?"} eps</span>
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // Pagination Controls
+    function renderPagination() {
+      const pagDiv = document.getElementById("pagination");
+      let buttons = '';
+      let start = Math.max(1, currentPage - 2);
+      let end = Math.min(totalPages, start + 4);
+      for (let i = start; i <= end; i++) {
+        buttons += `<button class="px-3 py-1 bg-gray-700 text-white font-semibold${i === currentPage ? ' active' : ''}" onclick="changePage(${i})">${i}</button>`;
+      }
+      pagDiv.innerHTML = buttons;
+    }
+    async function changePage(page) {
+      currentPage = page;
+      animeData = await fetchTrendingAnime(page);
+      updateHero();
+      renderAnimeGrid();
+      renderPagination();
+      // Scroll to top for a smoother UX
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // Modal
+    function showAnimeDetail(id) {
+      let anime = animeData.find(a => a.id == id);
+      if (!anime) return;
+      const modal = document.getElementById("animeModal");
+      const content = document.getElementById("modalContent");
+      content.innerHTML = `
+        <div class="grid md:grid-cols-2 gap-6 p-6">
+          <img src="${anime.image}" alt="${anime.title}" class="w-full h-auto rounded-lg shadow-md" onerror="this.style.display='none'">
+          <div>
+            <h2 class="text-3xl font-bold text-white mb-4">${anime.title}</h2>
+            <p class="text-gray-300 mb-4">${anime.description || "No description available."}</p>
+            <div class="flex items-center space-x-4 text-sm text-gray-400 mb-6">
+              <span><i class="ri-star-fill text-yellow-400"></i> ${anime.rating}</span>
+              <span>•</span><span>${anime.year}</span>
+              <span>•</span><span>${anime.episodes || "?"} Episodes</span>
+            </div>
+            <a href="${anime.link}" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold inline-block">
+              Watch on MyAnimeList
+            </a>
+          </div>
+        </div>
+      `;
+      modal.classList.remove("hidden");
+    }
+    function closeModal() {
+      document.getElementById("animeModal").classList.add("hidden");
+    }
+
+    // Search
+    async function searchAnime() {
+      const input = document.getElementById("searchInput").value.toLowerCase().trim();
+      const resultsContainer = document.getElementById("searchResults");
+      const dropdown = document.getElementById("searchDropdown");
+      const noResults = document.getElementById("noSearchResults");
+      if (!input) {
+        dropdown.classList.add("hidden");
+        return;
+      }
+      // Search for anime by title using Jikan's search endpoint
+      const res = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(input)}&limit=10`);
+      const data = await res.json();
+      if (!data.data || data.data.length === 0) {
+        resultsContainer.innerHTML = "";
+        noResults.classList.remove("hidden");
+      } else {
+        noResults.classList.add("hidden");
+        resultsContainer.innerHTML = data.data.map(anime => `
+          <div class="p-3 hover:bg-gray-700 cursor-pointer flex items-center" onclick="showAnimeDetail('${anime.mal_id}'); dropdown.classList.add('hidden');">
+            <img src="${fixUrl(anime.images.jpg.large_image_url || anime.images.jpg.image_url)}" alt="${anime.title}" class="w-12 h-12 object-cover rounded mr-3" onerror="this.style.display='none'">
+            <div>
+              <h4 class="text-white font-semibold">${anime.title}</h4>
+              <p class="text-sm text-gray-400">${anime.year || (anime.aired?.from ? anime.aired.from.slice(0,4) : "")} • ${anime.episodes || "?"} eps</p>
+            </div>
+          </div>
+        `).join("");
+      }
+      dropdown.classList.remove("hidden");
+    }
+
+    // Init
+    async function initAnime() {
+      animeData = await fetchTrendingAnime(currentPage);
+      updateHero();
+      renderAnimeGrid();
+      renderPagination();
+    }
+    window.onload = initAnime;
+
+    // Modal Esc & Click outside
+    document.addEventListener('keydown', function(e){
+      if(e.key === "Escape") closeModal();
+    });
+    document.addEventListener('click', function(e){
+      if(e.target.id === "animeModal") closeModal();
+    });
+  </script>
+</body>
+</html>
