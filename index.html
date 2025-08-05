@@ -18,6 +18,48 @@
     .custom-gradient { background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%); }
     .anime-card { transition: box-shadow 0.2s, transform 0.2s; }
     .modal-bg { background: rgba(0,0,0,0.92); }
+    .hero-image {
+      width: 100vw;
+      height: 60vh;
+      object-fit: cover;
+      filter: brightness(0.9) blur(0px);
+      transition: transform 0.5s, filter 0.5s;
+      transform: scale(1.08);
+      background: #222;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.5);
+    }
+    .hero-controls {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100vw;
+      transform: translateY(-50%);
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+    .hero-button {
+      background: rgba(30,41,59,0.7);
+      color: #fff;
+      font-size: 2.5rem;
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      pointer-events: all;
+      border: 2px solid #6366f1;
+      transition: background 0.2s;
+    }
+    .hero-button:hover {
+      background: rgba(99,102,241,0.8);
+    }
+    @media(max-width: 768px) {
+      .hero-image { height: 36vh; }
+      .hero-controls { width: 100vw; }
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white min-h-screen">
@@ -37,9 +79,16 @@
   </header>
 
   <!-- Hero Section -->
-  <section class="bg-black">
-    <div class="w-full h-[60vh] flex items-center justify-center overflow-hidden">
-      <img id="heroImage" class="w-full h-full object-cover transition-all duration-700 rounded-xl shadow-2xl" alt="Hero Anime" />
+  <section class="bg-black relative" style="overflow: hidden;">
+    <div style="position:relative; width:100vw; height:60vh;">
+      <img id="heroImage" class="hero-image" alt="Hero Anime" />
+      <div class="hero-controls">
+        <button class="hero-button" id="heroPrev" aria-label="Previous Anime"><i class="ri-arrow-left-s-line"></i></button>
+        <button class="hero-button" id="heroNext" aria-label="Next Anime"><i class="ri-arrow-right-s-line"></i></button>
+      </div>
+      <div id="heroTitle" style="position:absolute;bottom:2rem;left:2rem;max-width:60vw;background:rgba(30,41,59,0.75);padding:1rem 1.5rem;border-radius:1rem;font-size:2rem;font-weight:bold;color:#fff;box-shadow:0 4px 20px #000;">
+        <!-- Title goes here -->
+      </div>
     </div>
     <div class="flex justify-center space-x-4 py-6">
       <a id="heroLink" href="#" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 px-6 py-2 rounded-lg font-semibold">Watch Now</a>
@@ -71,8 +120,10 @@
     let animeData = [];
     let currentPage = 1;
     const pageSize = 50; // AniList max per page is 50
+    let currentHeroIndex = 0;
     let currentHeroId = null;
-    let totalPages = 1; // Initial, updated from API
+    let totalPages = 1;
+    let heroInterval = null;
 
     // AniList GraphQL query for trending anime
     const trendingQuery = `
@@ -114,12 +165,33 @@
     }
 
     // Hero Section
-    function updateHero() {
+    function updateHero(idx = 0) {
       if (animeData.length === 0) return;
-      const anime = animeData[0];
+      currentHeroIndex = idx;
+      const anime = animeData[idx];
       currentHeroId = anime.id;
       document.getElementById("heroImage").src = anime.image;
       document.getElementById("heroLink").href = anime.link;
+      document.getElementById("heroTitle").textContent = anime.title;
+    }
+
+    function showNextHero() {
+      if (animeData.length === 0) return;
+      currentHeroIndex = (currentHeroIndex + 1) % animeData.length;
+      updateHero(currentHeroIndex);
+    }
+
+    function showPrevHero() {
+      if (animeData.length === 0) return;
+      currentHeroIndex = (currentHeroIndex - 1 + animeData.length) % animeData.length;
+      updateHero(currentHeroIndex);
+    }
+
+    function startHeroAutoChange() {
+      if (heroInterval) clearInterval(heroInterval);
+      heroInterval = setInterval(() => {
+        showNextHero();
+      }, 10000); // 10 seconds
     }
 
     // Anime Grid
@@ -154,9 +226,11 @@
     async function changePage(page) {
       currentPage = page;
       animeData = await fetchTrendingAnime(page);
-      updateHero();
+      currentHeroIndex = 0;
+      updateHero(currentHeroIndex);
       renderAnimeGrid();
       renderPagination();
+      startHeroAutoChange();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -242,9 +316,11 @@
     // Init
     async function initAnime() {
       animeData = await fetchTrendingAnime(currentPage);
-      updateHero();
+      currentHeroIndex = 0;
+      updateHero(currentHeroIndex);
       renderAnimeGrid();
       renderPagination();
+      startHeroAutoChange();
     }
     window.onload = initAnime;
 
@@ -254,6 +330,16 @@
     document.addEventListener('click', function(e){
       if(e.target.id === "animeModal") closeModal();
     });
+
+    // Hero navigation buttons
+    document.getElementById("heroNext").onclick = function() {
+      showNextHero();
+      startHeroAutoChange(); // restart auto-scroll
+    };
+    document.getElementById("heroPrev").onclick = function() {
+      showPrevHero();
+      startHeroAutoChange(); // restart auto-scroll
+    };
   </script>
 </body>
 </html>
