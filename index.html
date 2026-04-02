@@ -9,145 +9,142 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'DM Sans', sans-serif; background: #07070f; color: #fff; min-height: 100vh; overflow-x: hidden; }
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: #07070f; }
-    ::-webkit-scrollbar-thumb { background: #e11d4855; border-radius: 3px; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:#07070f;color:#fff;min-height:100vh;overflow-x:hidden}
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#07070f}::-webkit-scrollbar-thumb{background:#e11d4855;border-radius:3px}
 
-    nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 62px; background: rgba(7,7,15,0.93); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.07); gap: 1rem; }
-    .logo { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-shrink: 0; }
-    .logo-icon { width: 32px; height: 32px; border-radius: 9px; background: linear-gradient(135deg,#e11d48,#9f1239); display: flex; align-items: center; justify-content: center; }
-    .logo-text { font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: -0.02em; }
-    .logo-text span { color: #e11d48; }
+    nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:62px;background:rgba(7,7,15,.93);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07);gap:1rem}
+    .logo{display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0}
+    .logo-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#e11d48,#9f1239);display:flex;align-items:center;justify-content:center}
+    .logo-text{font-size:1.1rem;font-weight:900;color:#fff;letter-spacing:-.02em}
+    .logo-text span{color:#e11d48}
 
-    .sw { position: relative; }
-    .si { font-family: 'Space Mono',monospace; font-size: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 12px 8px 36px; border-radius: 10px; width: 220px; outline: none; transition: border-color .2s,background .2s; }
-    .si:focus { border-color: rgba(225,29,72,.5); background: rgba(255,255,255,.09); }
-    .sico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: #6b7280; pointer-events: none; }
-    .sdrop { position: absolute; top: calc(100% + 8px); right: 0; width: 330px; background: #0f0f1c; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.85); z-index: 200; }
-    .srow { display: flex; align-items: center; gap: 12px; padding: 10px 14px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,.04); transition: background .15s; }
-    .srow:last-child { border-bottom: none; }
-    .srow:hover { background: rgba(255,255,255,.05); }
-    .srow img { width: 40px; height: 56px; border-radius: 7px; object-fit: cover; flex-shrink: 0; }
-    .sr-t { font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sr-m { font-family: 'Space Mono',monospace; font-size: 10px; color: #6b7280; }
+    .sw{position:relative}
+    .si{font-family:'Space Mono',monospace;font-size:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;padding:8px 12px 8px 36px;border-radius:10px;width:220px;outline:none;transition:border-color .2s,background .2s}
+    .si:focus{border-color:rgba(225,29,72,.5);background:rgba(255,255,255,.09)}
+    .sico{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:#6b7280;pointer-events:none}
+    .sdrop{position:absolute;top:calc(100% + 8px);right:0;width:330px;background:#0f0f1c;border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.85);z-index:200}
+    .srow{display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
+    .srow:last-child{border-bottom:none}.srow:hover{background:rgba(255,255,255,.05)}
+    .srow img{width:40px;height:56px;border-radius:7px;object-fit:cover;flex-shrink:0}
+    .sr-t{font-weight:700;font-size:13px;color:#fff;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sr-m{font-family:'Space Mono',monospace;font-size:10px;color:#6b7280}
 
-    .gtag { font-family: 'Space Mono',monospace; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; padding: 3px 7px; border: 1px solid rgba(225,29,72,.3); color: #fb7185; background: rgba(225,29,72,.07); border-radius: 4px; white-space: nowrap; }
+    .gtag{font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:3px 7px;border:1px solid rgba(225,29,72,.3);color:#fb7185;background:rgba(225,29,72,.07);border-radius:4px;white-space:nowrap}
 
-    .hero { position: relative; height: 76vh; overflow: hidden; background: #07070f; }
-    .hi { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(.48); transition: opacity .7s ease; }
-    .hfb { position: absolute; bottom: 0; left: 0; right: 0; height: 80%; background: linear-gradient(to top,#07070f 8%,rgba(7,7,15,.65) 50%,transparent); pointer-events: none; }
-    .hft { position: absolute; top: 0; left: 0; right: 0; height: 110px; background: linear-gradient(to bottom,rgba(7,7,15,.8),transparent); pointer-events: none; }
-    .hc { position: absolute; bottom: 0; left: 0; padding: 3rem 3.5rem; max-width: 720px; }
-    .hg { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-    .ht { font-size: clamp(1.9rem,4vw,3.3rem); font-weight: 900; line-height: 1.05; letter-spacing: -.03em; color: #fff; margin-bottom: 10px; text-shadow: 0 2px 24px rgba(0,0,0,.7); }
-    .hm { display: flex; align-items: center; gap: 8px; font-family: 'Space Mono',monospace; font-size: 12px; color: #9ca3af; margin-bottom: 12px; flex-wrap: wrap; }
-    .hd { font-size: 14px; line-height: 1.7; color: #d1d5db; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 22px; max-width: 560px; }
-    .hbts { display: flex; gap: 10px; flex-wrap: wrap; }
-    .btn-r { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 11px; font-family: 'Space Mono',monospace; font-size: 12px; font-weight: 700; color: #fff; background: linear-gradient(135deg,#e11d48,#be123c); box-shadow: 0 4px 22px rgba(225,29,72,.42); border: none; cursor: pointer; transition: transform .15s,box-shadow .15s; text-decoration: none; }
-    .btn-r:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(225,29,72,.55); }
-    .harr { position: absolute; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 50%; background: rgba(0,0,0,.52); border: 1px solid rgba(255,255,255,.14); color: #fff; font-size: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; transition: background .2s; user-select: none; }
-    .harr:hover { background: rgba(225,29,72,.5); }
-    .hdots { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 10; }
-    .hdot { height: 5px; border-radius: 3px; background: rgba(255,255,255,.28); border: none; cursor: pointer; transition: width .3s,background .3s; }
-    .hdot.on { background: #e11d48; }
+    .hero{position:relative;height:76vh;overflow:hidden;background:#07070f}
+    .hi{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.48);transition:opacity .7s ease}
+    .hfb{position:absolute;bottom:0;left:0;right:0;height:80%;background:linear-gradient(to top,#07070f 8%,rgba(7,7,15,.65) 50%,transparent);pointer-events:none}
+    .hft{position:absolute;top:0;left:0;right:0;height:110px;background:linear-gradient(to bottom,rgba(7,7,15,.8),transparent);pointer-events:none}
+    .hc{position:absolute;bottom:0;left:0;padding:3rem 3.5rem;max-width:720px}
+    .hg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+    .ht{font-size:clamp(1.9rem,4vw,3.3rem);font-weight:900;line-height:1.05;letter-spacing:-.03em;color:#fff;margin-bottom:10px;text-shadow:0 2px 24px rgba(0,0,0,.7)}
+    .hm{display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:12px;color:#9ca3af;margin-bottom:12px;flex-wrap:wrap}
+    .hd{font-size:14px;line-height:1.7;color:#d1d5db;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:22px;max-width:560px}
+    .hbts{display:flex;gap:10px;flex-wrap:wrap}
+    .btn-r{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:11px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#e11d48,#be123c);box-shadow:0 4px 22px rgba(225,29,72,.42);border:none;cursor:pointer;transition:transform .15s,box-shadow .15s;text-decoration:none}
+    .btn-r:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(225,29,72,.55)}
+    .harr{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.52);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;transition:background .2s;user-select:none}
+    .harr:hover{background:rgba(225,29,72,.5)}
+    .hdots{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:10}
+    .hdot{height:5px;border-radius:3px;background:rgba(255,255,255,.28);border:none;cursor:pointer;transition:width .3s,background .3s}
+    .hdot.on{background:#e11d48}
 
-    .gs { max-width: 1400px; margin: 0 auto; padding: 3rem 2rem; }
-    .gsh { display: flex; align-items: center; gap: 14px; margin-bottom: 1.8rem; }
-    .gst { font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: -.02em; white-space: nowrap; }
-    .gsl { flex: 1; height: 1px; background: linear-gradient(to right,rgba(225,29,72,.4),transparent); }
-    .gsp { font-family: 'Space Mono',monospace; font-size: 11px; color: #4b5563; }
-    .agrid { display: grid; grid-template-columns: repeat(auto-fill,minmax(175px,1fr)); gap: 16px; }
-    .ac { background: #0f0f1c; border-radius: 13px; overflow: hidden; border: 1px solid rgba(255,255,255,.05); cursor: pointer; transition: transform .22s cubic-bezier(.4,0,.2,1),box-shadow .22s; }
-    .ac:hover { transform: translateY(-6px) scale(1.02); }
-    .act { position: relative; overflow: hidden; height: 238px; background: #1a1a2e; }
-    .acimg { width: 100%; height: 100%; object-fit: cover; transition: transform .4s cubic-bezier(.4,0,.2,1); }
-    .ac:hover .acimg { transform: scale(1.06); }
-    .acg { position: absolute; inset: 0; background: linear-gradient(to top,#0f0f1c 0%,transparent 55%); }
-    .acs { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.72); backdrop-filter: blur(4px); padding: 3px 7px; border-radius: 6px; font-family: 'Space Mono',monospace; font-size: 11px; font-weight: 700; color: #fbbf24; }
-    .acp { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; background: rgba(0,0,0,.32); }
-    .ac:hover .acp { opacity: 1; }
-    .plc { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg,#e11d48,#be123c); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 22px rgba(225,29,72,.55); }
-    .acb { padding: 10px 11px 13px; }
-    .act2 { font-weight: 700; font-size: 13px; color: #f9fafb; line-height: 1.35; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .acm { font-family: 'Space Mono',monospace; font-size: 10px; color: #6b7280; display: flex; gap: 5px; }
-    .acgs { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
-    .sk { background: linear-gradient(90deg,#1a1a2e 25%,#22223a 50%,#1a1a2e 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 13px; height: 295px; }
-    @keyframes shimmer { to { background-position: -200% 0; } }
+    .gs{max-width:1400px;margin:0 auto;padding:3rem 2rem}
+    .gsh{display:flex;align-items:center;gap:14px;margin-bottom:1.8rem}
+    .gst{font-size:1.3rem;font-weight:900;color:#fff;letter-spacing:-.02em;white-space:nowrap}
+    .gsl{flex:1;height:1px;background:linear-gradient(to right,rgba(225,29,72,.4),transparent)}
+    .gsp{font-family:'Space Mono',monospace;font-size:11px;color:#4b5563}
+    .agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:16px}
+    .ac{background:#0f0f1c;border-radius:13px;overflow:hidden;border:1px solid rgba(255,255,255,.05);cursor:pointer;transition:transform .22s cubic-bezier(.4,0,.2,1),box-shadow .22s}
+    .ac:hover{transform:translateY(-6px) scale(1.02)}
+    .act{position:relative;overflow:hidden;height:238px;background:#1a1a2e}
+    .acimg{width:100%;height:100%;object-fit:cover;transition:transform .4s cubic-bezier(.4,0,.2,1)}
+    .ac:hover .acimg{transform:scale(1.06)}
+    .acg{position:absolute;inset:0;background:linear-gradient(to top,#0f0f1c 0%,transparent 55%)}
+    .acs{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);padding:3px 7px;border-radius:6px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#fbbf24}
+    .acp{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;background:rgba(0,0,0,.32)}
+    .ac:hover .acp{opacity:1}
+    .plc{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#e11d48,#be123c);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 22px rgba(225,29,72,.55)}
+    .acb{padding:10px 11px 13px}
+    .act2{font-weight:700;font-size:13px;color:#f9fafb;line-height:1.35;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .acm{font-family:'Space Mono',monospace;font-size:10px;color:#6b7280;display:flex;gap:5px}
+    .acgs{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+    .sk{background:linear-gradient(90deg,#1a1a2e 25%,#22223a 50%,#1a1a2e 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:13px;height:295px}
+    @keyframes shimmer{to{background-position:-200% 0}}
 
-    .pag { display: flex; justify-content: center; align-items: center; gap: 7px; margin-top: 3rem; }
-    .pb { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono',monospace; font-size: 13px; font-weight: 700; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); color: #9ca3af; cursor: pointer; transition: background .15s,color .15s; }
-    .pb:hover { background: rgba(255,255,255,.12); color: #fff; }
-    .pb.on { background: linear-gradient(135deg,#e11d48,#be123c); border-color: transparent; color: #fff; box-shadow: 0 0 16px rgba(225,29,72,.4); }
-    .pb:disabled { opacity: .28; cursor: default; }
+    .pag{display:flex;justify-content:center;align-items:center;gap:7px;margin-top:3rem}
+    .pb{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#9ca3af;cursor:pointer;transition:background .15s,color .15s}
+    .pb:hover{background:rgba(255,255,255,.12);color:#fff}
+    .pb.on{background:linear-gradient(135deg,#e11d48,#be123c);border-color:transparent;color:#fff;box-shadow:0 0 16px rgba(225,29,72,.4)}
+    .pb:disabled{opacity:.28;cursor:default}
 
     /* WATCH */
-    .wp { min-height: 100vh; background: #07070f; }
-    .wb { display: inline-flex; align-items: center; gap: 8px; font-family: 'Space Mono',monospace; font-size: 12px; color: #9ca3af; background: none; border: none; cursor: pointer; padding: 1rem 2rem; transition: color .15s; }
-    .wb:hover { color: #fff; }
-    .wl { display: grid; grid-template-columns: 1fr 300px; gap: 0; max-width: 1400px; margin: 0 auto; padding: 0 2rem 4rem; }
+    .wp{min-height:100vh;background:#07070f}
+    .wb{display:inline-flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:12px;color:#9ca3af;background:none;border:none;cursor:pointer;padding:1rem 2rem;transition:color .15s}
+    .wb:hover{color:#fff}
+    .wl{display:grid;grid-template-columns:1fr 300px;gap:0;max-width:1400px;margin:0 auto;padding:0 2rem 4rem}
 
-    .pw { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 14px; overflow: hidden; margin-bottom: 18px; box-shadow: 0 8px 40px rgba(0,0,0,.7); }
-    .pif { width: 100%; height: 100%; border: none; display: block; }
+    .pw{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;margin-bottom:18px;box-shadow:0 8px 40px rgba(0,0,0,.7)}
+    .pif{width:100%;height:100%;border:none;display:block}
+    .ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0b0b18}
+    .ph-spin{width:52px;height:52px;border-radius:50%;border:3px solid rgba(225,29,72,.15);border-top-color:#e11d48;animation:spin .9s linear infinite}
+    .ph-err{width:52px;height:52px;border-radius:50%;background:rgba(225,29,72,.1);border:2px solid rgba(225,29,72,.25);display:flex;align-items:center;justify-content:center}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .ph-text{font-family:'Space Mono',monospace;font-size:12px;color:#6b7280;text-align:center;max-width:300px;line-height:1.65}
 
-    .slbl { font-family: 'Space Mono',monospace; font-size: 10px; font-weight: 700; color: #4b5563; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px; }
-    .stabs { display: flex; gap: 7px; margin-bottom: 18px; flex-wrap: wrap; }
-    .stab { font-family: 'Space Mono',monospace; font-size: 11px; font-weight: 700; padding: 7px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); color: #9ca3af; cursor: pointer; transition: all .15s; }
-    .stab:hover { background: rgba(255,255,255,.1); color: #fff; }
-    .stab.on { background: linear-gradient(135deg,#e11d48,#be123c); border-color: transparent; color: #fff; box-shadow: 0 2px 14px rgba(225,29,72,.38); }
+    .slbl{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+    .stabs{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap}
+    .stab{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#9ca3af;cursor:pointer;transition:all .15s}
+    .stab:hover{background:rgba(255,255,255,.1);color:#fff}
+    .stab.on{background:linear-gradient(135deg,#e11d48,#be123c);border-color:transparent;color:#fff;box-shadow:0 2px 14px rgba(225,29,72,.38)}
 
-    .winfo { margin-bottom: 22px; }
-    .wt { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -.02em; margin-bottom: 8px; line-height: 1.15; }
-    .wm { display: flex; align-items: center; gap: 8px; font-family: 'Space Mono',monospace; font-size: 11px; color: #6b7280; flex-wrap: wrap; margin-bottom: 10px; }
-    .wd { font-size: 13.5px; line-height: 1.75; color: #9ca3af; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .ibar{background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.18);border-radius:9px;padding:9px 13px;margin-bottom:16px;font-family:'Space Mono',monospace;font-size:11px;color:#a5b4fc;line-height:1.6}
 
-    .dls { margin-top: 24px; }
-    .dlh { font-family: 'Space Mono',monospace; font-size: 10px; font-weight: 700; color: #4b5563; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px; }
-    .dll { display: flex; flex-direction: column; gap: 7px; }
-    .dlr { display: flex; align-items: center; justify-content: space-between; padding: 10px 13px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 10px; gap: 10px; }
-    .dli { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-    .dln { font-size: 12px; font-weight: 700; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 420px; }
-    .dlm { font-family: 'Space Mono',monospace; font-size: 10px; color: #6b7280; }
-    .dlbs { display: flex; gap: 6px; flex-shrink: 0; }
-    .db { font-family: 'Space Mono',monospace; font-size: 10px; font-weight: 700; padding: 5px 10px; border-radius: 7px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all .15s; text-decoration: none; border: none; }
-    .dbm { background: rgba(225,29,72,.13); color: #fb7185; border: 1px solid rgba(225,29,72,.28); }
-    .dbm:hover { background: rgba(225,29,72,.24); }
-    .dbt { background: rgba(255,255,255,.06); color: #9ca3af; border: 1px solid rgba(255,255,255,.1); }
-    .dbt:hover { background: rgba(255,255,255,.12); color: #fff; }
-    .dle { font-family: 'Space Mono',monospace; font-size: 11px; color: #4b5563; padding: 14px 0; }
-    .dld { font-family: 'Space Mono',monospace; font-size: 11px; color: #4b5563; padding: 14px 0; animation: blink 1.4s infinite; }
-    @keyframes blink { 0%,100%{opacity:1}50%{opacity:.35} }
+    .winfo{margin-bottom:22px}
+    .wt{font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:8px;line-height:1.15}
+    .wm{display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:11px;color:#6b7280;flex-wrap:wrap;margin-bottom:10px}
+    .wd{font-size:13.5px;line-height:1.75;color:#9ca3af;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 
-    .eps { padding-left: 20px; border-left: 1px solid rgba(255,255,255,.06); position: sticky; top: 72px; max-height: calc(100vh - 82px); display: flex; flex-direction: column; }
-    .eph { font-family: 'Space Mono',monospace; font-size: 10px; font-weight: 700; color: #4b5563; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px; flex-shrink: 0; }
-    .epsr { font-family: 'Space Mono',monospace; font-size: 11px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); color: #fff; padding: 6px 10px; border-radius: 8px; width: 100%; outline: none; margin-bottom: 10px; flex-shrink: 0; }
-    .epl { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 5px; padding-right: 4px; }
-    .epl::-webkit-scrollbar { width: 3px; }
-    .epl::-webkit-scrollbar-thumb { background: #e11d4833; border-radius: 2px; }
-    .epb { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 9px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.05); cursor: pointer; transition: all .15s; text-align: left; width: 100%; }
-    .epb:hover { background: rgba(255,255,255,.08); }
-    .epb.on { background: rgba(225,29,72,.12); border-color: rgba(225,29,72,.28); }
-    .epn { font-family: 'Space Mono',monospace; font-size: 11px; font-weight: 700; color: #e11d48; min-width: 32px; flex-shrink: 0; }
-    .epna { font-size: 12px; color: #d1d5db; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dls{margin-top:24px}
+    .dlh{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+    .dll{display:flex;flex-direction:column;gap:7px}
+    .dlr{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;gap:10px}
+    .dli{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .dln{font-size:12px;font-weight:700;color:#e5e7eb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px}
+    .dlm{font-family:'Space Mono',monospace;font-size:10px;color:#6b7280}
+    .dlbs{display:flex;gap:6px;flex-shrink:0}
+    .db{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:5px 10px;border-radius:7px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;text-decoration:none;border:none}
+    .dbm{background:rgba(225,29,72,.13);color:#fb7185;border:1px solid rgba(225,29,72,.28)}
+    .dbm:hover{background:rgba(225,29,72,.24)}
+    .dbt{background:rgba(255,255,255,.06);color:#9ca3af;border:1px solid rgba(255,255,255,.1)}
+    .dbt:hover{background:rgba(255,255,255,.12);color:#fff}
+    .dle{font-family:'Space Mono',monospace;font-size:11px;color:#4b5563;padding:14px 0}
+    .dld{font-family:'Space Mono',monospace;font-size:11px;color:#4b5563;padding:14px 0;animation:blink 1.4s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
 
-    .ibar { background: rgba(99,102,241,.08); border: 1px solid rgba(99,102,241,.2); border-radius: 9px; padding: 9px 13px; margin-bottom: 14px; font-family: 'Space Mono',monospace; font-size: 11px; color: #a5b4fc; line-height: 1.6; }
+    .eps{padding-left:20px;border-left:1px solid rgba(255,255,255,.06);position:sticky;top:72px;max-height:calc(100vh - 82px);display:flex;flex-direction:column}
+    .eph{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;flex-shrink:0}
+    .epsr{font-family:'Space Mono',monospace;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#fff;padding:6px 10px;border-radius:8px;width:100%;outline:none;margin-bottom:10px;flex-shrink:0}
+    .epl{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:5px;padding-right:4px}
+    .epl::-webkit-scrollbar{width:3px}
+    .epl::-webkit-scrollbar-thumb{background:#e11d4833;border-radius:2px}
+    .epb{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.05);cursor:pointer;transition:all .15s;text-align:left;width:100%}
+    .epb:hover{background:rgba(255,255,255,.08)}
+    .epb.on{background:rgba(225,29,72,.12);border-color:rgba(225,29,72,.28)}
+    .epn{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#e11d48;min-width:32px;flex-shrink:0}
+    .epna{font-size:12px;color:#d1d5db;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-    .stars { display: inline-flex; gap: 2px; }
-
+    .stars{display:inline-flex;gap:2px}
     @media(max-width:900px){
-      .wl { grid-template-columns: 1fr; }
-      .eps { padding-left:0; border-left:none; border-top:1px solid rgba(255,255,255,.06); padding-top:18px; position:static; max-height:300px; }
-      .hc { padding:2rem 1.5rem; }
-      .hd { display:none; }
-      .agrid { grid-template-columns:repeat(auto-fill,minmax(145px,1fr)); }
-      nav { padding:0 1rem; }
-      .si { width:160px; }
-      .gs { padding:2rem 1rem; }
-      .wb { padding:.8rem 1rem; }
-      .wl { padding:0 1rem 3rem; }
-      .dln { max-width:200px; }
+      .wl{grid-template-columns:1fr}
+      .eps{padding-left:0;border-left:none;border-top:1px solid rgba(255,255,255,.06);padding-top:18px;position:static;max-height:300px}
+      .hc{padding:2rem 1.5rem}.hd{display:none}
+      .agrid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr))}
+      nav{padding:0 1rem}.si{width:160px}
+      .gs{padding:2rem 1rem}.wb{padding:.8rem 1rem}
+      .wl{padding:0 1rem 3rem}.dln{max-width:200px}
     }
   </style>
 </head>
@@ -156,68 +153,110 @@
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
 
-const AL = 'https://graphql.anilist.co';
+// ─── AniList ──────────────────────────────────────────────────────────────────
+const AL='https://graphql.anilist.co';
 async function gql(q,v={}){
   const r=await fetch(AL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,variables:v})});
   return r.json();
 }
-const TQ=`query($p:Int,$pp:Int){Page(page:$p,perPage:$pp){pageInfo{lastPage}media(type:ANIME,sort:TRENDING_DESC){id title{romaji english}coverImage{extraLarge large color}bannerImage description(asHtml:false)averageScore episodes seasonYear genres siteUrl}}}`;
-const SQ=`query($s:String){Page(perPage:12){media(search:$s,type:ANIME){id title{romaji english}coverImage{extraLarge large color}bannerImage description(asHtml:false)averageScore episodes seasonYear genres siteUrl}}}`;
+const TQ=`query($p:Int,$pp:Int){Page(page:$p,perPage:$pp){pageInfo{lastPage}media(type:ANIME,sort:TRENDING_DESC){id idMal title{romaji english}coverImage{extraLarge large color}bannerImage description(asHtml:false)averageScore episodes seasonYear genres siteUrl}}}`;
+const SQ=`query($s:String){Page(perPage:12){media(search:$s,type:ANIME){id idMal title{romaji english}coverImage{extraLarge large color}bannerImage description(asHtml:false)averageScore episodes seasonYear genres siteUrl}}}`;
 
 function mapA(a){
-  return {
-    id:a.id, title:a.title?.english||a.title?.romaji||'Unknown',
-    romaji:a.title?.romaji||'', image:a.coverImage?.extraLarge||a.coverImage?.large,
-    banner:a.bannerImage, desc:(a.description||'').replace(/<[^>]+>/g,''),
+  return{
+    id:a.id, malId:a.idMal,
+    title:a.title?.english||a.title?.romaji||'Unknown',
+    romaji:a.title?.romaji||'',
+    image:a.coverImage?.extraLarge||a.coverImage?.large,
+    banner:a.bannerImage,
+    desc:(a.description||'').replace(/<[^>]+>/g,''),
     rating:a.averageScore, year:a.seasonYear, eps:a.episodes,
     genres:a.genres||[], link:a.siteUrl, color:a.coverImage?.color||'#e11d48',
   };
 }
 
-// ── Embed servers using AniList ID — these accept ID-based URLs ───────────────
-function getServers(anilistId, ep){
-  const e=ep||1;
+// ─── Stream servers — using anilist ID & MAL ID with proven embed providers ───
+// These providers are designed to be embedded and accept standard IDs
+function getServers(anime, ep){
+  const al  = anime.id;
+  const mal = anime.malId || anime.id;
+  const e   = ep || 1;
+  const title = encodeURIComponent(anime.romaji || anime.title);
   return [
-    { name:'Server 1', url:`https://2embed.cc/embed/anime/anilist/${anilistId}/${e}` },
-    { name:'Server 2', url:`https://vidsrc.xyz/embed/anime/anilist:${anilistId}/${e}` },
-    { name:'Server 3', url:`https://vidsrc.to/embed/anime/anilist:${anilistId}/${e}` },
-    { name:'Server 4', url:`https://embed.su/embed/anime/${anilistId}/${e}` },
-    { name:'Server 5', url:`https://animetize-api.vercel.app/embed/${anilistId}/${e}` },
-    { name:'Server 6', url:`https://www.anitaku.to/api/anime/stream/${anilistId}/${e}` },
+    // anix — very reliable, uses AniList ID
+    { name:'anix',      url:`https://anix.to/embed/anime/${al}/${e}` },
+    // 9anime embed style
+    { name:'9anime',    url:`https://9anime.to/embed/${al}?ep=${e}` },
+    // aniwatch / hianime — the biggest source right now
+    { name:'hianime',   url:`https://hianime.to/watch/${title}-${al}?ep=${e}` },
+    // vidsrc — supports MAL ID
+    { name:'vidsrc',    url:`https://vidsrc.xyz/embed/anime/${mal}/${e}` },
+    // 2embed
+    { name:'2embed',    url:`https://www.2embed.cc/embedanime/${al}/${e}` },
+    // animez embed
+    { name:'animez',    url:`https://animez.org/embed?mal=${mal}&ep=${e}` },
   ];
 }
 
-// ── Nyaa torrent RSS ──────────────────────────────────────────────────────────
-async function nyaa(title,ep){
+// ─── Nyaa RSS — real working torrent search ───────────────────────────────────
+async function searchNyaa(anime, ep){
   try {
-    const q=encodeURIComponent(`${title} ${ep?String(ep).padStart(2,'0'):''}`);
-    const url=encodeURIComponent(`https://nyaa.si/?page=rss&q=${q}&c=1_0&f=0`);
-    const r=await fetch(`https://api.allorigins.win/get?url=${url}`,{signal:AbortSignal.timeout(9000)});
-    const d=await r.json();
-    const xml=new DOMParser().parseFromString(d.contents,'text/xml');
-    return Array.from(xml.querySelectorAll('item')).slice(0,10).map(x=>{
-      const lnk=x.querySelector('link')?.textContent?.trim()||'';
-      const enc=x.querySelector('enclosure')?.getAttribute('url')||'';
-      return {
-        name:x.querySelector('title')?.textContent||'',
-        magnet:lnk.startsWith('magnet:')?lnk:(enc.startsWith('magnet:')?enc:''),
-        torrent:!lnk.startsWith('magnet:')?lnk:enc,
-        size:x.querySelector('nyaa\\:size,size')?.textContent||'',
-        seeders:x.querySelector('nyaa\\:seeders,seeders')?.textContent||'?',
-      };
-    }).filter(x=>x.name);
-  } catch { return []; }
+    // Build a smart query: use romaji (what uploaders use), pad ep number
+    const epStr = ep ? String(ep).padStart(2,'0') : '';
+    // Try subbed first
+    const queries = [
+      `${anime.romaji||anime.title} ${epStr}`,
+      `${anime.title} ${epStr}`,
+    ];
+
+    for(const q of queries){
+      const encoded = encodeURIComponent(q);
+      const nyaaUrl = encodeURIComponent(`https://nyaa.si/?page=rss&q=${encoded}&c=1_2&f=0`);
+      // c=1_2 = Anime - English-translated, f=0 = no filter
+      const r = await fetch(`https://api.allorigins.win/get?url=${nyaaUrl}`,{signal:AbortSignal.timeout(10000)});
+      const d = await r.json();
+      if(!d.contents) continue;
+
+      const xml = new DOMParser().parseFromString(d.contents,'text/xml');
+      const items = Array.from(xml.querySelectorAll('item'));
+      if(!items.length) continue;
+
+      const results = items.slice(0,12).map(x=>{
+        const rawLink = x.querySelector('link')?.nextSibling?.textContent?.trim()
+          || x.querySelector('link')?.textContent?.trim() || '';
+        const encUrl  = x.querySelector('enclosure')?.getAttribute('url') || '';
+        const guid    = x.querySelector('guid')?.textContent?.trim() || '';
+
+        // Nyaa guid = https://nyaa.si/view/XXXXX → torrent = .../download/XXXXX.torrent
+        const nyaaId  = guid.match(/\/view\/(\d+)/)?.[1] || '';
+        const torrent = nyaaId ? `https://nyaa.si/download/${nyaaId}.torrent` : (encUrl||rawLink);
+        const magnet  = rawLink.startsWith('magnet:') ? rawLink : '';
+
+        return {
+          name:    x.querySelector('title')?.textContent||'',
+          magnet,
+          torrent,
+          size:    x.querySelector('nyaa\\:size, [localName="size"]')?.textContent || '',
+          seeders: x.querySelector('nyaa\\:seeders, [localName="seeders"]')?.textContent || '?',
+          nyaaId,
+        };
+      }).filter(x=>x.name && (x.torrent||x.magnet));
+
+      if(results.length) return results;
+    }
+    return [];
+  }catch(err){ console.error('Nyaa error:',err); return []; }
 }
 
-// ── Icons ─────────────────────────────────────────────────────────────────────
-function PIco({s=16}){return<svg viewBox="0 0 20 20" fill="currentColor" style={{width:s,height:s}}><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>;}
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function PIco({s=16}){return<svg viewBox="0 0 20 20" fill="currentColor" style={{width:s,height:s}}><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>}
 function Stars({s}){
-  const n=Math.round((s/100)*5);
+  const n=Math.round(((s||0)/100)*5);
   return<span className="stars">{[1,2,3,4,5].map(i=><svg key={i} viewBox="0 0 20 20" fill="currentColor" style={{width:13,height:13,color:i<=n?'#fbbf24':'#2d2d3a'}}><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>)}</span>;
 }
-function GT({g}){return<span className="gtag">{g}</span>;}
+function GT({g}){return<span className="gtag">{g}</span>}
 
-// ── Cards / Hero / Search ─────────────────────────────────────────────────────
+// ─── Anime Card ───────────────────────────────────────────────────────────────
 function ACard({a,onClick}){
   return<div className="ac" onClick={()=>onClick(a)}>
     <div className="act">
@@ -234,8 +273,9 @@ function ACard({a,onClick}){
   </div>;
 }
 
+// ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero({a,onW,onPrev,onNext,idx,total}){
-  const [loaded,setLoaded]=useState(false);
+  const[loaded,setLoaded]=useState(false);
   useEffect(()=>setLoaded(false),[a?.id]);
   if(!a)return<div style={{height:'76vh',background:'#07070f'}}/>;
   return<div className="hero">
@@ -255,10 +295,11 @@ function Hero({a,onW,onPrev,onNext,idx,total}){
   </div>;
 }
 
+// ─── Search ───────────────────────────────────────────────────────────────────
 function SearchBar({onSel}){
-  const [q,setQ]=useState('');
-  const [res,setRes]=useState([]);
-  const [open,setOpen]=useState(false);
+  const[q,setQ]=useState('');
+  const[res,setRes]=useState([]);
+  const[open,setOpen]=useState(false);
   const tmr=useRef(null);
   const ref=useRef(null);
   useEffect(()=>{
@@ -282,29 +323,60 @@ function SearchBar({onSel}){
   </div>;
 }
 
-// ── WATCH PAGE ────────────────────────────────────────────────────────────────
+// ─── Download row ─────────────────────────────────────────────────────────────
+function DRow({item}){
+  const q   = item.name.match(/1080|720|480|360/)?.[0]||'';
+  const grp = item.name.match(/^\[([^\]]+)\]/)?.[1]||'';
+  const hasMag = item.magnet && item.magnet.startsWith('magnet:');
+  const hasTor = item.torrent && item.torrent.length > 10;
+  return<div className="dlr">
+    <div className="dli">
+      <div className="dln" title={item.name}>{item.name.replace(/\.[^.]+$/,'').slice(0,70)}</div>
+      <div className="dlm">{[grp,q&&`${q}p`,item.size,`${item.seeders} seeds`].filter(Boolean).join(' · ')}</div>
+    </div>
+    <div className="dlbs">
+      {hasMag&&<a href={item.magnet} className="db dbm">
+        <svg viewBox="0 0 20 20" fill="currentColor" style={{width:11,height:11}}><path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v4a6 6 0 01-12 0V4zm3 8a3 3 0 006 0v-.17A5.98 5.98 0 0110 12a5.98 5.98 0 01-3-.17V12z"/></svg>
+        Magnet
+      </a>}
+      {hasTor&&<a href={item.torrent} className="db dbt" target="_blank" rel="noreferrer">
+        <svg viewBox="0 0 20 20" fill="currentColor" style={{width:11,height:11}}><path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"/></svg>
+        .torrent
+      </a>}
+      <a href={`https://nyaa.si/?f=0&c=1_2&q=${encodeURIComponent(item.name.split(' ').slice(0,4).join(' '))}`} target="_blank" rel="noreferrer" className="db dbt">
+        nyaa ↗
+      </a>
+    </div>
+  </div>;
+}
+
+// ─── Watch Page ───────────────────────────────────────────────────────────────
 function WatchPage({anime,onBack}){
-  const totalEps=anime.eps||24;
-  const epList=Array.from({length:totalEps},(_,i)=>i+1);
-  const [epFilter,setEpFilter]=useState('');
-  const [curEp,setCurEp]=useState(1);
-  const [servers,setServers]=useState([]);
-  const [srvIdx,setSrvIdx]=useState(0);
-  const [ifKey,setIfKey]=useState(0);
-  const [torrents,setTorrents]=useState([]);
-  const [torLoad,setTorLoad]=useState(false);
+  const totalEps = anime.eps || 24;
+  const epList   = Array.from({length:totalEps},(_,i)=>i+1);
+  const [epFilter,  setEpFilter]  = useState('');
+  const [curEp,     setCurEp]     = useState(1);
+  const [servers,   setServers]   = useState([]);
+  const [srvIdx,    setSrvIdx]    = useState(0);
+  const [ifKey,     setIfKey]     = useState(0);
+  const [status,    setStatus]    = useState('loading'); // loading | playing | error
+  const [torrents,  setTorrents]  = useState([]);
+  const [torLoad,   setTorLoad]   = useState(false);
 
-  useEffect(()=>{
-    const s=getServers(anime.id,curEp);
-    setServers(s);setSrvIdx(0);setIfKey(k=>k+1);
-    (async()=>{
-      setTorLoad(true);setTorrents([]);
-      const res=await nyaa(anime.romaji||anime.title,curEp);
-      setTorrents(res);setTorLoad(false);
-    })();
-  },[anime.id,curEp]);
+  const loadEp = useCallback(async(ep)=>{
+    setCurEp(ep);
+    const s=getServers(anime,ep);
+    setServers(s);setSrvIdx(0);setIfKey(k=>k+1);setStatus('loading');
+    // torrents
+    setTorLoad(true);setTorrents([]);
+    const res=await searchNyaa(anime,ep);
+    setTorrents(res);setTorLoad(false);
+  },[anime]);
 
-  const swSrv=i=>{setSrvIdx(i);setIfKey(k=>k+1);};
+  useEffect(()=>{ loadEp(1); },[loadEp]);
+
+  const switchSrv=i=>{setSrvIdx(i);setIfKey(k=>k+1);setStatus('loading');};
+
   const filtered=epFilter?epList.filter(n=>String(n).includes(epFilter)):epList;
   const src=servers[srvIdx]?.url||'';
 
@@ -319,22 +391,40 @@ function WatchPage({anime,onBack}){
       <svg viewBox="0 0 20 20" fill="currentColor" style={{width:14,height:14}}><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"/></svg>
       Back to Browse
     </button>
+
     <div className="wl">
       {/* LEFT */}
       <div>
+        {/* PLAYER */}
         <div className="pw">
-          {src&&<iframe key={ifKey} className="pif" src={src} allowFullScreen allow="autoplay;fullscreen;picture-in-picture" referrerPolicy="no-referrer" scrolling="no"/>}
+          {status==='loading'&&<div className="ph"><div className="ph-spin"/><p className="ph-text">Loading stream…</p></div>}
+          {src&&<iframe
+            key={ifKey}
+            className="pif"
+            src={src}
+            allowFullScreen
+            allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+            referrerPolicy="no-referrer"
+            scrolling="no"
+            onLoad={()=>setStatus('playing')}
+            onError={()=>setStatus('error')}
+            style={{position:'absolute',inset:0,width:'100%',height:'100%'}}
+          />}
         </div>
 
-        <div className="slbl">Select Server — try another if video doesn't play</div>
+        {/* SERVERS */}
+        <div className="slbl">Servers — switch if video is black or not loading</div>
         <div className="stabs">
-          {servers.map((s,i)=><button key={i} className={'stab'+(srvIdx===i?' on':'')} onClick={()=>swSrv(i)}>{s.name}</button>)}
+          {servers.map((s,i)=><button key={i} className={'stab'+(srvIdx===i?' on':'')} onClick={()=>switchSrv(i)}>
+            {s.name}
+          </button>)}
         </div>
 
         <div className="ibar">
-          💡 <strong>If the player shows a black screen or error</strong> — click the next server tab above. Different servers work for different anime. Use the Nyaa download links below if all servers fail.
+          💡 <b>How to use:</b> Click each server until one plays. Some servers need a few seconds to load. If you see a black screen, wait 5s then try the next. For offline viewing, grab a torrent below.
         </div>
 
+        {/* INFO */}
         <div className="winfo">
           <h1 className="wt">{anime.title}</h1>
           <div className="wm">
@@ -347,39 +437,29 @@ function WatchPage({anime,onBack}){
           <p className="wd">{anime.desc}</p>
         </div>
 
+        {/* DOWNLOADS */}
         <div className="dls">
-          <div className="dlh">⬇ Download — Episode {curEp} via Nyaa.si</div>
-          {torLoad&&<div className="dld">Searching Nyaa.si for torrents…</div>}
-          {!torLoad&&torrents.length===0&&<div className="dle">No torrents found. Try a different episode or search Nyaa.si manually.</div>}
-          {!torLoad&&torrents.length>0&&<div className="dll">{torrents.map((t,i)=>{
-            const q=t.name.match(/1080|720|480|360/)?.[0]||'';
-            const grp=t.name.match(/^\[([^\]]+)\]/)?.[1]||'';
-            return<div key={i} className="dlr">
-              <div className="dli">
-                <div className="dln" title={t.name}>{t.name.replace(/\.[^.]+$/,'').slice(0,65)}</div>
-                <div className="dlm">{[grp,q&&`${q}p`,t.size,`${t.seeders} seeds`].filter(Boolean).join(' · ')}</div>
-              </div>
-              <div className="dlbs">
-                {t.magnet&&t.magnet.startsWith('magnet:')&&<a href={t.magnet} className="db dbm">
-                  <svg viewBox="0 0 20 20" fill="currentColor" style={{width:11,height:11}}><path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v4a6 6 0 01-12 0V4zm3 8a3 3 0 006 0v-.17A5.98 5.98 0 0110 12a5.98 5.98 0 01-3-.17V12z"/></svg>
-                  Magnet
-                </a>}
-                {t.torrent&&!t.torrent.startsWith('magnet:')&&<a href={t.torrent} className="db dbt" download>
-                  <svg viewBox="0 0 20 20" fill="currentColor" style={{width:11,height:11}}><path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"/></svg>
-                  .torrent
-                </a>}
-              </div>
-            </div>;
-          })}</div>}
+          <div className="dlh">⬇ Episode {curEp} — Torrent Downloads (Nyaa.si)</div>
+          {torLoad&&<div className="dld">Searching Nyaa.si for "{anime.romaji||anime.title}" EP{String(curEp).padStart(2,'0')}…</div>}
+          {!torLoad&&torrents.length===0&&<div className="dle">
+            No torrents matched automatically.&nbsp;
+            <a href={`https://nyaa.si/?f=0&c=1_2&q=${encodeURIComponent((anime.romaji||anime.title)+' '+String(curEp).padStart(2,'0'))}`}
+               target="_blank" rel="noreferrer" style={{color:'#fb7185',textDecoration:'underline'}}>
+              Search Nyaa.si manually ↗
+            </a>
+          </div>}
+          {!torLoad&&torrents.length>0&&<div className="dll">{torrents.map((t,i)=><DRow key={i} item={t}/>)}</div>}
         </div>
       </div>
 
       {/* SIDEBAR */}
       <div className="eps">
         <div className="eph">Episodes ({totalEps})</div>
-        <input className="epsr" type="number" min="1" max={totalEps} placeholder={`Jump to ep… (1-${totalEps})`} value={epFilter} onChange={e=>setEpFilter(e.target.value)}/>
+        <input className="epsr" type="number" min="1" max={totalEps}
+          placeholder={`Jump to ep (1–${totalEps})`}
+          value={epFilter} onChange={e=>setEpFilter(e.target.value)}/>
         <div className="epl">
-          {filtered.map(n=><button key={n} className={'epb'+(curEp===n?' on':'')} onClick={()=>setCurEp(n)}>
+          {filtered.map(n=><button key={n} className={'epb'+(curEp===n?' on':'')} onClick={()=>loadEp(n)}>
             <span className="epn">EP{n}</span>
             <span className="epna">Episode {n}</span>
           </button>)}
@@ -389,23 +469,23 @@ function WatchPage({anime,onBack}){
   </div>;
 }
 
-// ── MAIN ──────────────────────────────────────────────────────────────────────
+// ─── Main App ─────────────────────────────────────────────────────────────────
 function App(){
-  const [view,setView]=useState('home');
-  const [watching,setW]=useState(null);
-  const [anime,setAnime]=useState([]);
-  const [hi,setHi]=useState(0);
-  const [page,setPage]=useState(1);
-  const [totalPg,setTPg]=useState(1);
-  const [loading,setLoading]=useState(true);
+  const[view,setView]   =useState('home');
+  const[watching,setW]  =useState(null);
+  const[anime,setAnime] =useState([]);
+  const[hi,setHi]       =useState(0);
+  const[page,setPage]   =useState(1);
+  const[totalPg,setTPg] =useState(1);
+  const[loading,setLoad]=useState(true);
   const iv=useRef(null);
 
   const load=useCallback(async p=>{
-    setLoading(true);
+    setLoad(true);
     const d=await gql(TQ,{p,pp:50});
     setAnime((d.data?.Page?.media||[]).map(mapA));
     setTPg(d.data?.Page?.pageInfo?.lastPage||1);
-    setHi(0);setLoading(false);
+    setHi(0);setLoad(false);
   },[]);
 
   useEffect(()=>{load(page);},[page,load]);
@@ -418,8 +498,8 @@ function App(){
   const openW=a=>{setW(a);setView('watch');window.scrollTo({top:0});};
   const goHome=()=>{setView('home');setW(null);};
   const hMax=Math.min(anime.length,10);
-  const ps=[];const s=Math.max(1,page-2),e=Math.min(totalPg,s+4);
-  for(let i=s;i<=e;i++)ps.push(i);
+  const ps=[];const s=Math.max(1,page-2),e2=Math.min(totalPg,s+4);
+  for(let i=s;i<=e2;i++)ps.push(i);
   const chPg=p=>{setPage(p);window.scrollTo({top:0,behavior:'smooth'});};
 
   if(view==='watch'&&watching)return<WatchPage anime={watching} onBack={goHome}/>;
