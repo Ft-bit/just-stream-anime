@@ -12,27 +12,32 @@
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{font-family:'DM Sans',sans-serif;background:#07070f;color:#fff;min-height:100vh;overflow-x:hidden}
-    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#07070f}::-webkit-scrollbar-thumb{background:#e11d4855;border-radius:3px}
+    ::-webkit-scrollbar{width:5px}
+    ::-webkit-scrollbar-track{background:#07070f}
+    ::-webkit-scrollbar-thumb{background:#e11d4855;border-radius:3px}
 
-    nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:62px;background:rgba(7,7,15,.93);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07);gap:1rem}
+    nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:62px;background:rgba(7,7,15,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07);gap:1rem}
     .logo{display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0}
     .logo-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#e11d48,#9f1239);display:flex;align-items:center;justify-content:center}
     .logo-text{font-size:1.1rem;font-weight:900;color:#fff;letter-spacing:-.02em}
-    .logo-text span{color:#e11d48}
+    .logo-text em{color:#e11d48;font-style:normal}
 
+    /* SEARCH */
     .sw{position:relative}
     .si{font-family:'Space Mono',monospace;font-size:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;padding:8px 12px 8px 36px;border-radius:10px;width:220px;outline:none;transition:border-color .2s,background .2s}
     .si:focus{border-color:rgba(225,29,72,.5);background:rgba(255,255,255,.09)}
     .sico{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:#6b7280;pointer-events:none}
     .sdrop{position:absolute;top:calc(100% + 8px);right:0;width:330px;background:#0f0f1c;border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.85);z-index:200}
     .srow{display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
-    .srow:last-child{border-bottom:none}.srow:hover{background:rgba(255,255,255,.05)}
+    .srow:last-child{border-bottom:none}
+    .srow:hover{background:rgba(255,255,255,.05)}
     .srow img{width:40px;height:56px;border-radius:7px;object-fit:cover;flex-shrink:0}
     .sr-t{font-weight:700;font-size:13px;color:#fff;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .sr-m{font-family:'Space Mono',monospace;font-size:10px;color:#6b7280}
 
     .gtag{font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:3px 7px;border:1px solid rgba(225,29,72,.3);color:#fb7185;background:rgba(225,29,72,.07);border-radius:4px;white-space:nowrap}
 
+    /* HERO */
     .hero{position:relative;height:76vh;overflow:hidden;background:#07070f}
     .hi{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.48);transition:opacity .7s ease}
     .hfb{position:absolute;bottom:0;left:0;right:0;height:80%;background:linear-gradient(to top,#07070f 8%,rgba(7,7,15,.65) 50%,transparent);pointer-events:none}
@@ -43,7 +48,7 @@
     .hm{display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:12px;color:#9ca3af;margin-bottom:12px;flex-wrap:wrap}
     .hd{font-size:14px;line-height:1.7;color:#d1d5db;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:22px;max-width:560px}
     .hbts{display:flex;gap:10px;flex-wrap:wrap}
-    .btn-r{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:11px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#e11d48,#be123c);box-shadow:0 4px 22px rgba(225,29,72,.42);border:none;cursor:pointer;transition:transform .15s,box-shadow .15s;text-decoration:none}
+    .btn-r{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:11px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#e11d48,#be123c);box-shadow:0 4px 22px rgba(225,29,72,.42);border:none;cursor:pointer;transition:transform .15s,box-shadow .15s}
     .btn-r:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(225,29,72,.55)}
     .harr{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.52);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;transition:background .2s;user-select:none}
     .harr:hover{background:rgba(225,29,72,.5)}
@@ -51,13 +56,14 @@
     .hdot{height:5px;border-radius:3px;background:rgba(255,255,255,.28);border:none;cursor:pointer;transition:width .3s,background .3s}
     .hdot.on{background:#e11d48}
 
+    /* HOME GRID */
     .gs{max-width:1400px;margin:0 auto;padding:3rem 2rem}
     .gsh{display:flex;align-items:center;gap:14px;margin-bottom:1.8rem}
     .gst{font-size:1.3rem;font-weight:900;color:#fff;letter-spacing:-.02em;white-space:nowrap}
     .gsl{flex:1;height:1px;background:linear-gradient(to right,rgba(225,29,72,.4),transparent)}
     .gsp{font-family:'Space Mono',monospace;font-size:11px;color:#4b5563}
     .agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:16px}
-    .ac{background:#0f0f1c;border-radius:13px;overflow:hidden;border:1px solid rgba(255,255,255,.05);cursor:pointer;transition:transform .22s cubic-bezier(.4,0,.2,1),box-shadow .22s}
+    .ac{background:#0f0f1c;border-radius:13px;overflow:hidden;border:1px solid rgba(255,255,255,.05);cursor:pointer;transition:transform .22s cubic-bezier(.4,0,.2,1)}
     .ac:hover{transform:translateY(-6px) scale(1.02)}
     .act{position:relative;overflow:hidden;height:238px;background:#1a1a2e}
     .acimg{width:100%;height:100%;object-fit:cover;transition:transform .4s cubic-bezier(.4,0,.2,1)}
@@ -74,77 +80,88 @@
     .sk{background:linear-gradient(90deg,#1a1a2e 25%,#22223a 50%,#1a1a2e 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:13px;height:295px}
     @keyframes shimmer{to{background-position:-200% 0}}
 
+    /* PAGINATION */
     .pag{display:flex;justify-content:center;align-items:center;gap:7px;margin-top:3rem}
     .pb{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#9ca3af;cursor:pointer;transition:background .15s,color .15s}
     .pb:hover{background:rgba(255,255,255,.12);color:#fff}
     .pb.on{background:linear-gradient(135deg,#e11d48,#be123c);border-color:transparent;color:#fff;box-shadow:0 0 16px rgba(225,29,72,.4)}
     .pb:disabled{opacity:.28;cursor:default}
 
-    /* WATCH */
+    /* WATCH PAGE */
     .wp{min-height:100vh;background:#07070f}
     .wb{display:inline-flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:12px;color:#9ca3af;background:none;border:none;cursor:pointer;padding:1rem 2rem;transition:color .15s}
     .wb:hover{color:#fff}
-    .wl{display:grid;grid-template-columns:1fr 300px;gap:0;max-width:1400px;margin:0 auto;padding:0 2rem 4rem}
+    .wl{display:grid;grid-template-columns:1fr 295px;max-width:1400px;margin:0 auto;padding:0 2rem 4rem}
 
-    .pw{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;margin-bottom:18px;box-shadow:0 8px 40px rgba(0,0,0,.7)}
-    .pif{width:100%;height:100%;border:none;display:block}
-    .ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0b0b18}
+    /* PLAYER */
+    .pw-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;margin-bottom:16px;box-shadow:0 8px 40px rgba(0,0,0,.7)}
+    .pif{position:absolute;inset:0;width:100%;height:100%;border:none;display:block}
+    .ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0a0a17;z-index:2}
     .ph-spin{width:52px;height:52px;border-radius:50%;border:3px solid rgba(225,29,72,.15);border-top-color:#e11d48;animation:spin .9s linear infinite}
-    .ph-err{width:52px;height:52px;border-radius:50%;background:rgba(225,29,72,.1);border:2px solid rgba(225,29,72,.25);display:flex;align-items:center;justify-content:center}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .ph-text{font-family:'Space Mono',monospace;font-size:12px;color:#6b7280;text-align:center;max-width:300px;line-height:1.65}
+    .ph-txt{font-family:'Space Mono',monospace;font-size:12px;color:#4b5563;text-align:center}
 
-    .slbl{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
-    .stabs{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap}
-    .stab{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#9ca3af;cursor:pointer;transition:all .15s}
-    .stab:hover{background:rgba(255,255,255,.1);color:#fff}
-    .stab.on{background:linear-gradient(135deg,#e11d48,#be123c);border-color:transparent;color:#fff;box-shadow:0 2px 14px rgba(225,29,72,.38)}
+    /* SERVER TABS */
+    .srv-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+    .srv-lbl{font-family:'Space Mono',monospace;font-size:10px;color:#4b5563;text-transform:uppercase;letter-spacing:.1em;flex-shrink:0}
+    .srv-tab{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#6b7280;cursor:pointer;transition:all .15s}
+    .srv-tab:hover{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.15)}
+    .srv-tab.on{background:linear-gradient(135deg,#e11d48,#be123c);border-color:transparent;color:#fff;box-shadow:0 2px 14px rgba(225,29,72,.38)}
+    /* Language toggle */
+    .lang-row{display:flex;gap:6px;margin-bottom:18px}
+    .lang-btn{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:5px 14px;border-radius:7px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#6b7280;cursor:pointer;transition:all .15s}
+    .lang-btn:hover{background:rgba(255,255,255,.09);color:#fff}
+    .lang-btn.on{background:rgba(225,29,72,.15);border-color:rgba(225,29,72,.35);color:#fb7185}
 
-    .ibar{background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.18);border-radius:9px;padding:9px 13px;margin-bottom:16px;font-family:'Space Mono',monospace;font-size:11px;color:#a5b4fc;line-height:1.6}
-
+    /* WATCH INFO */
     .winfo{margin-bottom:22px}
-    .wt{font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:8px;line-height:1.15}
+    .wt{font-size:1.45rem;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:8px;line-height:1.15}
     .wm{display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:11px;color:#6b7280;flex-wrap:wrap;margin-bottom:10px}
+    .ep-badge{background:rgba(225,29,72,.15);border:1px solid rgba(225,29,72,.3);color:#fb7185;padding:2px 8px;border-radius:5px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
     .wd{font-size:13.5px;line-height:1.75;color:#9ca3af;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 
+    /* DOWNLOADS */
     .dls{margin-top:24px}
-    .dlh{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
-    .dll{display:flex;flex-direction:column;gap:7px}
-    .dlr{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;gap:10px}
-    .dli{display:flex;flex-direction:column;gap:2px;min-width:0}
-    .dln{font-size:12px;font-weight:700;color:#e5e7eb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px}
-    .dlm{font-family:'Space Mono',monospace;font-size:10px;color:#6b7280}
-    .dlbs{display:flex;gap:6px;flex-shrink:0}
-    .db{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:5px 10px;border-radius:7px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;text-decoration:none;border:none}
-    .dbm{background:rgba(225,29,72,.13);color:#fb7185;border:1px solid rgba(225,29,72,.28)}
-    .dbm:hover{background:rgba(225,29,72,.24)}
-    .dbt{background:rgba(255,255,255,.06);color:#9ca3af;border:1px solid rgba(255,255,255,.1)}
-    .dbt:hover{background:rgba(255,255,255,.12);color:#fff}
-    .dle{font-family:'Space Mono',monospace;font-size:11px;color:#4b5563;padding:14px 0}
-    .dld{font-family:'Space Mono',monospace;font-size:11px;color:#4b5563;padding:14px 0;animation:blink 1.4s infinite}
-    @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+    .dlh{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+    .dll{display:flex;flex-direction:column;gap:8px}
+    .dlr{padding:11px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:11px}
+    .dl-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:5px}
+    .dl-name{font-size:12px;font-weight:700;color:#e5e7eb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:400px}
+    .dl-meta{font-family:'Space Mono',monospace;font-size:10px;color:#4b5563}
+    .dl-btns{display:flex;gap:6px;flex-shrink:0}
+    .db{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:5px 11px;border-radius:7px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;text-decoration:none;border:none}
+    .dbm{background:rgba(225,29,72,.12);color:#fb7185;border:1px solid rgba(225,29,72,.25)}
+    .dbm:hover{background:rgba(225,29,72,.22)}
+    .dbt{background:rgba(99,102,241,.1);color:#a5b4fc;border:1px solid rgba(99,102,241,.2)}
+    .dbt:hover{background:rgba(99,102,241,.2)}
+    .dl-spin{font-family:'Space Mono',monospace;font-size:11px;color:#4b5563;padding:14px 0;animation:blink 1.4s infinite}
+    .dl-none{font-family:'Space Mono',monospace;font-size:11px;color:#374151;padding:14px 0}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
+    /* EPISODE SIDEBAR */
     .eps{padding-left:20px;border-left:1px solid rgba(255,255,255,.06);position:sticky;top:72px;max-height:calc(100vh - 82px);display:flex;flex-direction:column}
     .eph{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;flex-shrink:0}
-    .epsr{font-family:'Space Mono',monospace;font-size:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#fff;padding:6px 10px;border-radius:8px;width:100%;outline:none;margin-bottom:10px;flex-shrink:0}
+    .ep-filter{font-family:'Space Mono',monospace;font-size:11px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#fff;padding:7px 10px;border-radius:8px;width:100%;outline:none;margin-bottom:10px;flex-shrink:0}
     .epl{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:5px;padding-right:4px}
     .epl::-webkit-scrollbar{width:3px}
-    .epl::-webkit-scrollbar-thumb{background:#e11d4833;border-radius:2px}
-    .epb{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.05);cursor:pointer;transition:all .15s;text-align:left;width:100%}
-    .epb:hover{background:rgba(255,255,255,.08)}
-    .epb.on{background:rgba(225,29,72,.12);border-color:rgba(225,29,72,.28)}
-    .epn{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#e11d48;min-width:32px;flex-shrink:0}
+    .epl::-webkit-scrollbar-thumb{background:#e11d4830;border-radius:2px}
+    .epb{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.04);cursor:pointer;transition:all .15s;text-align:left;width:100%}
+    .epb:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.09)}
+    .epb.on{background:rgba(225,29,72,.12);border-color:rgba(225,29,72,.25)}
+    .epn{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#e11d48;min-width:34px;flex-shrink:0}
     .epna{font-size:12px;color:#d1d5db;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
     .stars{display:inline-flex;gap:2px}
+
     @media(max-width:900px){
-      .wl{grid-template-columns:1fr}
+      .wl{grid-template-columns:1fr;padding:0 1rem 3rem}
       .eps{padding-left:0;border-left:none;border-top:1px solid rgba(255,255,255,.06);padding-top:18px;position:static;max-height:300px}
       .hc{padding:2rem 1.5rem}.hd{display:none}
       .agrid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr))}
       nav{padding:0 1rem}.si{width:160px}
-      .gs{padding:2rem 1rem}.wb{padding:.8rem 1rem}
-      .wl{padding:0 1rem 3rem}.dln{max-width:200px}
+      .gs{padding:2rem 1rem}
+      .wb{padding:.8rem 1rem}
+      .dl-name{max-width:180px}
     }
   </style>
 </head>
@@ -153,10 +170,12 @@
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
 
-// ─── AniList ──────────────────────────────────────────────────────────────────
-const AL='https://graphql.anilist.co';
+// ── AniList ───────────────────────────────────────────────────────────────────
 async function gql(q,v={}){
-  const r=await fetch(AL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,variables:v})});
+  const r=await fetch('https://graphql.anilist.co',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({query:q,variables:v})
+  });
   return r.json();
 }
 const TQ=`query($p:Int,$pp:Int){Page(page:$p,perPage:$pp){pageInfo{lastPage}media(type:ANIME,sort:TRENDING_DESC){id idMal title{romaji english}coverImage{extraLarge large color}bannerImage description(asHtml:false)averageScore episodes seasonYear genres siteUrl}}}`;
@@ -170,93 +189,85 @@ function mapA(a){
     image:a.coverImage?.extraLarge||a.coverImage?.large,
     banner:a.bannerImage,
     desc:(a.description||'').replace(/<[^>]+>/g,''),
-    rating:a.averageScore, year:a.seasonYear, eps:a.episodes,
-    genres:a.genres||[], link:a.siteUrl, color:a.coverImage?.color||'#e11d48',
+    rating:a.averageScore,year:a.seasonYear,eps:a.episodes,
+    genres:a.genres||[],color:a.coverImage?.color||'#e11d48',
   };
 }
 
-// ─── Stream servers — using anilist ID & MAL ID with proven embed providers ───
-// These providers are designed to be embedded and accept standard IDs
-function getServers(anime, ep){
-  const al  = anime.id;
-  const mal = anime.malId || anime.id;
-  const e   = ep || 1;
-  const title = encodeURIComponent(anime.romaji || anime.title);
+// ── Stream sources — all use AniList ID natively ──────────────────────────────
+// megaplay.buzz: documented public API, built for embedding, takes anilist ID
+// endpoint: /stream/ani/{anilist-id}/{ep}/{sub|dub}
+function buildSources(anilistId, ep, lang){
+  const L = lang || 'sub';
   return [
-    // anix — very reliable, uses AniList ID
-    { name:'anix',      url:`https://anix.to/embed/anime/${al}/${e}` },
-    // 9anime embed style
-    { name:'9anime',    url:`https://9anime.to/embed/${al}?ep=${e}` },
-    // aniwatch / hianime — the biggest source right now
-    { name:'hianime',   url:`https://hianime.to/watch/${title}-${al}?ep=${e}` },
-    // vidsrc — supports MAL ID
-    { name:'vidsrc',    url:`https://vidsrc.xyz/embed/anime/${mal}/${e}` },
-    // 2embed
-    { name:'2embed',    url:`https://www.2embed.cc/embedanime/${al}/${e}` },
-    // animez embed
-    { name:'animez',    url:`https://animez.org/embed?mal=${mal}&ep=${e}` },
+    // Server 1–3: megaplay (documented API, anilist-native, most reliable)
+    { url:`https://megaplay.buzz/stream/ani/${anilistId}/${ep}/${L}` },
+    { url:`https://megaplay.buzz/stream/ani/${anilistId}/${ep}/${L==='sub'?'dub':'sub'}` },
+    // Server 4–5: vidsrc (anilist-aware, designed for embedding)
+    { url:`https://vidsrc.cc/v2/embed/anime/${anilistId}/${ep}?defaultLanguage=${L}` },
+    { url:`https://vidsrc.su/embed/anime/${anilistId}/${ep}` },
+    // Server 6: vidplus (documented public API, anilist ID)
+    { url:`https://player.vidplus.to/embed/anime/${anilistId}/${ep}?dub=${L==='dub'}` },
   ];
 }
 
-// ─── Nyaa RSS — real working torrent search ───────────────────────────────────
-async function searchNyaa(anime, ep){
-  try {
-    // Build a smart query: use romaji (what uploaders use), pad ep number
-    const epStr = ep ? String(ep).padStart(2,'0') : '';
-    // Try subbed first
-    const queries = [
-      `${anime.romaji||anime.title} ${epStr}`,
-      `${anime.title} ${epStr}`,
-    ];
+// ── Nyaa torrent RSS — smart multi-strategy search ───────────────────────────
+const PROXY = 'https://api.allorigins.win/get?url=';
 
-    for(const q of queries){
-      const encoded = encodeURIComponent(q);
-      const nyaaUrl = encodeURIComponent(`https://nyaa.si/?page=rss&q=${encoded}&c=1_2&f=0`);
-      // c=1_2 = Anime - English-translated, f=0 = no filter
-      const r = await fetch(`https://api.allorigins.win/get?url=${nyaaUrl}`,{signal:AbortSignal.timeout(10000)});
-      const d = await r.json();
-      if(!d.contents) continue;
-
-      const xml = new DOMParser().parseFromString(d.contents,'text/xml');
-      const items = Array.from(xml.querySelectorAll('item'));
-      if(!items.length) continue;
-
-      const results = items.slice(0,12).map(x=>{
-        const rawLink = x.querySelector('link')?.nextSibling?.textContent?.trim()
-          || x.querySelector('link')?.textContent?.trim() || '';
-        const encUrl  = x.querySelector('enclosure')?.getAttribute('url') || '';
-        const guid    = x.querySelector('guid')?.textContent?.trim() || '';
-
-        // Nyaa guid = https://nyaa.si/view/XXXXX → torrent = .../download/XXXXX.torrent
-        const nyaaId  = guid.match(/\/view\/(\d+)/)?.[1] || '';
-        const torrent = nyaaId ? `https://nyaa.si/download/${nyaaId}.torrent` : (encUrl||rawLink);
-        const magnet  = rawLink.startsWith('magnet:') ? rawLink : '';
-
-        return {
-          name:    x.querySelector('title')?.textContent||'',
-          magnet,
-          torrent,
-          size:    x.querySelector('nyaa\\:size, [localName="size"]')?.textContent || '',
-          seeders: x.querySelector('nyaa\\:seeders, [localName="seeders"]')?.textContent || '?',
-          nyaaId,
-        };
-      }).filter(x=>x.name && (x.torrent||x.magnet));
-
-      if(results.length) return results;
-    }
-    return [];
-  }catch(err){ console.error('Nyaa error:',err); return []; }
+async function fetchNyaa(url){
+  const enc = encodeURIComponent(url);
+  const r   = await fetch(PROXY+enc, {signal:AbortSignal.timeout(12000)});
+  const d   = await r.json();
+  if(!d.contents) return [];
+  const xml  = new DOMParser().parseFromString(d.contents,'text/xml');
+  const items= Array.from(xml.querySelectorAll('item'));
+  return items.map(x=>{
+    const guid   = x.querySelector('guid')?.textContent?.trim()||'';
+    const nyaaId = guid.match(/\/view\/(\d+)/)?.[1]||'';
+    const rawLink= x.querySelector('link')?.nextSibling?.textContent?.trim()
+                 ||x.querySelector('link')?.textContent?.trim()||'';
+    return {
+      name:    x.querySelector('title')?.textContent?.trim()||'',
+      magnet:  rawLink.startsWith('magnet:')?rawLink:'',
+      torrent: nyaaId?`https://nyaa.si/download/${nyaaId}.torrent`:'',
+      size:    x.querySelector('nyaa\\:size,[localName="size"]')?.textContent||'',
+      seeders: x.querySelector('nyaa\\:seeders,[localName="seeders"]')?.textContent||'?',
+      nyaaId,
+    };
+  }).filter(x=>x.name&&(x.torrent||x.magnet));
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+async function getTorrents(anime, ep){
+  // Strategy: search with romaji + zero-padded ep, filtered to Anime-English category
+  const pad  = String(ep).padStart(2,'0');
+  const romaji = anime.romaji||anime.title;
+  // Try multiple query styles that uploaders actually use
+  const queries = [
+    `https://nyaa.si/?page=rss&q=${encodeURIComponent(romaji+' '+pad)}&c=1_2&f=0`,
+    `https://nyaa.si/?page=rss&q=${encodeURIComponent(romaji+' E'+pad)}&c=1_2&f=0`,
+    `https://nyaa.si/?page=rss&q=${encodeURIComponent(romaji+' - '+pad)}&c=1_2&f=0`,
+    `https://nyaa.si/?page=rss&q=${encodeURIComponent(romaji)}&c=1_2&f=0`,
+  ];
+  for(const url of queries){
+    try{
+      const res = await fetchNyaa(url);
+      if(res.length>0) return res.slice(0,10);
+    }catch{}
+  }
+  return [];
+}
+
+// ── Icons ─────────────────────────────────────────────────────────────────────
 function PIco({s=16}){return<svg viewBox="0 0 20 20" fill="currentColor" style={{width:s,height:s}}><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>}
+function DlIco(){return<svg viewBox="0 0 20 20" fill="currentColor" style={{width:11,height:11}}><path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"/></svg>}
+function MagIco(){return<svg viewBox="0 0 20 20" fill="currentColor" style={{width:11,height:11}}><path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v4a6 6 0 01-12 0V4zm3 8a3 3 0 006 0v-.17A5.98 5.98 0 0110 12a5.98 5.98 0 01-3-.17V12z"/></svg>}
 function Stars({s}){
   const n=Math.round(((s||0)/100)*5);
   return<span className="stars">{[1,2,3,4,5].map(i=><svg key={i} viewBox="0 0 20 20" fill="currentColor" style={{width:13,height:13,color:i<=n?'#fbbf24':'#2d2d3a'}}><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>)}</span>;
 }
 function GT({g}){return<span className="gtag">{g}</span>}
 
-// ─── Anime Card ───────────────────────────────────────────────────────────────
+// ── Anime Card ────────────────────────────────────────────────────────────────
 function ACard({a,onClick}){
   return<div className="ac" onClick={()=>onClick(a)}>
     <div className="act">
@@ -273,35 +284,47 @@ function ACard({a,onClick}){
   </div>;
 }
 
-// ─── Hero ─────────────────────────────────────────────────────────────────────
+// ── Hero ──────────────────────────────────────────────────────────────────────
 function Hero({a,onW,onPrev,onNext,idx,total}){
   const[loaded,setLoaded]=useState(false);
   useEffect(()=>setLoaded(false),[a?.id]);
   if(!a)return<div style={{height:'76vh',background:'#07070f'}}/>;
   return<div className="hero">
-    <img className="hi" key={a.id} src={a.banner||a.image} alt="" style={{opacity:loaded?1:0}} onLoad={()=>setLoaded(true)} onError={()=>setLoaded(true)}/>
-    <div style={{position:'absolute',bottom:0,left:0,right:0,height:200,pointerEvents:'none',background:`linear-gradient(to top,${a.color}40,transparent)`}}/>
+    <img className="hi" key={a.id} src={a.banner||a.image} alt="" style={{opacity:loaded?1:0}}
+      onLoad={()=>setLoaded(true)} onError={()=>setLoaded(true)}/>
+    <div style={{position:'absolute',bottom:0,left:0,right:0,height:200,pointerEvents:'none',
+      background:`linear-gradient(to top,${a.color}40,transparent)`}}/>
     <div className="hfb"/><div className="hft"/>
     <div className="hc">
       <div className="hg">{a.genres.slice(0,4).map(g=><GT key={g} g={g}/>)}</div>
       <h1 className="ht">{a.title}</h1>
-      <div className="hm"><Stars s={a.rating}/>&nbsp;<span style={{color:'#fbbf24',fontFamily:'Space Mono,monospace',fontSize:12}}>{a.rating}%</span><span>·</span><span>{a.year}</span>{a.eps&&<><span>·</span><span>{a.eps} eps</span></>}</div>
+      <div className="hm">
+        <Stars s={a.rating}/>&nbsp;
+        <span style={{color:'#fbbf24',fontFamily:'Space Mono,monospace',fontSize:12}}>{a.rating}%</span>
+        <span>·</span><span>{a.year}</span>
+        {a.eps&&<><span>·</span><span>{a.eps} eps</span></>}
+      </div>
       <p className="hd">{a.desc}</p>
-      <div className="hbts"><button className="btn-r" onClick={()=>onW(a)}><PIco s={14}/>Watch Now</button></div>
+      <div className="hbts">
+        <button className="btn-r" onClick={()=>onW(a)}><PIco s={14}/>Watch Now</button>
+      </div>
     </div>
     <button className="harr" style={{left:16}} onClick={onPrev}>&#8249;</button>
     <button className="harr" style={{right:16}} onClick={onNext}>&#8250;</button>
-    <div className="hdots">{Array.from({length:Math.min(total,10)}).map((_,i)=><button key={i} className={'hdot'+(i===idx?' on':'')} style={{width:i===idx?22:6}}/>)}</div>
+    <div className="hdots">
+      {Array.from({length:Math.min(total,10)}).map((_,i)=>
+        <button key={i} className={'hdot'+(i===idx?' on':'')} style={{width:i===idx?22:6}}/>
+      )}
+    </div>
   </div>;
 }
 
-// ─── Search ───────────────────────────────────────────────────────────────────
+// ── Search ────────────────────────────────────────────────────────────────────
 function SearchBar({onSel}){
   const[q,setQ]=useState('');
   const[res,setRes]=useState([]);
   const[open,setOpen]=useState(false);
-  const tmr=useRef(null);
-  const ref=useRef(null);
+  const tmr=useRef(null);const ref=useRef(null);
   useEffect(()=>{
     const h=e=>{if(!ref.current?.contains(e.target))setOpen(false);};
     document.addEventListener('mousedown',h);
@@ -314,91 +337,110 @@ function SearchBar({onSel}){
   },[]);
   const oc=e=>{setQ(e.target.value);clearTimeout(tmr.current);tmr.current=setTimeout(()=>run(e.target.value),370);};
   return<div className="sw" ref={ref}>
-    <svg className="sico" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-    <input className="si" value={q} onChange={oc} placeholder="Search anime…" onFocus={()=>res.length&&setOpen(true)}/>
-    {open&&res.length>0&&<div className="sdrop">{res.map(a=><div key={a.id} className="srow" onClick={()=>{onSel(a);setOpen(false);setQ('');}}>
-      <img src={a.image} alt={a.title} onError={e=>e.target.style.display='none'}/>
-      <div style={{minWidth:0}}><div className="sr-t">{a.title}</div><div className="sr-m">{a.year} · {a.eps||'?'} eps</div></div>
-    </div>)}</div>}
+    <svg className="sico" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+    </svg>
+    <input className="si" value={q} onChange={oc} placeholder="Search anime…"
+      onFocus={()=>res.length&&setOpen(true)}/>
+    {open&&res.length>0&&<div className="sdrop">
+      {res.map(a=><div key={a.id} className="srow" onClick={()=>{onSel(a);setOpen(false);setQ('');}}>
+        <img src={a.image} alt={a.title} onError={e=>e.target.style.display='none'}/>
+        <div style={{minWidth:0}}>
+          <div className="sr-t">{a.title}</div>
+          <div className="sr-m">{a.year} · {a.eps||'?'} eps</div>
+        </div>
+      </div>)}
+    </div>}
   </div>;
 }
 
-// ─── Download row ─────────────────────────────────────────────────────────────
+// ── Download row ──────────────────────────────────────────────────────────────
 function DRow({item}){
   const q   = item.name.match(/1080|720|480|360/)?.[0]||'';
   const grp = item.name.match(/^\[([^\]]+)\]/)?.[1]||'';
-  const hasMag = item.magnet && item.magnet.startsWith('magnet:');
-  const hasTor = item.torrent && item.torrent.length > 10;
+  const isVid= /\.(mkv|mp4|avi)/i.test(item.name);
   return<div className="dlr">
-    <div className="dli">
-      <div className="dln" title={item.name}>{item.name.replace(/\.[^.]+$/,'').slice(0,70)}</div>
-      <div className="dlm">{[grp,q&&`${q}p`,item.size,`${item.seeders} seeds`].filter(Boolean).join(' · ')}</div>
+    <div className="dl-top">
+      <div className="dl-name" title={item.name}>
+        {item.name.replace(/\.[^.]+$/,'').slice(0,68)}
+      </div>
+      <div className="dl-btns">
+        {item.torrent&&<a href={item.torrent} className="db dbt" target="_blank" rel="noreferrer">
+          <DlIco/> Download
+        </a>}
+        {item.magnet&&item.magnet.startsWith('magnet:')&&<a href={item.magnet} className="db dbm">
+          <MagIco/> Magnet
+        </a>}
+      </div>
     </div>
-    <div className="dlbs">
-      {hasMag&&<a href={item.magnet} className="db dbm">
-        <svg viewBox="0 0 20 20" fill="currentColor" style={{width:11,height:11}}><path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v4a6 6 0 01-12 0V4zm3 8a3 3 0 006 0v-.17A5.98 5.98 0 0110 12a5.98 5.98 0 01-3-.17V12z"/></svg>
-        Magnet
-      </a>}
-      {hasTor&&<a href={item.torrent} className="db dbt" target="_blank" rel="noreferrer">
-        <svg viewBox="0 0 20 20" fill="currentColor" style={{width:11,height:11}}><path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"/></svg>
-        .torrent
-      </a>}
-      <a href={`https://nyaa.si/?f=0&c=1_2&q=${encodeURIComponent(item.name.split(' ').slice(0,4).join(' '))}`} target="_blank" rel="noreferrer" className="db dbt">
-        nyaa ↗
-      </a>
+    <div className="dl-meta">
+      {[grp, q&&`${q}p`, item.size, `${item.seeders} seeders`].filter(Boolean).join('  ·  ')}
     </div>
   </div>;
 }
 
-// ─── Watch Page ───────────────────────────────────────────────────────────────
+// ── Watch Page ────────────────────────────────────────────────────────────────
 function WatchPage({anime,onBack}){
-  const totalEps = anime.eps || 24;
+  const totalEps = anime.eps||24;
   const epList   = Array.from({length:totalEps},(_,i)=>i+1);
-  const [epFilter,  setEpFilter]  = useState('');
-  const [curEp,     setCurEp]     = useState(1);
-  const [servers,   setServers]   = useState([]);
-  const [srvIdx,    setSrvIdx]    = useState(0);
-  const [ifKey,     setIfKey]     = useState(0);
-  const [status,    setStatus]    = useState('loading'); // loading | playing | error
-  const [torrents,  setTorrents]  = useState([]);
-  const [torLoad,   setTorLoad]   = useState(false);
+  const [curEp,    setCurEp]    = useState(1);
+  const [lang,     setLang]     = useState('sub');
+  const [srvIdx,   setSrvIdx]   = useState(0);
+  const [sources,  setSources]  = useState([]);
+  const [ifKey,    setIfKey]    = useState(0);
+  const [loading,  setLoading]  = useState(true);
+  const [torrents, setTorrents] = useState([]);
+  const [torLoad,  setTorLoad]  = useState(false);
+  const [epFilter, setEpFilter] = useState('');
 
-  const loadEp = useCallback(async(ep)=>{
+  // Rebuild sources whenever ep or lang changes
+  const loadEp = useCallback((ep, lng)=>{
+    const L   = lng||lang;
+    const src = buildSources(anime.id, ep, L);
+    setSources(src);
+    setSrvIdx(0);
+    setIfKey(k=>k+1);
+    setLoading(true);
     setCurEp(ep);
-    const s=getServers(anime,ep);
-    setServers(s);setSrvIdx(0);setIfKey(k=>k+1);setStatus('loading');
-    // torrents
-    setTorLoad(true);setTorrents([]);
-    const res=await searchNyaa(anime,ep);
-    setTorrents(res);setTorLoad(false);
-  },[anime]);
+    // Fetch torrents
+    setTorLoad(true);
+    setTorrents([]);
+    getTorrents(anime,ep).then(res=>{setTorrents(res);setTorLoad(false);});
+  },[anime.id,lang]);
 
-  useEffect(()=>{ loadEp(1); },[loadEp]);
+  useEffect(()=>{ loadEp(1,'sub'); },[]);
 
-  const switchSrv=i=>{setSrvIdx(i);setIfKey(k=>k+1);setStatus('loading');};
+  const switchSrv = i=>{ setSrvIdx(i); setIfKey(k=>k+1); setLoading(true); };
+  const switchLang= l=>{ setLang(l); loadEp(curEp,l); };
 
-  const filtered=epFilter?epList.filter(n=>String(n).includes(epFilter)):epList;
-  const src=servers[srvIdx]?.url||'';
+  const filtered = epFilter
+    ? epList.filter(n=>String(n).includes(epFilter.trim()))
+    : epList;
+
+  const src = sources[srvIdx]?.url||'';
 
   return<div className="wp">
     <nav>
       <div className="logo" onClick={onBack}>
         <div className="logo-icon"><PIco s={14}/></div>
-        <span className="logo-text">just<span>stream</span>anime</span>
+        <span className="logo-text">just<em>stream</em>anime</span>
       </div>
     </nav>
+
     <button className="wb" onClick={onBack}>
-      <svg viewBox="0 0 20 20" fill="currentColor" style={{width:14,height:14}}><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"/></svg>
-      Back to Browse
+      <svg viewBox="0 0 20 20" fill="currentColor" style={{width:14,height:14}}>
+        <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"/>
+      </svg>
+      Back
     </button>
 
     <div className="wl">
-      {/* LEFT */}
+      {/* ── LEFT COLUMN ── */}
       <div>
         {/* PLAYER */}
-        <div className="pw">
-          {status==='loading'&&<div className="ph"><div className="ph-spin"/><p className="ph-text">Loading stream…</p></div>}
-          {src&&<iframe
+        <div className="pw-wrap">
+          {loading&&<div className="ph"><div className="ph-spin"/><p className="ph-txt">Loading…</p></div>}
+          <iframe
             key={ifKey}
             className="pif"
             src={src}
@@ -406,70 +448,79 @@ function WatchPage({anime,onBack}){
             allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
             referrerPolicy="no-referrer"
             scrolling="no"
-            onLoad={()=>setStatus('playing')}
-            onError={()=>setStatus('error')}
-            style={{position:'absolute',inset:0,width:'100%',height:'100%'}}
-          />}
+            onLoad={()=>setLoading(false)}
+          />
         </div>
 
-        {/* SERVERS */}
-        <div className="slbl">Servers — switch if video is black or not loading</div>
-        <div className="stabs">
-          {servers.map((s,i)=><button key={i} className={'stab'+(srvIdx===i?' on':'')} onClick={()=>switchSrv(i)}>
-            {s.name}
-          </button>)}
+        {/* LANGUAGE */}
+        <div className="lang-row">
+          {['sub','dub'].map(l=>
+            <button key={l} className={'lang-btn'+(lang===l?' on':'')} onClick={()=>switchLang(l)}>
+              {l==='sub'?'Subbed':'Dubbed'}
+            </button>
+          )}
         </div>
 
-        <div className="ibar">
-          💡 <b>How to use:</b> Click each server until one plays. Some servers need a few seconds to load. If you see a black screen, wait 5s then try the next. For offline viewing, grab a torrent below.
+        {/* SERVER TABS — numbered only, no source names exposed */}
+        <div className="srv-row">
+          <span className="srv-lbl">Server</span>
+          {sources.map((_,i)=>
+            <button key={i} className={'srv-tab'+(srvIdx===i?' on':'')} onClick={()=>switchSrv(i)}>
+              {i+1}
+            </button>
+          )}
         </div>
 
-        {/* INFO */}
+        {/* ANIME INFO */}
         <div className="winfo">
           <h1 className="wt">{anime.title}</h1>
           <div className="wm">
             <Stars s={anime.rating}/>&nbsp;
-            <span>{anime.rating}%</span><span>·</span><span>{anime.year}</span>
+            <span>{anime.rating}%</span>
+            <span>·</span><span>{anime.year}</span>
             {anime.eps&&<><span>·</span><span>{anime.eps} eps</span></>}
-            <span>·</span><span style={{color:'#e11d48',fontWeight:700}}>EP {curEp}</span>
+            <span className="ep-badge">EP {curEp}</span>
           </div>
-          <div className="acgs" style={{marginBottom:10}}>{anime.genres.slice(0,5).map(g=><GT key={g} g={g}/>)}</div>
+          <div className="acgs" style={{marginBottom:10}}>
+            {anime.genres.slice(0,5).map(g=><GT key={g} g={g}/>)}
+          </div>
           <p className="wd">{anime.desc}</p>
         </div>
 
         {/* DOWNLOADS */}
         <div className="dls">
-          <div className="dlh">⬇ Episode {curEp} — Torrent Downloads (Nyaa.si)</div>
-          {torLoad&&<div className="dld">Searching Nyaa.si for "{anime.romaji||anime.title}" EP{String(curEp).padStart(2,'0')}…</div>}
-          {!torLoad&&torrents.length===0&&<div className="dle">
-            No torrents matched automatically.&nbsp;
-            <a href={`https://nyaa.si/?f=0&c=1_2&q=${encodeURIComponent((anime.romaji||anime.title)+' '+String(curEp).padStart(2,'0'))}`}
-               target="_blank" rel="noreferrer" style={{color:'#fb7185',textDecoration:'underline'}}>
-              Search Nyaa.si manually ↗
-            </a>
-          </div>}
-          {!torLoad&&torrents.length>0&&<div className="dll">{torrents.map((t,i)=><DRow key={i} item={t}/>)}</div>}
+          <div className="dlh">Download — Episode {curEp}</div>
+          {torLoad&&<div className="dl-spin">Finding download links…</div>}
+          {!torLoad&&torrents.length===0&&
+            <div className="dl-none">No download links found for this episode.</div>
+          }
+          {!torLoad&&torrents.length>0&&
+            <div className="dll">{torrents.map((t,i)=><DRow key={i} item={t}/>)}</div>
+          }
         </div>
       </div>
 
-      {/* SIDEBAR */}
+      {/* ── SIDEBAR ── */}
       <div className="eps">
         <div className="eph">Episodes ({totalEps})</div>
-        <input className="epsr" type="number" min="1" max={totalEps}
-          placeholder={`Jump to ep (1–${totalEps})`}
-          value={epFilter} onChange={e=>setEpFilter(e.target.value)}/>
+        <input className="ep-filter" type="number" min="1" max={totalEps}
+          placeholder={`Go to ep…`}
+          value={epFilter}
+          onChange={e=>setEpFilter(e.target.value)}/>
         <div className="epl">
-          {filtered.map(n=><button key={n} className={'epb'+(curEp===n?' on':'')} onClick={()=>loadEp(n)}>
-            <span className="epn">EP{n}</span>
-            <span className="epna">Episode {n}</span>
-          </button>)}
+          {filtered.map(n=>
+            <button key={n} className={'epb'+(curEp===n?' on':'')} onClick={()=>loadEp(n,lang)}>
+              <span className="epn">EP {n}</span>
+              <span className="epna">Episode {n}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
   </div>;
 }
 
-// ─── Main App ─────────────────────────────────────────────────────────────────
+// ── Main App ──────────────────────────────────────────────────────────────────
 function App(){
   const[view,setView]   =useState('home');
   const[watching,setW]  =useState(null);
@@ -491,31 +542,35 @@ function App(){
   useEffect(()=>{load(page);},[page,load]);
   useEffect(()=>{
     clearInterval(iv.current);
-    if(anime.length&&view==='home') iv.current=setInterval(()=>setHi(i=>(i+1)%Math.min(anime.length,10)),9000);
+    if(anime.length&&view==='home')
+      iv.current=setInterval(()=>setHi(i=>(i+1)%Math.min(anime.length,10)),9000);
     return()=>clearInterval(iv.current);
   },[anime,view]);
 
-  const openW=a=>{setW(a);setView('watch');window.scrollTo({top:0});};
-  const goHome=()=>{setView('home');setW(null);};
-  const hMax=Math.min(anime.length,10);
+  const openW =a=>{setW(a);setView('watch');window.scrollTo({top:0});};
+  const goHome= ()=>{setView('home');setW(null);};
+  const hMax  =Math.min(anime.length,10);
   const ps=[];const s=Math.max(1,page-2),e2=Math.min(totalPg,s+4);
   for(let i=s;i<=e2;i++)ps.push(i);
   const chPg=p=>{setPage(p);window.scrollTo({top:0,behavior:'smooth'});};
 
-  if(view==='watch'&&watching)return<WatchPage anime={watching} onBack={goHome}/>;
+  if(view==='watch'&&watching)
+    return<WatchPage anime={watching} onBack={goHome}/>;
 
   return<>
     <nav>
       <div className="logo" onClick={goHome}>
         <div className="logo-icon"><PIco s={14}/></div>
-        <span className="logo-text">just<span>stream</span>anime</span>
+        <span className="logo-text">just<em>stream</em>anime</span>
       </div>
       <SearchBar onSel={openW}/>
     </nav>
+
     <Hero a={anime[hi]||null} onW={openW}
       onPrev={()=>setHi(i=>(i-1+hMax)%hMax)}
       onNext={()=>setHi(i=>(i+1)%hMax)}
       idx={hi} total={hMax}/>
+
     <section className="gs">
       <div className="gsh">
         <h2 className="gst">Trending Now</h2>
@@ -524,7 +579,8 @@ function App(){
       </div>
       {loading
         ?<div className="agrid">{Array(20).fill(0).map((_,i)=><div key={i} className="sk"/>)}</div>
-        :<div className="agrid">{anime.map(a=><ACard key={a.id} a={a} onClick={openW}/>)}</div>}
+        :<div className="agrid">{anime.map(a=><ACard key={a.id} a={a} onClick={openW}/>)}</div>
+      }
       <div className="pag">
         <button className="pb" disabled={page===1} onClick={()=>chPg(page-1)}>‹</button>
         {ps.map(p=><button key={p} className={'pb'+(p===page?' on':'')} onClick={()=>chPg(p)}>{p}</button>)}
