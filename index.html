@@ -14,12 +14,14 @@
     body{font-family:'DM Sans',sans-serif;background:#07070f;color:#fff;min-height:100vh;overflow-x:hidden}
     ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#07070f}::-webkit-scrollbar-thumb{background:#e11d4855;border-radius:3px}
 
-    nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:62px;background:rgba(7,7,15,.96);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07);gap:1rem}
+    /* NAV */
+    nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:62px;background:rgba(7,7,15,.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07);gap:1rem}
     .logo{display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0}
     .logo-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#e11d48,#9f1239);display:flex;align-items:center;justify-content:center}
     .logo-text{font-size:1.1rem;font-weight:900;color:#fff;letter-spacing:-.02em}
     .logo-text em{color:#e11d48;font-style:normal}
 
+    /* SEARCH */
     .sw{position:relative}
     .si{font-family:'Space Mono',monospace;font-size:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;padding:8px 12px 8px 36px;border-radius:10px;width:220px;outline:none;transition:border-color .2s,background .2s}
     .si:focus{border-color:rgba(225,29,72,.5);background:rgba(255,255,255,.09)}
@@ -33,6 +35,7 @@
 
     .gtag{font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:3px 7px;border:1px solid rgba(225,29,72,.3);color:#fb7185;background:rgba(225,29,72,.07);border-radius:4px;white-space:nowrap}
 
+    /* HERO */
     .hero{position:relative;height:76vh;overflow:hidden;background:#07070f}
     .hi{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.46);transition:opacity .7s ease}
     .hfb{position:absolute;bottom:0;left:0;right:0;height:80%;background:linear-gradient(to top,#07070f 8%,rgba(7,7,15,.65) 50%,transparent);pointer-events:none}
@@ -45,14 +48,15 @@
     .hbts{display:flex;gap:10px;flex-wrap:wrap}
     .btn-r{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:11px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#e11d48,#be123c);box-shadow:0 4px 22px rgba(225,29,72,.42);border:none;cursor:pointer;transition:transform .15s,box-shadow .15s}
     .btn-r:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(225,29,72,.55)}
-    .btn-ghost{display:inline-flex;align-items:center;gap:7px;padding:12px 20px;border-radius:11px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);cursor:pointer;transition:background .15s}
-    .btn-ghost:hover{background:rgba(255,255,255,.14)}
+    .btn-ghost{display:inline-flex;align-items:center;gap:7px;padding:12px 20px;border-radius:11px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);cursor:pointer;transition:background .15s}
+    .btn-ghost:hover{background:rgba(255,255,255,.16)}
     .harr{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.52);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;transition:background .2s;user-select:none}
     .harr:hover{background:rgba(225,29,72,.5)}
     .hdots{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:10}
     .hdot{height:5px;border-radius:3px;background:rgba(255,255,255,.28);border:none;cursor:pointer;transition:width .3s,background .3s}
     .hdot.on{background:#e11d48}
 
+    /* HOME GRID */
     .gs{max-width:1400px;margin:0 auto;padding:3rem 2rem}
     .gsh{display:flex;align-items:center;gap:14px;margin-bottom:1.8rem}
     .gst{font-size:1.3rem;font-weight:900;color:#fff;letter-spacing:-.02em;white-space:nowrap}
@@ -76,53 +80,54 @@
     .sk{background:linear-gradient(90deg,#1a1a2e 25%,#22223a 50%,#1a1a2e 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:13px;height:295px}
     @keyframes shimmer{to{background-position:-200% 0}}
 
+    /* PAGINATION */
     .pag{display:flex;justify-content:center;align-items:center;gap:7px;margin-top:3rem}
     .pb{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#9ca3af;cursor:pointer;transition:background .15s,color .15s}
     .pb:hover{background:rgba(255,255,255,.12);color:#fff}
     .pb.on{background:linear-gradient(135deg,#e11d48,#be123c);border-color:transparent;color:#fff;box-shadow:0 0 16px rgba(225,29,72,.4)}
     .pb:disabled{opacity:.28;cursor:default}
 
-    /* WATCH */
+    /* WATCH PAGE */
     .wp{min-height:100vh;background:#07070f}
     .wb{display:inline-flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:12px;color:#9ca3af;background:none;border:none;cursor:pointer;padding:1rem 2rem;transition:color .15s}
     .wb:hover{color:#fff}
     .wl{display:grid;grid-template-columns:1fr 295px;max-width:1400px;margin:0 auto;padding:0 2rem 4rem}
 
+    /* PLAYER */
     .pw-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;margin-bottom:14px;box-shadow:0 8px 40px rgba(0,0,0,.7)}
     .pif{position:absolute;inset:0;width:100%;height:100%;border:none;display:block}
     .ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0a0a17;z-index:2;pointer-events:none}
     .ph-spin{width:52px;height:52px;border-radius:50%;border:3px solid rgba(225,29,72,.15);border-top-color:#e11d48;animation:spin .9s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .ph-txt{font-family:'Space Mono',monospace;font-size:12px;color:#4b5563;text-align:center;max-width:260px;line-height:1.6}
+    .ph-txt{font-family:'Space Mono',monospace;font-size:11px;color:#4b5563;text-align:center;max-width:260px;line-height:1.6}
 
-    .view-tabs{display:flex;gap:6px;margin-bottom:12px}
+    /* VIEW TABS */
+    .vtabs{display:flex;gap:6px;margin-bottom:12px}
     .vtab{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:7px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#6b7280;cursor:pointer;transition:all .15s}
     .vtab:hover{background:rgba(255,255,255,.1);color:#fff}
     .vtab.on{background:linear-gradient(135deg,#e11d48,#be123c);border-color:transparent;color:#fff;box-shadow:0 2px 14px rgba(225,29,72,.35)}
 
-    .srv-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-    .srv-lbl{font-family:'Space Mono',monospace;font-size:10px;color:#374151;text-transform:uppercase;letter-spacing:.1em;flex-shrink:0}
-    .srv-tab{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#6b7280;cursor:pointer;transition:all .15s}
-    .srv-tab:hover{background:rgba(255,255,255,.1);color:#fff}
-    .srv-tab.on{background:linear-gradient(135deg,#e11d48,#be123c);border-color:transparent;color:#fff;box-shadow:0 2px 14px rgba(225,29,72,.35)}
+    /* SERVER TABS */
+    .srv-wrap{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+    .srv-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .srv-label{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:.1em}
+    .lang-toggle{display:flex;gap:5px}
+    .ltbtn{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#6b7280;cursor:pointer;transition:all .15s}
+    .ltbtn:hover{background:rgba(255,255,255,.09);color:#fff}
+    .ltbtn.on{background:rgba(225,29,72,.18);border-color:rgba(225,29,72,.4);color:#fb7185}
+    .srv-grid{display:flex;flex-wrap:wrap;gap:6px}
+    .stab{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:6px 13px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#6b7280;cursor:pointer;transition:all .15s}
+    .stab:hover{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.15)}
+    .stab.on{background:linear-gradient(135deg,#e11d48,#be123c);border-color:transparent;color:#fff;box-shadow:0 2px 12px rgba(225,29,72,.35)}
 
-    .lang-row{display:flex;gap:6px;margin-bottom:14px;align-items:center}
-    .lang-lbl{font-family:'Space Mono',monospace;font-size:10px;color:#374151;text-transform:uppercase;letter-spacing:.1em}
-    .lbtn{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:5px 14px;border-radius:7px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#6b7280;cursor:pointer;transition:all .15s}
-    .lbtn:hover{background:rgba(255,255,255,.09);color:#fff}
-    .lbtn.on{background:rgba(225,29,72,.15);border-color:rgba(225,29,72,.35);color:#fb7185}
-
-    .status-bar{font-family:'Space Mono',monospace;font-size:10px;color:#374151;margin-bottom:14px;padding:7px 12px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid rgba(255,255,255,.05)}
-    .status-bar.ok{color:#6ee7b7;border-color:rgba(110,231,183,.15);background:rgba(110,231,183,.05)}
-    .status-bar.err{color:#fca5a5;border-color:rgba(252,165,165,.15);background:rgba(252,165,165,.05)}
-    .status-bar.load{color:#a5b4fc;border-color:rgba(165,180,252,.15);background:rgba(165,180,252,.05)}
-
+    /* WATCH INFO */
     .winfo{margin-bottom:22px}
     .wt{font-size:1.45rem;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:8px;line-height:1.15}
     .wm{display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:11px;color:#6b7280;flex-wrap:wrap;margin-bottom:10px}
     .ep-badge{background:rgba(225,29,72,.15);border:1px solid rgba(225,29,72,.3);color:#fb7185;padding:2px 8px;border-radius:5px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
     .wd{font-size:13.5px;line-height:1.75;color:#9ca3af;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 
+    /* DOWNLOADS */
     .dls{margin-top:24px}
     .dlh{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
     .dll{display:flex;flex-direction:column;gap:8px}
@@ -140,6 +145,7 @@
     .dl-none{font-family:'Space Mono',monospace;font-size:11px;color:#374151;padding:14px 0}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
+    /* EPISODE SIDEBAR */
     .eps{padding-left:20px;border-left:1px solid rgba(255,255,255,.06);position:sticky;top:72px;max-height:calc(100vh - 82px);display:flex;flex-direction:column}
     .eph{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;flex-shrink:0}
     .ep-filter{font-family:'Space Mono',monospace;font-size:11px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#fff;padding:7px 10px;border-radius:8px;width:100%;outline:none;margin-bottom:10px;flex-shrink:0}
@@ -169,29 +175,31 @@
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
 
-// ── CONFIG ────────────────────────────────────────────────────────────────────
-// Consumet public instances — we try each until one responds
-const CONSUMET = [
-  'https://consumet-api.onrender.com',
-  'https://api.consumet.org',
-  'https://consumet.netlify.app',
-];
-const JIKAN  = 'https://api.jikan.moe/v4';
-const PROXY  = 'https://api.allorigins.win/get?url=';
-
-// ── AniList ───────────────────────────────────────────────────────────────────
-async function gql(q,v={}){
-  const r=await fetch('https://graphql.anilist.co',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({query:q,variables:v})
+// ── AniList GraphQL ───────────────────────────────────────────────────────────
+async function gql(q, v={}){
+  const r = await fetch('https://graphql.anilist.co', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({query:q, variables:v})
   });
   return r.json();
 }
-const TQ=`query($p:Int,$pp:Int){Page(page:$p,perPage:$pp){pageInfo{lastPage}media(type:ANIME,sort:TRENDING_DESC){id idMal title{romaji english}coverImage{extraLarge large color}bannerImage description(asHtml:false)averageScore episodes seasonYear genres siteUrl}}}`;
-const SQ=`query($s:String){Page(perPage:12){media(search:$s,type:ANIME){id idMal title{romaji english}coverImage{extraLarge large color}bannerImage description(asHtml:false)averageScore episodes seasonYear genres siteUrl}}}`;
+
+// Include trailer field — AniList has it natively
+const TQ = `query($p:Int,$pp:Int){Page(page:$p,perPage:$pp){pageInfo{lastPage}media(type:ANIME,sort:TRENDING_DESC){id idMal title{romaji english}coverImage{extraLarge large color}bannerImage description(asHtml:false)averageScore episodes seasonYear genres siteUrl trailer{id site}}}}`;
+const SQ = `query($s:String){Page(perPage:12){media(search:$s,type:ANIME){id idMal title{romaji english}coverImage{extraLarge large color}bannerImage description(asHtml:false)averageScore episodes seasonYear genres siteUrl trailer{id site}}}}`;
 
 function mapA(a){
-  return{
+  // Build trailer URL — fix Error 153 by using youtube-nocookie + strict referrer
+  let trailerUrl = null;
+  if(a.trailer?.id){
+    if(a.trailer.site==='youtube'){
+      // youtube-nocookie with NO referrer stripping — this is the exact fix for Error 153
+      trailerUrl = `https://www.youtube-nocookie.com/embed/${a.trailer.id}?rel=0&modestbranding=1`;
+    } else if(a.trailer.site==='dailymotion'){
+      trailerUrl = `https://www.dailymotion.com/embed/video/${a.trailer.id}`;
+    }
+  }
+  return {
     id:a.id, malId:a.idMal,
     title:a.title?.english||a.title?.romaji||'Unknown',
     romaji:a.title?.romaji||'',
@@ -200,120 +208,70 @@ function mapA(a){
     desc:(a.description||'').replace(/<[^>]+>/g,''),
     rating:a.averageScore, year:a.seasonYear, eps:a.episodes,
     genres:a.genres||[], color:a.coverImage?.color||'#e11d48',
+    trailerUrl,
   };
 }
 
-// ── Jikan trailer (MAL, returns proper embeddable URL) ────────────────────────
-async function getTrailer(malId){
-  if(!malId) return null;
-  try{
-    const r=await fetch(`${JIKAN}/anime/${malId}`,{signal:AbortSignal.timeout(8000)});
-    const d=await r.json();
-    // Jikan returns trailer.embed_url which is youtube-nocookie embed — works without Error 153
-    const embed=d?.data?.trailer?.embed_url;
-    if(embed) return embed+'&autoplay=0';
-    // fallback: build from youtube_id
-    const ytId=d?.data?.trailer?.youtube_id;
-    if(ytId) return `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=0&rel=0`;
-    return null;
-  }catch{ return null; }
+// ── VidNest Servers ───────────────────────────────────────────────────────────
+// VidNest accepts AniList ID directly. Multiple internal servers available.
+// Two embed types: /anime/ (main) and /animepahe/ (animepahe source)
+// Internal servers: lamda, primesrc, sigma, alfa, beta, gama, catflix, hexa, delta
+const VIDNEST_SERVERS = ['lamda','primesrc','sigma','alfa','beta','gama','catflix','hexa','delta'];
+
+function buildServers(anilistId, ep, lang){
+  const e = ep || 1;
+  const L = lang === 'dub' ? 'dub' : 'sub';
+  // Build VidNest URLs with different internal servers
+  // Each numbered button switches the ?server= param — same clean player, different CDN
+  return VIDNEST_SERVERS.map((srv, i) => ({
+    label: `${i+1}`,
+    url: `https://vidnest.fun/anime/${anilistId}/${e}/${L}?server=${srv}`,
+  })).concat([
+    // AnimePahe source as extra servers (10, 11)
+    { label:'10', url:`https://vidnest.fun/animepahe/${anilistId}/${e}/${L}` },
+    // MegaPlay as final fallback (11)
+    { label:'11', url:`https://megaplay.buzz/stream/ani/${anilistId}/${e}/${L}` },
+  ]);
 }
 
-// ── Consumet: search gogoanime by title, returns episode IDs ──────────────────
-async function gogoSearch(title){
-  const slug = encodeURIComponent(title);
-  for(const host of CONSUMET){
-    try{
-      const r=await fetch(`${host}/anime/gogoanime/${slug}`,{signal:AbortSignal.timeout(7000)});
-      if(!r.ok) continue;
-      const d=await r.json();
-      if(d?.results?.length) return d.results;
-    }catch{}
-  }
-  return [];
-}
+// ── Nyaa torrent RSS — multi-strategy search ──────────────────────────────────
+const PROXY = 'https://api.allorigins.win/get?url=';
 
-// ── Consumet: get episode list for a gogoanime series ID ──────────────────────
-async function gogoEpisodes(gogoId){
-  for(const host of CONSUMET){
-    try{
-      const r=await fetch(`${host}/anime/gogoanime/info/${encodeURIComponent(gogoId)}`,{signal:AbortSignal.timeout(8000)});
-      if(!r.ok) continue;
-      const d=await r.json();
-      if(d?.episodes?.length) return d.episodes;
-    }catch{}
-  }
-  return [];
-}
-
-// ── Consumet: get streaming sources for an episode ────────────────────────────
-// Returns {sources:[{url,quality}], headers:{Referer}, download}
-async function gogoSources(episodeId){
-  for(const host of CONSUMET){
-    try{
-      const r=await fetch(`${host}/anime/gogoanime/watch/${encodeURIComponent(episodeId)}`,{signal:AbortSignal.timeout(10000)});
-      if(!r.ok) continue;
-      const d=await r.json();
-      if(d?.sources?.length||d?.headers) return d;
-    }catch{}
-  }
-  return null;
-}
-
-// ── Build embed servers from gogoanime episode data ───────────────────────────
-// s3taku.com is gogoanime's actual CDN — embed directly using the episode id
-function buildStreamSrcs(gogoEpId, fallbackAnimeId, ep){
-  // s3taku is the vidstreaming/vidcdn backend gogoanime uses
-  // encode the episode id to base64 to get the streaming id
-  const encId = btoa(gogoEpId||'');
-  const al = fallbackAnimeId;
-  const e  = ep||1;
-  return [
-    // Server 1–2: s3taku (gogoanime's own CDN embed — no ads, just the player)
-    `https://s3taku.com/streaming.php?id=${encodeURIComponent(gogoEpId||'')}`,
-    `https://s3taku.com/embedplus?id=${encodeURIComponent(gogoEpId||'')}`,
-    // Server 3: megaplay (documented AniList embed API)
-    `https://megaplay.buzz/stream/ani/${al}/${e}/sub`,
-    // Server 4: megaplay dub
-    `https://megaplay.buzz/stream/ani/${al}/${e}/dub`,
-    // Server 5–6: vidsrc (AniList-aware, no ads)
-    `https://vidsrc.cc/v2/embed/anime/${al}/${e}`,
-    `https://vidsrc.su/embed/anime/${al}/${e}`,
-  ];
-}
-
-// ── Nyaa RSS torrent search ───────────────────────────────────────────────────
 async function fetchRSS(url){
-  const r=await fetch(PROXY+encodeURIComponent(url),{signal:AbortSignal.timeout(12000)});
-  const d=await r.json();
+  const r = await fetch(PROXY+encodeURIComponent(url), {signal:AbortSignal.timeout(12000)});
+  const d = await r.json();
   if(!d?.contents) return [];
-  const xml=new DOMParser().parseFromString(d.contents,'text/xml');
-  return Array.from(xml.querySelectorAll('item')).slice(0,10).map(x=>{
-    const guid=x.querySelector('guid')?.textContent?.trim()||'';
-    const nyaaId=guid.match(/\/view\/(\d+)/)?.[1]||'';
-    const rawLink=x.querySelector('link')?.nextSibling?.textContent?.trim()
-               ||x.querySelector('link')?.textContent?.trim()||'';
-    return{
-      name:x.querySelector('title')?.textContent?.trim()||'',
-      magnet:rawLink.startsWith('magnet:')?rawLink:'',
-      torrent:nyaaId?`https://nyaa.si/download/${nyaaId}.torrent`:'',
-      size:x.querySelector('nyaa\\:size,[localName="size"]')?.textContent||'',
-      seeds:x.querySelector('nyaa\\:seeders,[localName="seeders"]')?.textContent||'?',
+  const xml   = new DOMParser().parseFromString(d.contents,'text/xml');
+  const items = Array.from(xml.querySelectorAll('item'));
+  return items.slice(0,12).map(x=>{
+    const guid   = x.querySelector('guid')?.textContent?.trim()||'';
+    const nyaaId = guid.match(/\/view\/(\d+)/)?.[1]||'';
+    const link   = x.querySelector('link')?.nextSibling?.textContent?.trim()
+                 ||x.querySelector('link')?.textContent?.trim()||'';
+    return {
+      name:    x.querySelector('title')?.textContent?.trim()||'',
+      magnet:  link.startsWith('magnet:')?link:'',
+      torrent: nyaaId?`https://nyaa.si/download/${nyaaId}.torrent`:'',
+      size:    x.querySelector('nyaa\\:size,[localName="size"]')?.textContent||'',
+      seeds:   x.querySelector('nyaa\\:seeders,[localName="seeders"]')?.textContent||'?',
     };
   }).filter(x=>x.name&&(x.torrent||x.magnet));
 }
 
-async function getTorrents(anime,ep){
-  const pad=String(ep).padStart(2,'0');
-  const rom=anime.romaji||anime.title;
-  const queries=[
+async function getTorrents(anime, ep){
+  const pad = String(ep).padStart(2,'0');
+  const rom = anime.romaji||anime.title;
+  const queries = [
     `https://nyaa.si/?page=rss&q=${encodeURIComponent(rom+' '+pad)}&c=1_2&f=0`,
     `https://nyaa.si/?page=rss&q=${encodeURIComponent(rom+' - '+pad)}&c=1_2&f=0`,
-    `https://nyaa.si/?page=rss&q=${encodeURIComponent(rom)}&c=1_2&f=0`,
     `https://nyaa.si/?page=rss&q=${encodeURIComponent(anime.title+' '+pad)}&c=1_2&f=0`,
+    `https://nyaa.si/?page=rss&q=${encodeURIComponent(rom)}&c=1_2&f=0`,
   ];
   for(const url of queries){
-    try{ const res=await fetchRSS(url); if(res.length) return res; }catch{}
+    try{
+      const res = await fetchRSS(url);
+      if(res.length) return res;
+    }catch{}
   }
   return [];
 }
@@ -347,13 +305,13 @@ function ACard({a,onClick}){
 }
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
-function Hero({a,onW,onPrev,onNext,idx,total}){
+function Hero({a, onW, onPrev, onNext, idx, total}){
   const[loaded,setLoaded]=useState(false);
   useEffect(()=>setLoaded(false),[a?.id]);
   if(!a)return<div style={{height:'76vh',background:'#07070f'}}/>;
   return<div className="hero">
-    <img className="hi" key={a.id} src={a.banner||a.image} alt="" style={{opacity:loaded?1:0}}
-      onLoad={()=>setLoaded(true)} onError={()=>setLoaded(true)}/>
+    <img className="hi" key={a.id} src={a.banner||a.image} alt=""
+      style={{opacity:loaded?1:0}} onLoad={()=>setLoaded(true)} onError={()=>setLoaded(true)}/>
     <div style={{position:'absolute',bottom:0,left:0,right:0,height:200,pointerEvents:'none',
       background:`linear-gradient(to top,${a.color}40,transparent)`}}/>
     <div className="hfb"/><div className="hft"/>
@@ -369,7 +327,9 @@ function Hero({a,onW,onPrev,onNext,idx,total}){
       <p className="hd">{a.desc}</p>
       <div className="hbts">
         <button className="btn-r" onClick={()=>onW(a,'watch')}><PIco s={14}/>Watch Now</button>
-        <button className="btn-ghost" onClick={()=>onW(a,'trailer')}><FilmIco/> Trailer</button>
+        {a.trailerUrl&&
+          <button className="btn-ghost" onClick={()=>onW(a,'trailer')}><FilmIco/> Trailer</button>
+        }
       </div>
     </div>
     <button className="harr" style={{left:16}} onClick={onPrev}>&#8249;</button>
@@ -395,12 +355,13 @@ function SearchBar({onSel}){
     const d=await gql(SQ,{s:val});
     setRes((d.data?.Page?.media||[]).map(mapA));setOpen(true);
   },[]);
-  const oc=e=>{setQ(e.target.value);clearTimeout(tmr.current);tmr.current=setTimeout(()=>run(e.target.value),370);};
+  const oc=e=>{setQ(e.target.value);clearTimeout(tmr.current);tmr.current=setTimeout(()=>run(e.target.value),380);};
   return<div className="sw" ref={ref}>
     <svg className="sico" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
     </svg>
-    <input className="si" value={q} onChange={oc} placeholder="Search anime…" onFocus={()=>res.length&&setOpen(true)}/>
+    <input className="si" value={q} onChange={oc} placeholder="Search anime…"
+      onFocus={()=>res.length&&setOpen(true)}/>
     {open&&res.length>0&&<div className="sdrop">
       {res.map(a=><div key={a.id} className="srow" onClick={()=>{onSel(a,'watch');setOpen(false);setQ('');}}>
         <img src={a.image} alt={a.title} onError={e=>e.target.style.display='none'}/>
@@ -411,82 +372,49 @@ function SearchBar({onSel}){
 }
 
 // ── Watch Page ────────────────────────────────────────────────────────────────
-function WatchPage({anime, startTab='watch', onBack}){
+function WatchPage({anime, startTab, onBack}){
   const totalEps = anime.eps||24;
   const epList   = Array.from({length:totalEps},(_,i)=>i+1);
 
-  const [viewTab,   setViewTab]  = useState(startTab);
-  const [curEp,     setCurEp]    = useState(1);
-  const [gogoId,    setGogoId]   = useState('');     // e.g. "frieren-beyond-journeys-end"
-  const [gogoEpId,  setGogoEpId] = useState('');     // e.g. "frieren-beyond-journeys-end-episode-1"
-  const [srcUrls,   setSrcUrls]  = useState([]);
-  const [srvIdx,    setSrvIdx]   = useState(0);
-  const [trailerUrl,setTrailer]  = useState('');
-  const [ifKey,     setIfKey]    = useState(0);
-  const [spin,      setSpin]     = useState(true);
-  const [status,    setStatus]   = useState('');     // message shown under player
-  const [torrents,  setTorrents] = useState([]);
-  const [torLoad,   setTorLoad]  = useState(false);
-  const [epFilter,  setEpFilter] = useState('');
-  const [gogoEps,   setGogoEps]  = useState([]);     // full episode list from gogo
+  const [viewTab,  setViewTab]  = useState(startTab||'watch');
+  const [curEp,    setCurEp]    = useState(1);
+  const [lang,     setLang]     = useState('sub');
+  const [servers,  setServers]  = useState([]);
+  const [srvIdx,   setSrvIdx]   = useState(0);
+  const [ifKey,    setIfKey]    = useState(0);
+  const [spin,     setSpin]     = useState(true);
+  const [torrents, setTorrents] = useState([]);
+  const [torLoad,  setTorLoad]  = useState(false);
+  const [epFilter, setEpFilter] = useState('');
 
-  // ── On mount: search gogo + get trailer ─────────────────────────────────────
-  useEffect(()=>{
-    // Get trailer from Jikan (MAL) — returns youtube-nocookie embed which works
-    if(anime.malId){
-      getTrailer(anime.malId).then(url=>{
-        if(url) setTrailer(url);
-      });
-    }
-    // Search gogoanime for this anime
-    (async()=>{
-      setStatus('Finding streams…');
-      const results = await gogoSearch(anime.romaji||anime.title);
-      if(!results.length){
-        // Try English title
-        const r2 = await gogoSearch(anime.title);
-        if(!r2.length){ setStatus('No stream source found. Try another server.'); return; }
-        results.push(...r2);
-      }
-      // Pick best match — prefer exact or sub version
-      const match = results.find(r=>!r.id.includes('-dub'))||results[0];
-      setGogoId(match.id);
-      setStatus('Loading episodes…');
-      const eps = await gogoEpisodes(match.id);
-      setGogoEps(eps);
-      // Load episode 1
-      await loadEpFromList(eps, 1, anime.id, match.id);
-    })();
-  },[anime.id]);
-
-  async function loadEpFromList(eps, epNum, animeId, gId){
-    const ep  = eps.find(e=>e.number===epNum)||eps[epNum-1];
-    const epId= ep?.id||`${gId||gogoId}-episode-${epNum}`;
-    setGogoEpId(epId);
+  const loadEp = useCallback((ep, lng)=>{
+    const L = lng||lang;
+    const srvs = buildServers(anime.id, ep, L);
+    setServers(srvs);
     setSrvIdx(0);
     setIfKey(k=>k+1);
     setSpin(true);
-    setCurEp(epNum);
-    // Build stream sources — s3taku first (gogoanime CDN), then fallbacks
-    const srcs = buildStreamSrcs(epId, animeId||anime.id, epNum);
-    setSrcUrls(srcs);
-    setStatus('');
-    // Torrents
-    setTorLoad(true);setTorrents([]);
-    getTorrents(anime,epNum).then(res=>{setTorrents(res);setTorLoad(false);});
-  }
+    setCurEp(ep);
+    setTorLoad(true);
+    setTorrents([]);
+    getTorrents(anime, ep).then(res=>{ setTorrents(res); setTorLoad(false); });
+  },[anime.id, lang]);
 
-  const loadEp = useCallback(async(epNum)=>{
-    await loadEpFromList(gogoEps, epNum, anime.id, gogoId);
-  },[gogoEps, gogoId, anime.id]);
+  useEffect(()=>{ loadEp(1,'sub'); },[]);
 
-  const switchSrv=i=>{setSrvIdx(i);setIfKey(k=>k+1);setSpin(true);};
-  const switchTab=t=>{setViewTab(t);setSpin(true);setIfKey(k=>k+1);};
+  const switchSrv = i => { setSrvIdx(i); setIfKey(k=>k+1); setSpin(true); };
+  const switchLang= l => { setLang(l); loadEp(curEp,l); };
+  const switchTab = t => { setViewTab(t); setSpin(true); setIfKey(k=>k+1); };
 
-  const filtered = epFilter?epList.filter(n=>String(n).includes(epFilter.trim())):epList;
-  const activeSrc = viewTab==='trailer'
-    ? trailerUrl
-    : (srcUrls[srvIdx]||'');
+  const filtered = epFilter ? epList.filter(n=>String(n).includes(epFilter.trim())) : epList;
+
+  // Active source — key fix: trailer uses strict-origin referrer, stream uses no-referrer-for-content
+  const streamSrc  = servers[srvIdx]?.url||'';
+  const trailerSrc = anime.trailerUrl||'';
+  const activeSrc  = viewTab==='trailer' ? trailerSrc : streamSrc;
+  // Trailer needs strict-origin-when-cross-origin to fix Error 153
+  // Stream embeds should use no-referrer so they don't leak origin
+  const refPolicy  = viewTab==='trailer' ? 'strict-origin-when-cross-origin' : 'no-referrer';
 
   return<div className="wp">
     <nav>
@@ -503,23 +431,25 @@ function WatchPage({anime, startTab='watch', onBack}){
     </button>
 
     <div className="wl">
-      {/* LEFT */}
+      {/* ── LEFT ── */}
       <div>
-        {/* TABS */}
-        <div className="view-tabs">
+        {/* VIEW TABS */}
+        <div className="vtabs">
           <button className={'vtab'+(viewTab==='watch'?' on':'')} onClick={()=>switchTab('watch')}>
             <PIco s={12}/>&nbsp; Watch
           </button>
-          {trailerUrl&&<button className={'vtab'+(viewTab==='trailer'?' on':'')} onClick={()=>switchTab('trailer')}>
-            <FilmIco/>&nbsp; Trailer
-          </button>}
+          {trailerSrc&&
+            <button className={'vtab'+(viewTab==='trailer'?' on':'')} onClick={()=>switchTab('trailer')}>
+              <FilmIco/>&nbsp; Trailer
+            </button>
+          }
         </div>
 
         {/* PLAYER */}
         <div className="pw-wrap">
           {spin&&<div className="ph">
             <div className="ph-spin"/>
-            <p className="ph-txt">{status||'Loading…'}</p>
+            <p className="ph-txt">{viewTab==='trailer'?'Loading trailer…':'Loading stream…'}</p>
           </div>}
           {activeSrc&&<iframe
             key={`${viewTab}-${ifKey}`}
@@ -527,29 +457,29 @@ function WatchPage({anime, startTab='watch', onBack}){
             src={activeSrc}
             allowFullScreen
             allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-            referrerPolicy="no-referrer"
+            referrerPolicy={refPolicy}
             scrolling="no"
-            onLoad={()=>{setSpin(false);setStatus('');}}
+            onLoad={()=>setSpin(false)}
           />}
         </div>
 
         {/* SERVER CONTROLS — watch mode only */}
-        {viewTab==='watch'&&<>
-          <div className="lang-row">
-            <span className="lang-lbl">Audio</span>
-            <button className="lbtn on">Subbed</button>
-            <button className="lbtn" onClick={()=>{setSrvIdx(3);setIfKey(k=>k+1);setSpin(true);}}>Dubbed (Srv 4)</button>
+        {viewTab==='watch'&&<div className="srv-wrap">
+          <div className="srv-top">
+            <span className="srv-label">Server</span>
+            <div className="lang-toggle">
+              <button className={'ltbtn'+(lang==='sub'?' on':'')} onClick={()=>switchLang('sub')}>Sub</button>
+              <button className={'ltbtn'+(lang==='dub'?' on':'')} onClick={()=>switchLang('dub')}>Dub</button>
+            </div>
           </div>
-          <div className="srv-row">
-            <span className="srv-lbl">Server</span>
-            {srcUrls.map((_,i)=>
-              <button key={i} className={'srv-tab'+(srvIdx===i?' on':'')} onClick={()=>switchSrv(i)}>
-                {i+1}
+          <div className="srv-grid">
+            {servers.map((s,i)=>
+              <button key={i} className={'stab'+(srvIdx===i?' on':'')} onClick={()=>switchSrv(i)}>
+                {s.label}
               </button>
             )}
           </div>
-          {status&&<div className={'status-bar'+(status.includes('No stream')||status.includes('error')?' err':' load')}>{status}</div>}
-        </>}
+        </div>}
 
         {/* INFO */}
         <div className="winfo">
@@ -560,43 +490,54 @@ function WatchPage({anime, startTab='watch', onBack}){
             {anime.eps&&<><span>·</span><span>{anime.eps} eps</span></>}
             {viewTab==='watch'&&<span className="ep-badge">EP {curEp}</span>}
           </div>
-          <div className="acgs" style={{marginBottom:10}}>{anime.genres.slice(0,5).map(g=><GT key={g} g={g}/>)}</div>
+          <div className="acgs" style={{marginBottom:10}}>
+            {anime.genres.slice(0,5).map(g=><GT key={g} g={g}/>)}
+          </div>
           <p className="wd">{anime.desc}</p>
         </div>
 
         {/* DOWNLOADS */}
         {viewTab==='watch'&&<div className="dls">
           <div className="dlh">Download — Episode {curEp}</div>
-          {torLoad&&<div className="dl-spin">Finding download links…</div>}
-          {!torLoad&&torrents.length===0&&<div className="dl-none">No downloads found for this episode.</div>}
+          {torLoad&&<div className="dl-spin">Searching for download links…</div>}
+          {!torLoad&&torrents.length===0&&
+            <div className="dl-none">No downloads found for episode {curEp}. Try a different episode number.</div>
+          }
           {!torLoad&&torrents.length>0&&<div className="dll">
             {torrents.map((t,i)=>{
-              const q=t.name.match(/1080|720|480|360/)?.[0]||'';
-              const grp=t.name.match(/^\[([^\]]+)\]/)?.[1]||'';
+              const q   = t.name.match(/1080|720|480|360/)?.[0]||'';
+              const grp = t.name.match(/^\[([^\]]+)\]/)?.[1]||'';
               return<div key={i} className="dlr">
                 <div className="dl-top">
                   <div className="dl-name" title={t.name}>{t.name.replace(/\.[^.]+$/,'').slice(0,70)}</div>
                   <div className="dl-btns">
-                    {t.torrent&&<a href={t.torrent} className="db dbdl" target="_blank" rel="noreferrer"><DlIco/> Download</a>}
-                    {t.magnet&&t.magnet.startsWith('magnet:')&&<a href={t.magnet} className="db dbmag"><MagIco/> Magnet</a>}
+                    {t.torrent&&<a href={t.torrent} className="db dbdl" target="_blank" rel="noreferrer">
+                      <DlIco/> Download
+                    </a>}
+                    {t.magnet&&t.magnet.startsWith('magnet:')&&
+                      <a href={t.magnet} className="db dbmag"><MagIco/> Magnet</a>
+                    }
                   </div>
                 </div>
-                <div className="dl-meta">{[grp,q&&`${q}p`,t.size,`${t.seeds} seeds`].filter(Boolean).join('  ·  ')}</div>
+                <div className="dl-meta">
+                  {[grp, q&&`${q}p`, t.size, `${t.seeds} seeds`].filter(Boolean).join('  ·  ')}
+                </div>
               </div>;
             })}
           </div>}
         </div>}
       </div>
 
-      {/* SIDEBAR */}
+      {/* ── SIDEBAR ── */}
       <div className="eps">
         <div className="eph">Episodes ({totalEps})</div>
         <input className="ep-filter" type="number" min="1" max={totalEps}
-          placeholder="Jump to ep…" value={epFilter} onChange={e=>setEpFilter(e.target.value)}/>
+          placeholder="Jump to ep…" value={epFilter}
+          onChange={e=>setEpFilter(e.target.value)}/>
         <div className="epl">
           {filtered.map(n=>
             <button key={n} className={'epb'+(curEp===n&&viewTab==='watch'?' on':'')}
-              onClick={()=>{setViewTab('watch');loadEp(n);}}>
+              onClick={()=>{ setViewTab('watch'); loadEp(n,lang); }}>
               <span className="epn">EP {n}</span>
               <span className="epna">Episode {n}</span>
             </button>
@@ -609,25 +550,25 @@ function WatchPage({anime, startTab='watch', onBack}){
 
 // ── Main App ──────────────────────────────────────────────────────────────────
 function App(){
-  const[view,  setView] =useState('home');
-  const[wa,    setWa]   =useState(null);
-  const[wTab,  setWTab] =useState('watch');
-  const[anime, setAnime]=useState([]);
-  const[hi,    setHi]   =useState(0);
-  const[page,  setPage] =useState(1);
-  const[tpg,   setTpg]  =useState(1);
-  const[load,  setLoad] =useState(true);
-  const iv=useRef(null);
+  const[view,  setView]  = useState('home');
+  const[wa,    setWa]    = useState(null);
+  const[wTab,  setWTab]  = useState('watch');
+  const[anime, setAnime] = useState([]);
+  const[hi,    setHi]    = useState(0);
+  const[page,  setPage]  = useState(1);
+  const[tpg,   setTpg]   = useState(1);
+  const[load,  setLoad]  = useState(true);
+  const iv = useRef(null);
 
-  const fetch_=useCallback(async p=>{
+  const fetchPage = useCallback(async p=>{
     setLoad(true);
-    const d=await gql(TQ,{p,pp:50});
+    const d = await gql(TQ,{p,pp:50});
     setAnime((d.data?.Page?.media||[]).map(mapA));
     setTpg(d.data?.Page?.pageInfo?.lastPage||1);
-    setHi(0);setLoad(false);
+    setHi(0); setLoad(false);
   },[]);
 
-  useEffect(()=>{fetch_(page);},[page,fetch_]);
+  useEffect(()=>{ fetchPage(page); },[page,fetchPage]);
   useEffect(()=>{
     clearInterval(iv.current);
     if(anime.length&&view==='home')
@@ -635,12 +576,12 @@ function App(){
     return()=>clearInterval(iv.current);
   },[anime,view]);
 
-  const openW=(a,tab='watch')=>{setWa(a);setWTab(tab);setView('watch');window.scrollTo({top:0});};
-  const goHome=()=>{setView('home');setWa(null);};
-  const hMax=Math.min(anime.length,10);
-  const ps=[];const s=Math.max(1,page-2),e2=Math.min(tpg,s+4);
-  for(let i=s;i<=e2;i++)ps.push(i);
-  const chPg=p=>{setPage(p);window.scrollTo({top:0,behavior:'smooth'});};
+  const openW=(a,tab='watch')=>{ setWa(a); setWTab(tab); setView('watch'); window.scrollTo({top:0}); };
+  const goHome=()=>{ setView('home'); setWa(null); };
+  const hMax = Math.min(anime.length,10);
+  const ps=[]; const s=Math.max(1,page-2), e2=Math.min(tpg,s+4);
+  for(let i=s;i<=e2;i++) ps.push(i);
+  const chPg=p=>{ setPage(p); window.scrollTo({top:0,behavior:'smooth'}); };
 
   if(view==='watch'&&wa)
     return<WatchPage anime={wa} startTab={wTab} onBack={goHome}/>;
@@ -653,10 +594,12 @@ function App(){
       </div>
       <SearchBar onSel={openW}/>
     </nav>
+
     <Hero a={anime[hi]||null} onW={openW}
       onPrev={()=>setHi(i=>(i-1+hMax)%hMax)}
       onNext={()=>setHi(i=>(i+1)%hMax)}
       idx={hi} total={hMax}/>
+
     <section className="gs">
       <div className="gsh">
         <h2 className="gst">Trending Now</h2>
