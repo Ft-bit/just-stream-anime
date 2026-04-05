@@ -747,35 +747,131 @@ const TABS=[
   {id:'airing',  label:'📡 Airing Now'},
 ];
 
-export default function App(){
-  const[view,    setView]   =useState('home');
-  const[watching,setWatch]  =useState(null);
-  const[wTab,    setWTab]   =useState('watch');
-  const[tab,     setTab]    =useState('trending');
-  const[page,    setPage]   =useState(1);
-  const[totalPg, setTPg]    =useState(1);
-  const[items,   setItems]  =useState([]);
-  const[hero,    setHero]   =useState([]);
-  const[loading, setLoad]   =useState(true);
+// ── Hash routing helpers ──────────────────────────────────────────────────────
+// Format: #home/trending/2  or  #watch/12345/watch
+function readHash(){
+  try{
+    const raw=(window.location.hash||'').slice(1);
+    const [sec,b,c]=raw.split('/');
+    if(sec==='watch'&&b) return{view:'watch',animeId:b,wTab:c||'watch'};
+    if(sec==='home') return{view:'home',tab:b||'trending',page:Math.max(1,parseInt(c)||1)};
+  }catch(e){}
+  return{view:'home',tab:'trending',page:1};
+}
+function writeHash(view,extra={}){
+  if(view==='watch') window.location.hash=`#watch/${extra.id||''}/${extra.wTab||'watch'}`;
+  else               window.location.hash=`#home/${extra.tab||'trending'}/${extra.page||1}`;
+}
+
+function App(){
+  // Read initial state from URL hash — survives reload
+  const init = readHash();
+
+  const[view,    setView]  =useState(init.view);
+  const[watching,setWatch] =useState(null);
+  const[wTab,    setWTab]  =useState(init.wTab||'watch');
+  const[tab,     setTab]   =useState(init.tab||'trending');
+  const[page,    setPage]  =useState(init.page||1);
+  const[totalPg, setTPg]   =useState(1);
+  const[items,   setItems] =useState([]);
+  const[hero,    setHero]  =useState([]);
+  const[loading, setLoad]  =useState(true);
+
+  // Cache anime objects by ID so watch page survives reload
+  const cache = useRef({});
 
   const load=useCallback(async(t,p)=>{
     setLoad(true);
     const d=await gql(Qs[t],{p});
     const list=(d.data?.Page?.media||[]).map(mapA);
-    setItems(list);setTPg(d.data?.Page?.pageInfo?.lastPage||1);
+    list.forEach(a=>{ cache.current[String(a.id)]=a; });
+    setItems(list);
+    setTPg(d.data?.Page?.pageInfo?.lastPage||1);
     if(t==='trending'&&p===1) setHero(list);
     setLoad(false);
   },[]);
 
-  useEffect(()=>{load(tab,1);setPage(1)},[tab]);
-  useEffect(()=>{if(page>1)load(tab,page)},[page]);
+  // Boot: if hash says "watch", load trending first to fill cache, then restore
+  const booted = useRef(false);
+  useEffect(()=>{
+    if(booted.current) return;
+    booted.current=true;
+    if(init.view==='watch'){
+      // Load trending in background to populate cache
+      (async()=>{
+        setLoad(true);
+        const d=await gql(Qs.trending,{p:1});
+        const list=(d.data?.Page?.media||[]).map(mapA);
+        list.forEach(a=>{ cache.current[String(a.id)]=a; });
+        setHero(list);
+        setItems(list);
+        setTPg(d.data?.Page?.pageInfo?.lastPage||1);
+        setLoad(false);
+        const cached=cache.current[String(init.animeId)];
+        if(cached){ setWatch(cached); setWTab(init.wTab||'watch'); setView('watch'); }
+        else{
+          // Anime not in trending — fall back to home, keep tab state
+          setView('home');
+          writeHash('home',{tab:'trending',page:1});
+        }
+      })();
+    } else {
+      load(init.tab||'trending', init.page||1);
+    }
+  },[]);
 
-  const openWatch=(a,t='watch')=>{setWatch(a);setWTab(t);setView('watch');window.scrollTo({top:0})};
-  const goHome=()=>{setView('home');setWatch(null)};
-  const chPg=p=>{setPage(p);window.scrollTo({top:0,behavior:'smooth'})};
+  // Tab changes always reset to page 1
+  const prevTab=useRef(init.tab);
+  useEffect(()=>{
+    if(prevTab.current===tab) return; // skip on first render
+    prevTab.current=tab;
+    setPage(1);
+    load(tab,1);
+    writeHash('home',{tab,page:1});
+  },[tab]);
 
-  const ps=[];const s=Math.max(1,page-2),e2=Math.min(totalPg,s+4);
-  for(let i=s;i<=e2;i++)ps.push(i);
+  useEffect(()=>{
+    if(page>1){ load(tab,page); }
+  },[page]);
+
+  // Navigation
+  const openWatch=(a,t='watch')=>{
+    cache.current[String(a.id)]=a;
+    setWatch(a); setWTab(t); setView('watch');
+    writeHash('watch',{id:a.id,wTab:t});
+    window.scrollTo({top:0});
+  };
+  const goHome=()=>{
+    setView('home'); setWatch(null);
+    writeHash('home',{tab,page});
+    window.scrollTo({top:0});
+  };
+  const chPg=p=>{
+    setPage(p);
+    writeHash('home',{tab,page:p});
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  // Browser back/forward button support
+  useEffect(()=>{
+    const onPop=()=>{
+      const h=readHash();
+      if(h.view==='watch'){
+        const cached=cache.current[String(h.animeId)];
+        if(cached){ setWatch(cached); setWTab(h.wTab); setView('watch'); }
+        else{ setView('home'); }
+      } else {
+        setView('home'); setWatch(null);
+        setTab(h.tab); setPage(h.page);
+      }
+    };
+    window.addEventListener('popstate',onPop);
+    return()=>window.removeEventListener('popstate',onPop);
+  },[]);
+
+  const ps=[];
+  const s=Math.max(1,page-2), e2=Math.min(totalPg,s+4);
+  for(let i=s;i<=e2;i++) ps.push(i);
 
   if(view==='watch'&&watching)
     return<WatchPage anime={watching} startTab={wTab} onBack={goHome}/>;
