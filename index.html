@@ -354,20 +354,6 @@
     .spin-txt{font-family:var(--mono);font-size:clamp(10px,2.5vw,11px);color:var(--txt3);text-align:center}
 
     /* QUALITY TIP */
-    .quality-tip{
-      display:flex;align-items:flex-start;gap:9px;
-      background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.14);
-      border-radius:10px;padding:10px 14px;margin-bottom:14px;
-    }
-    .quality-tip p{font-family:var(--mono);font-size:clamp(10px,2.5vw,11px);color:rgba(251,191,36,.75);line-height:1.6}
-
-    /* SEASON WARNING — shown when VidNest might mismatch */
-    .season-warn{
-      display:flex;align-items:flex-start;gap:9px;
-      background:rgba(225,29,72,.06);border:1px solid rgba(225,29,72,.2);
-      border-radius:10px;padding:10px 14px;margin-bottom:14px;
-    }
-    .season-warn p{font-family:var(--mono);font-size:clamp(10px,2.5vw,11px);color:rgba(251,130,150,.85);line-height:1.6}
 
     /* VIEW TABS */
     .vtabs{display:flex;gap:6px;margin-bottom:12px}
@@ -409,20 +395,7 @@
     .sbtn.on{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;color:#fff;box-shadow:0 2px 12px var(--glow)}
 
     /* SEASON INFO BOX */
-    .season-info-box{
-      background:var(--bg3);border:1px solid var(--border);
-      border-radius:12px;padding:14px;margin-bottom:14px;
-    }
-    .season-info-title{font-family:var(--mono);font-size:clamp(9px,2vw,10px);font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}
-    .season-info-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .si-chip{
-      font-family:var(--mono);font-size:clamp(10px,2.5vw,11px);font-weight:700;
-      padding:4px 10px;border-radius:6px;
-      background:rgba(255,255,255,.06);border:1px solid var(--border);
-      color:var(--txt2);
-    }
-    .si-chip.red{background:rgba(225,29,72,.12);border-color:rgba(225,29,72,.28);color:#fb7185}
-    .si-chip.gold{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.2);color:#fbbf24}
+    
 
     /* WATCH INFO */
     .winfo{margin-bottom:22px}
@@ -474,7 +447,9 @@
     footer{border-top:1px solid var(--border);padding:clamp(1.2rem,4vw,2rem) clamp(1rem,4vw,2.5rem);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
     .ft-logo{font-size:clamp(13px,3vw,15px);font-weight:900;letter-spacing:-.02em}
     .ft-logo em{color:var(--red);font-style:normal}
-    .ft-note{font-family:var(--mono);font-size:clamp(9px,2vw,10px);color:var(--txt3);text-align:right}
+    .ft-note{font-family:var(--mono);font-size:clamp(9px,2vw,10px);color:var(--txt3);text-align:right;display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+    .ft-link{font-family:var(--mono);font-size:clamp(9px,2vw,10px);color:var(--txt2);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:2px;padding:0;transition:color .15s}
+    .ft-link:hover{color:var(--txt)}
 
     .stars{display:inline-flex;gap:2px}
   
@@ -510,8 +485,6 @@
     @media(max-width:480px){
       .srv-btns{gap:5px}
       .sbtn{min-width:34px;padding:6px 10px;font-size:11px}
-      .season-info-row{gap:5px}
-      .si-chip{font-size:10px;padding:3px 7px}
       .wp-wrap{padding:0 .75rem 3rem}
     }
     /* Pagination — wrap on mobile */
@@ -531,7 +504,7 @@
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
 
-// ── AniList ───────────────────────────────────────────────────────────────────
+// ── Anime Database API ──────────────────────────────────────────────────────
 async function gql(query, vars={}){
   const r = await fetch('https://graphql.anilist.co',{
     method:'POST',headers:{'Content-Type':'application/json'},
@@ -574,34 +547,47 @@ function mapA(a){
   };
 }
 
-// CotE AniList IDs: S1=98659 S2=145545 S3=146066 S4=180745
-// VidNest mismaps S2-S4 to S1 content. MegaPlay correctly maps by AniList ID.
-const COTE_IDS = new Set([98659,145545,146066,180745]);
-const SRV=['lamda','primesrc','sigma','alfa','beta','gama','catflix','hexa','delta'];
+// Series needing season-priority fix (S1-S4 mapped by unique ID)
+const FIXED_IDS = new Set([98659,145545,146066,180745]);
+
 function buildServers(id,ep,lang){
-  const e=ep||1, L=lang==='dub'?'dub':'sub', numId=Number(id);
-  if(COTE_IDS.has(numId)){
-    // Only MegaPlay — the only source that correctly maps each CotE season by AniList ID.
-    // VidNest servers are excluded here because they show S1 content regardless of season.
-    return[
-      {n:'1 — Sub',url:`https://megaplay.buzz/stream/ani/${id}/${e}/sub`},
-      {n:'2 — Dub',url:`https://megaplay.buzz/stream/ani/${id}/${e}/dub`},
-    ];
-  }
-  return[
-    ...SRV.map((s,i)=>({n:`${i+1}`,url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=${s}`})),
+  const e=ep||1, L=lang==='dub'?'dub':'sub';
+  const fixed=FIXED_IDS.has(Number(id));
+  
+  
+  return fixed ? [
+    {n:'1',url:`https://megaplay.buzz/stream/ani/${id}/${e}/sub`},
+    {n:'2',url:`https://megaplay.buzz/stream/ani/${id}/${e}/dub`},
+    {n:'3',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=lamda`},
+    {n:'4',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=primesrc`},
+    {n:'5',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=sigma`},
+    {n:'6',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=alfa`},
+    {n:'7',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=gama`},
+    {n:'8',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=catflix`},
+    {n:'9',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=hexa`},
+    {n:'10',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=delta`},
+    {n:'11',url:`https://vidnest.fun/animepahe/${id}/${e}/${L}`},
+  ] : [
+    {n:'1',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=lamda`},
+    {n:'2',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=primesrc`},
+    {n:'3',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=sigma`},
+    {n:'4',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=alfa`},
+    {n:'5',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=beta`},
+    {n:'6',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=gama`},
+    {n:'7',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=catflix`},
+    {n:'8',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=hexa`},
+    {n:'9',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=delta`},
     {n:'10',url:`https://vidnest.fun/animepahe/${id}/${e}/${L}`},
     {n:'11',url:`https://megaplay.buzz/stream/ani/${id}/${e}/${L}`},
   ];
 }
-function isCotE(id){return COTE_IDS.has(Number(id));}
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 const PIco=({s=16})=><svg viewBox="0 0 20 20" fill="currentColor" style={{width:s,height:s}}><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>;
 const FilmIco=()=><svg viewBox="0 0 20 20" fill="currentColor" style={{width:13,height:13}}><path fillRule="evenodd" d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm2 0h2v2H4V6zm0 4h2v2H4v-2zm0 4h2v2H4v-2zm12-8h-2v2h2V6zm0 4h-2v2h2v-2zm0 4h-2v2h2v-2zM8 6h4v8H8V6z" clipRule="evenodd"/></svg>;
 const BackIco=()=><svg viewBox="0 0 20 20" fill="currentColor" style={{width:14,height:14}}><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"/></svg>;
-const WarnIco=()=><svg viewBox="0 0 20 20" fill="currentColor" style={{width:15,height:15,flexShrink:0,color:'rgba(251,130,150,.7)',marginTop:1}}><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>;
-const InfoIco=()=><svg viewBox="0 0 20 20" fill="currentColor" style={{width:15,height:15,flexShrink:0,color:'rgba(251,191,36,.7)',marginTop:1}}><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"/></svg>;
+
+
 function Stars({s}){
   const n=Math.round(((s||0)/100)*5);
   return<span className="stars">{[1,2,3,4,5].map(i=><svg key={i} viewBox="0 0 20 20" fill="currentColor" style={{width:12,height:12,color:i<=n?'#fbbf24':'#222230'}}><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>)}</span>;
@@ -750,45 +736,17 @@ function WatchPage({anime,startTab,onBack}){
           </div>
 
           {tab==='watch'&&<>
-            {/* Season info — always shown so user knows what they're watching */}
-            <div className="season-info-box">
-              <div className="season-info-title">You are watching</div>
-              <div className="season-info-row">
-                <span className="si-chip red">{anime.title}</span>
-                {anime.season&&<span className="si-chip gold">📅 {anime.season}</span>}
-                <span className="si-chip">{anime.format}</span>
-                {anime.eps&&<span className="si-chip">{anime.eps} Episodes</span>}
-                <span className="si-chip red">EP {curEp}</span>
-              </div>
-            </div>
+            
 
-            {/* CotE-specific or general season mismatch warning */}
-            {isCotE(anime.id)
-              ? <div className="season-warn">
-                  <WarnIco/>
-                  <p><strong style={{color:'#fb7185'}}>Classroom of the Elite</strong> — only verified servers are shown for this season. Server 1 streams the correct season subtitled, Server 2 streams it dubbed. Both use AniList ID #{anime.id} to guarantee the right season.</p>
-                </div>
-              : <div className="season-warn">
-                  <WarnIco/>
-                  <p>If this plays the wrong season, switch servers — each uses a different CDN that maps AniList ID #{anime.id} independently.</p>
-                </div>
-            }
-
-            <div className="quality-tip">
-              <InfoIco/>
-              <p>Tap the ⚙ gear icon inside the player to select your preferred quality: 360p · 480p · 720p · 1080p</p>
-            </div>
+            
 
             <div className="srv-panel">
               <div className="srv-head">
                 <span className="srv-label">Server</span>
-                {isCotE(anime.id)
-                  ? <span style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>Server 1 = SUB · Server 2 = DUB</span>
-                  : <div className="lang-pills">
-                      <button className={'lpill'+(lang==='sub'?' on':'')} onClick={()=>switchLang('sub')}>SUB</button>
-                      <button className={'lpill'+(lang==='dub'?' on':'')} onClick={()=>switchLang('dub')}>DUB</button>
-                    </div>
-                }
+                <div className="lang-pills">
+                  <button className={'lpill'+(lang==='sub'?' on':'')} onClick={()=>switchLang('sub')}>SUB</button>
+                  <button className={'lpill'+(lang==='dub'?' on':'')} onClick={()=>switchLang('dub')}>DUB</button>
+                </div>
               </div>
               <div className="srv-btns">
                 {servers.map((s,i)=><button key={i} className={'sbtn'+(si===i?' on':'')} onClick={()=>switchSrv(i)}>{s.n}</button>)}
@@ -837,6 +795,90 @@ const TABS=[
   {id:'top',     label:'⭐ Top Rated'},
   {id:'airing',  label:'📡 Airing Now'},
 ];
+
+
+// ── Policy Pages ──────────────────────────────────────────────────────────────
+function PolicyPage({type, onBack}){
+  const isDmca = type==='dmca';
+  return<div style={{minHeight:'100vh',background:'var(--bg)',paddingTop:'var(--nav)'}}>
+    <div style={{maxWidth:760,margin:'0 auto',padding:'2rem clamp(1rem,4vw,2.5rem) 4rem'}}>
+      <button style={{display:'inline-flex',alignItems:'center',gap:7,fontFamily:'var(--mono)',fontSize:12,color:'var(--txt2)',background:'none',border:'none',cursor:'pointer',padding:'1rem 0',marginBottom:'1.5rem'}} onClick={onBack}>
+        <BackIco/> Back
+      </button>
+
+      <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:16,padding:'clamp(1.5rem,5vw,3rem)'}}>
+        {isDmca ? <>
+          <h1 style={{fontSize:'clamp(1.4rem,4vw,2rem)',fontWeight:900,letterSpacing:'-.025em',color:'#fff',marginBottom:'0.5rem'}}>DMCA & Copyright Policy</h1>
+          <p style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:'2rem'}}>Last updated: {new Date().getFullYear()}</p>
+
+          <div style={{display:'flex',flexDirection:'column',gap:'1.8rem'}}>
+            <section>
+              <h2 style={{fontSize:'1rem',fontWeight:700,color:'var(--txt)',marginBottom:'.6rem'}}>1. About This Site</h2>
+              <p style={{fontSize:14,lineHeight:1.8,color:'var(--txt2)'}}>JustStreamAnime is an index site. We do not host, upload, or store any video files on our servers. All content is streamed from third-party embed providers. We have no direct control over the videos that those providers serve.</p>
+            </section>
+            <section>
+              <h2 style={{fontSize:'1rem',fontWeight:700,color:'var(--txt)',marginBottom:'.6rem'}}>2. Copyright Infringement Notice</h2>
+              <p style={{fontSize:14,lineHeight:1.8,color:'var(--txt2)'}}>If you are a rights holder and believe that content accessible through this site infringes your copyright, please contact us. We take such notices seriously and will respond promptly.</p>
+            </section>
+            <section>
+              <h2 style={{fontSize:'1rem',fontWeight:700,color:'var(--txt)',marginBottom:'.6rem'}}>3. How to Submit a Takedown Request</h2>
+              <p style={{fontSize:14,lineHeight:1.8,color:'var(--txt2)'}}>Send your request to our contact email with the following information:</p>
+              <ul style={{fontSize:14,lineHeight:2,color:'var(--txt2)',paddingLeft:'1.5rem',marginTop:'.5rem'}}>
+                <li>Your full legal name and contact information</li>
+                <li>A description of the copyrighted work you claim is infringed</li>
+                <li>The specific URL(s) on this site where the content appears</li>
+                <li>A statement that you have a good faith belief the use is not authorised</li>
+                <li>A statement that the information in your notice is accurate</li>
+                <li>Your physical or electronic signature</li>
+              </ul>
+            </section>
+            <section>
+              <h2 style={{fontSize:'1rem',fontWeight:700,color:'var(--txt)',marginBottom:'.6rem'}}>4. Contact</h2>
+              <p style={{fontSize:14,lineHeight:1.8,color:'var(--txt2)'}}>For takedown requests or copyright concerns, please reach out via our contact page. We aim to respond within 48 hours of receiving a valid notice.</p>
+              <div style={{marginTop:'1rem',padding:'1rem 1.2rem',background:'rgba(225,29,72,.07)',border:'1px solid rgba(225,29,72,.2)',borderRadius:10,fontFamily:'var(--mono)',fontSize:12,color:'#fb7185'}}>
+                Contact: use the report button on the relevant page, or email us at the address listed on our GitHub profile.
+              </div>
+            </section>
+            <section>
+              <h2 style={{fontSize:'1rem',fontWeight:700,color:'var(--txt)',marginBottom:'.6rem'}}>5. Counter-Notice</h2>
+              <p style={{fontSize:14,lineHeight:1.8,color:'var(--txt2)'}}>If you believe content was removed in error, you may submit a counter-notice with your full contact details and a statement under penalty of perjury that the removal was a mistake.</p>
+            </section>
+          </div>
+        </> : <>
+          <h1 style={{fontSize:'clamp(1.4rem,4vw,2rem)',fontWeight:900,letterSpacing:'-.025em',color:'#fff',marginBottom:'0.5rem'}}>Privacy Policy</h1>
+          <p style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:'2rem'}}>Last updated: {new Date().getFullYear()}</p>
+
+          <div style={{display:'flex',flexDirection:'column',gap:'1.8rem'}}>
+            <section>
+              <h2 style={{fontSize:'1rem',fontWeight:700,color:'var(--txt)',marginBottom:'.6rem'}}>1. Information We Collect</h2>
+              <p style={{fontSize:14,lineHeight:1.8,color:'var(--txt2)'}}>JustStreamAnime does not collect, store, or sell any personal information. We do not require account registration. We do not use cookies beyond what is strictly necessary for the site to function.</p>
+            </section>
+            <section>
+              <h2 style={{fontSize:'1rem',fontWeight:700,color:'var(--txt)',marginBottom:'.6rem'}}>2. Third-Party Services</h2>
+              <p style={{fontSize:14,lineHeight:1.8,color:'var(--txt2)'}}>This site loads content from third-party video embed providers. Those providers may set their own cookies or collect data according to their own privacy policies. We have no control over and assume no responsibility for those third-party privacy practices.</p>
+            </section>
+            <section>
+              <h2 style={{fontSize:'1rem',fontWeight:700,color:'var(--txt)',marginBottom:'.6rem'}}>3. Log Data</h2>
+              <p style={{fontSize:14,lineHeight:1.8,color:'var(--txt2)'}}>Like most websites, our hosting provider may automatically collect standard log data such as your IP address, browser type, and pages visited. This data is used only for security and performance monitoring and is not shared with third parties.</p>
+            </section>
+            <section>
+              <h2 style={{fontSize:'1rem',fontWeight:700,color:'var(--txt)',marginBottom:'.6rem'}}>4. Children's Privacy</h2>
+              <p style={{fontSize:14,lineHeight:1.8,color:'var(--txt2)'}}>This site is not directed at children under the age of 13. We do not knowingly collect information from children.</p>
+            </section>
+            <section>
+              <h2 style={{fontSize:'1rem',fontWeight:700,color:'var(--txt)',marginBottom:'.6rem'}}>5. Changes to This Policy</h2>
+              <p style={{fontSize:14,lineHeight:1.8,color:'var(--txt2)'}}>We may update this policy from time to time. Changes will be reflected by the updated date at the top of this page.</p>
+            </section>
+            <section>
+              <h2 style={{fontSize:'1rem',fontWeight:700,color:'var(--txt)',marginBottom:'.6rem'}}>6. Contact</h2>
+              <p style={{fontSize:14,lineHeight:1.8,color:'var(--txt2)'}}>For any privacy-related questions, please reach out via our contact page.</p>
+            </section>
+          </div>
+        </>}
+      </div>
+    </div>
+  </div>;
+}
 
 // ── Hash routing helpers ──────────────────────────────────────────────────────
 // Format: #home/trending/2  or  #watch/12345/watch
@@ -966,6 +1008,8 @@ function App(){
 
   if(view==='watch'&&watching)
     return<WatchPage anime={watching} startTab={wTab} onBack={goHome}/>;
+  if(view==='dmca') return<PolicyPage type="dmca" onBack={()=>{setView('home');writeHash('home',{tab,page});}}/>;
+  if(view==='privacy') return<PolicyPage type="privacy" onBack={()=>{setView('home');writeHash('home',{tab,page});}}/>;
 
   return<>
     <nav className="nav">
@@ -1003,7 +1047,7 @@ function App(){
 
     <footer>
       <div className="ft-logo">just<em>stream</em>anime</div>
-      <div className="ft-note">Powered by AniList · VidNest · For entertainment only</div>
+      <div className="ft-note"><button className="ft-link" onClick={()=>setView('dmca')}>DMCA / Copyright Policy</button>&nbsp;·&nbsp;<button className="ft-link" onClick={()=>setView('privacy')}>Privacy Policy</button></div>
     </footer>
   </>;
 }
