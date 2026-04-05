@@ -581,17 +581,11 @@ const SRV=['lamda','primesrc','sigma','alfa','beta','gama','catflix','hexa','del
 function buildServers(id,ep,lang){
   const e=ep||1, L=lang==='dub'?'dub':'sub', numId=Number(id);
   if(COTE_IDS.has(numId)){
-    // MegaPlay first — correctly maps each season by AniList ID
+    // Only MegaPlay — the only source that correctly maps each CotE season by AniList ID.
+    // VidNest servers are excluded here because they show S1 content regardless of season.
     return[
-      {n:'1',url:`https://megaplay.buzz/stream/ani/${id}/${e}/sub`},
-      {n:'2',url:`https://megaplay.buzz/stream/ani/${id}/${e}/dub`},
-      {n:'3',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=lamda`},
-      {n:'4',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=primesrc`},
-      {n:'5',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=sigma`},
-      {n:'6',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=alfa`},
-      {n:'7',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=gama`},
-      {n:'8',url:`https://vidnest.fun/anime/${id}/${e}/${L}?server=catflix`},
-      {n:'9',url:`https://vidnest.fun/animepahe/${id}/${e}/${L}`},
+      {n:'1 — Sub',url:`https://megaplay.buzz/stream/ani/${id}/${e}/sub`},
+      {n:'2 — Dub',url:`https://megaplay.buzz/stream/ani/${id}/${e}/dub`},
     ];
   }
   return[
@@ -772,7 +766,7 @@ function WatchPage({anime,startTab,onBack}){
             {isCotE(anime.id)
               ? <div className="season-warn">
                   <WarnIco/>
-                  <p><strong style={{color:'#fb7185'}}>Classroom of the Elite fix applied.</strong> Servers 1 & 2 use a source that correctly maps each season by AniList ID (#{anime.id}). If Server 1 still shows the wrong season, try Server 2. Servers 3-9 are VidNest fallbacks.</p>
+                  <p><strong style={{color:'#fb7185'}}>Classroom of the Elite</strong> — only verified servers are shown for this season. Server 1 streams the correct season subtitled, Server 2 streams it dubbed. Both use AniList ID #{anime.id} to guarantee the right season.</p>
                 </div>
               : <div className="season-warn">
                   <WarnIco/>
@@ -788,10 +782,13 @@ function WatchPage({anime,startTab,onBack}){
             <div className="srv-panel">
               <div className="srv-head">
                 <span className="srv-label">Server</span>
-                <div className="lang-pills">
-                  <button className={'lpill'+(lang==='sub'?' on':'')} onClick={()=>switchLang('sub')}>SUB</button>
-                  <button className={'lpill'+(lang==='dub'?' on':'')} onClick={()=>switchLang('dub')}>DUB</button>
-                </div>
+                {isCotE(anime.id)
+                  ? <span style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>Server 1 = SUB · Server 2 = DUB</span>
+                  : <div className="lang-pills">
+                      <button className={'lpill'+(lang==='sub'?' on':'')} onClick={()=>switchLang('sub')}>SUB</button>
+                      <button className={'lpill'+(lang==='dub'?' on':'')} onClick={()=>switchLang('dub')}>DUB</button>
+                    </div>
+                }
               </div>
               <div className="srv-btns">
                 {servers.map((s,i)=><button key={i} className={'sbtn'+(si===i?' on':'')} onClick={()=>switchSrv(i)}>{s.n}</button>)}
