@@ -87,14 +87,12 @@
       z-index:10;border-radius:0 2px 2px 0;
       transition:none;
     }
-    /* Desktop banner image */
     .hero-img-desk{
       position:absolute;inset:0;width:100%;height:100%;
       object-fit:cover;object-position:center top;
       filter:brightness(.38) saturate(1.15);
       transition:opacity .9s ease;
     }
-    /* Mobile portrait cover image */
     .hero-img-mob{
       position:absolute;inset:0;width:100%;height:100%;
       object-fit:cover;object-position:center 15%;
@@ -212,6 +210,9 @@
     }
     .btn-info:hover{background:rgba(255,255,255,.14)}
     .btn-info:active{background:rgba(255,255,255,.16)}
+
+    /* ── CAROUSEL ARROWS ─────────────────────────────────────── */
+    /* Only show on non-touch, larger screens */
     .harr{
       position:absolute;top:50%;transform:translateY(-50%);z-index:10;
       width:42px;height:42px;border-radius:50%;
@@ -223,7 +224,11 @@
     }
     .harr:hover{background:var(--red);border-color:var(--red);transform:translateY(-50%) scale(1.06)}
     .harr:active{transform:translateY(-50%) scale(.94)}
-    @media(max-width:600px){.harr{display:none}}
+
+    /* Hide on any screen ≤ 768px OR on any touch/coarse-pointer device */
+    @media(max-width:768px){.harr{display:none!important}}
+    @media(pointer:coarse){.harr{display:none!important}}
+
     .hdots{
       position:absolute;bottom:1.1rem;left:50%;transform:translateX(-50%);
       display:flex;align-items:center;gap:5px;z-index:10;
@@ -237,12 +242,16 @@
       flex-shrink:0;
     }
     .hdot.on{background:var(--red);width:20px!important}
+
+    /* Swipe hint — show on coarse-pointer devices (phones/tablets) */
     .swipe-hint{
       display:none;
       position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);
       font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.35);
       letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;
+      pointer-events:none;
     }
+    @media(pointer:coarse){.swipe-hint{display:block}}
     @media(max-width:600px){.swipe-hint{display:block}}
 
     /* TABS */
@@ -481,14 +490,27 @@
     .ep-num{font-family:var(--mono);font-size:clamp(9px,2vw,10px);font-weight:700;color:var(--red);min-width:clamp(26px,5vw,32px);flex-shrink:0}
     .ep-name{font-size:clamp(11px,2vw,12px);color:var(--txt);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-    /* POLICY PAGES */
-    .policy-wrap{
-      min-height:100vh;background:var(--bg);padding-top:var(--nav);
+    /* ── NOTICE / TIP BOXES ─────────────────────────────────── */
+    .notice{
+      background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.18);
+      border-radius:9px;padding:9px 13px;margin-bottom:11px;
+      font-family:var(--mono);font-size:10px;color:rgba(251,191,36,.8);line-height:1.6;
     }
-    .policy-inner{
-      max-width:740px;margin:0 auto;
-      padding:0 clamp(1rem,4vw,2.5rem) 4rem;
+    .srv-tip{
+      background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.18);
+      border-radius:9px;padding:8px 12px;margin-bottom:11px;
+      font-family:var(--mono);font-size:10px;color:rgba(139,92,246,.85);line-height:1.6;
     }
+    /* NEW: multi-season tip — orange tone to differentiate from purple */
+    .multi-season-tip{
+      background:rgba(251,146,60,.07);border:1px solid rgba(251,146,60,.22);
+      border-radius:9px;padding:9px 13px;margin-bottom:11px;
+      font-family:var(--mono);font-size:10px;color:rgba(251,146,60,.9);line-height:1.65;
+    }
+
+    /* ── POLICY PAGES ───────────────────────────────────────── */
+    .policy-wrap{min-height:100vh;background:var(--bg);padding-top:var(--nav)}
+    .policy-inner{max-width:740px;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem) 4rem}
     .policy-back{
       display:inline-flex;align-items:center;gap:7px;
       font-family:var(--mono);font-size:clamp(10px,2vw,11px);color:var(--txt2);
@@ -501,61 +523,72 @@
       background:var(--bg2);border:1px solid var(--border);
       border-radius:16px;padding:clamp(1.4rem,5vw,2.5rem);
     }
-    .policy-h1{
-      font-size:clamp(1.3rem,4vw,1.85rem);font-weight:900;
-      letter-spacing:-.03em;color:#fff;margin-bottom:.4rem;
-      line-height:1.1;
-    }
-    .policy-date{
-      font-family:var(--mono);font-size:10px;color:var(--txt3);
-      margin-bottom:2rem;
-    }
+    .policy-h1{font-size:clamp(1.3rem,4vw,1.85rem);font-weight:900;letter-spacing:-.03em;color:#fff;margin-bottom:.4rem;line-height:1.1}
+    .policy-date{font-family:var(--mono);font-size:10px;color:var(--txt3);margin-bottom:2rem}
     .policy-section{margin-bottom:1.6rem}
-    .policy-h2{
-      font-size:.9rem;font-weight:700;color:var(--txt);
-      margin-bottom:.5rem;
-    }
+    .policy-h2{font-size:.9rem;font-weight:700;color:var(--txt);margin-bottom:.5rem}
     .policy-p{font-size:13px;line-height:1.8;color:var(--txt2)}
-    .policy-ul{
-      font-size:13px;line-height:2;color:var(--txt2);
-      padding-left:1.4rem;margin-top:.4rem;
-    }
-    .contact-box{
-      margin-top:1rem;
-      display:flex;flex-direction:column;gap:10px;
-    }
+    .policy-ul{font-size:13px;line-height:2;color:var(--txt2);padding-left:1.4rem;margin-top:.4rem}
+
+    /* ── CONTACT LINKS — enhanced hover ────────────────────── */
+    .contact-box{margin-top:1rem;display:flex;flex-direction:column;gap:10px}
     .contact-link{
-      display:inline-flex;align-items:center;gap:10px;
-      padding:11px 16px;border-radius:10px;
-      font-weight:600;font-size:13px;
-      transition:background .15s,transform .15s;
+      display:inline-flex;align-items:center;gap:12px;
+      padding:13px 18px;border-radius:12px;
+      font-weight:700;font-size:13px;
+      transition:transform .22s cubic-bezier(.34,1.56,.64,1),
+                  box-shadow .22s ease,
+                  background .18s ease,
+                  border-color .18s ease;
       -webkit-tap-highlight-color:transparent;
       text-decoration:none;
+      position:relative;overflow:hidden;
     }
-    .contact-link:hover{transform:translateX(3px)}
+
+    /* Email (red) */
     .contact-link-email{
       background:rgba(225,29,72,.08);border:1px solid rgba(225,29,72,.22);
       color:#fb7185;
     }
-    .contact-link-email:hover{background:rgba(225,29,72,.14)}
+    .contact-link-email:hover{
+      background:rgba(225,29,72,.16);
+      border-color:rgba(225,29,72,.5);
+      transform:translateX(6px) scale(1.01);
+      box-shadow:0 6px 28px rgba(225,29,72,.25);
+    }
+    .contact-link-email:active{transform:translateX(3px) scale(.98)}
+
+    /* WhatsApp (green) */
     .contact-link-wa{
       background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.22);
       color:#4ade80;
     }
-    .contact-link-wa:hover{background:rgba(37,211,102,.14)}
-    .contact-icon{width:18px;height:18px;flex-shrink:0}
+    .contact-link-wa:hover{
+      background:rgba(37,211,102,.16);
+      border-color:rgba(37,211,102,.5);
+      transform:translateX(6px) scale(1.01);
+      box-shadow:0 6px 28px rgba(37,211,102,.2);
+    }
+    .contact-link-wa:active{transform:translateX(3px) scale(.98)}
 
-    /* NOTICE BOX */
-    .notice{
-      background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.18);
-      border-radius:9px;padding:9px 13px;margin-bottom:11px;
-      font-family:var(--mono);font-size:10px;color:rgba(251,191,36,.8);line-height:1.6;
+    /* Icon animation on hover */
+    .contact-icon{
+      width:20px;height:20px;flex-shrink:0;
+      transition:transform .3s cubic-bezier(.34,1.56,.64,1);
     }
-    .srv-tip{
-      background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.18);
-      border-radius:9px;padding:8px 12px;margin-bottom:11px;
-      font-family:var(--mono);font-size:10px;color:rgba(139,92,246,.85);line-height:1.6;
+    .contact-link:hover .contact-icon{transform:scale(1.25) rotate(-8deg)}
+    .contact-link:active .contact-icon{transform:scale(1.1) rotate(-4deg)}
+
+    /* Contact text */
+    .contact-link-text{
+      display:flex;flex-direction:column;gap:1px;
     }
+    .contact-link-label{
+      font-family:var(--mono);font-size:9px;font-weight:700;
+      text-transform:uppercase;letter-spacing:.1em;
+      opacity:.55;
+    }
+    .contact-link-value{font-size:13px;font-weight:700}
 
     /* FOOTER */
     footer{
@@ -639,68 +672,132 @@ function mapA(a) {
   };
 }
 
-// Anime that need season-aware server ordering
-// Maps AniList ID → human season label
+/* ─────────────────────────────────────────────────────────────
+   SEASON / PROVIDER CONFIGURATION
+   ──────────────────────────────────────────────────────────── */
+
+/**
+ * Known MAL IDs keyed by AniList ID.
+ * MegaPlay supports /stream/mal/{mal_id}/{ep}/{lang} as a fallback
+ * that often handles sequel seasons better when AniList mapping is missing.
+ */
+const MAL_ID_MAP = {
+  // Classroom of the Elite
+  98659: 35507,  145545: 42310,  146066: 50007,
+  // Overlord
+  79693: 29803,  98437: 33974,  101268: 36765,  133844: 48895,
+  // Attack on Titan
+  16498: 14277,  20958: 25777,  99147: 35760,  104578: 38524,
+  110277: 40028, 131681: 48583, 145139: 51009,
+  // Re:Zero
+  21355: 31240,  108632: 39587, 119661: 42422,
+  // Sword Art Online (SAO MAL IDs match AniList IDs by coincidence here — verified)
+  11757: 11757,  21597: 21597,
+  // Mushoku Tensei
+  108465: 39535, 127720: 45576,
+  // Demon Slayer / Kimetsu no Yaiba
+  101922: 38000,
+  // Black Clover seasons
+  97940: 36009,
+  // Jujutsu Kaisen
+  113415: 40748, 145064: 51179,
+};
+
+/**
+ * Human-readable season label for every AniList ID that belongs
+ * to a multi-season series. ALSO used to flag "multi-season" status
+ * so the player leads with the most season-aware providers.
+ */
 const SEASON_LABELS = {
-  98659:  'CotE Season 1',
-  145545: 'CotE Season 2',
-  146066: 'CotE Season 3',
-  180745: 'CotE Season 4',
+  // Classroom of the Elite
+  98659: 'CotE — Season 1',  145545: 'CotE — Season 2',
+  146066: 'CotE — Season 3', 180745: 'CotE — Season 4',
+
+  // Overlord
+  79693: 'Overlord — S1',  98437: 'Overlord — S2',
+  101268: 'Overlord — S3', 133844: 'Overlord — S4',
+
+  // Attack on Titan
+  16498: 'AoT — Season 1',      20958: 'AoT — Season 2',
+  99147: 'AoT — S3 Part 1',    104578: 'AoT — S3 Part 2',
+  110277: 'AoT — Final S4 P1', 131681: 'AoT — Final S4 P2',
+  145139: 'AoT — Final S4 P3',
+
+  // Re:Zero
+  21355: 'Re:Zero — S1',  108632: 'Re:Zero S2 Part 1',
+  119661: 'Re:Zero S2 Part 2',
+
+  // Mushoku Tensei
+  108465: 'Mushoku Tensei — S1', 127720: 'Mushoku Tensei — S2',
+
+  // Jujutsu Kaisen
+  113415: 'JJK — Season 1', 145064: 'JJK — Season 2',
+
+  // Sword Art Online
+  11757: 'SAO — Season 1', 21597: 'SAO — Season 2',
+
+  // My Hero Academia (listed separately per season so each loads correctly)
+  77239: 'MHA — Season 1', 82186: 'MHA — Season 2',
+  86996: 'MHA — Season 3', 99541: 'MHA — Season 4',
+  108465: 'MHA — Season 5', // note: may share key with Mushoku S1 — keep whichever is inserted last
+  116589: 'MHA — Season 6', 154597: 'MHA — Season 7',
+
+  // Demon Slayer arcs
+  101922: 'Kimetsu — Season 1',
 };
-const COTE_IDS = new Set(Object.keys(SEASON_LABELS).map(Number));
 
-// CotE MAL IDs for alternate server lookups
-const COTE_MAL = { 98659: 35507, 145545: 42310, 146066: 50007, 180745: null };
+const MULTI_SEASON_IDS = new Set(Object.keys(SEASON_LABELS).map(Number));
 
-// Special episode notes
+/**
+ * Per-episode notes (warnings / special cases).
+ * shape: { [anilistId]: { [epNum]: 'note string' } }
+ */
 const EP_NOTES = {
-  180745: { 1: 'EP 1 is a 90-min special on some providers — covers eps 1–4. If eps 2–4 repeat same content, switch server.' },
+  180745: {
+    1: 'EP 1 is a 90-min special on some providers — covers eps 1–4. If eps 2–4 repeat the same content, switch to Server 3 or higher.'
+  },
 };
 
+/* VidNest server param list — these map to different CDN mirrors */
+const VN_SERVERS = ['lamda','primesrc','sigma','alfa','beta','gama','catflix','hexa','delta'];
+
+/**
+ * Build the ordered server list for a given anime + episode + language.
+ *
+ * Strategy:
+ *  • Multi-season anime  → lead with MegaPlay (AniList + MAL when available)
+ *    because MegaPlay's HiAnime-backed library handles sequel seasons more
+ *    reliably than VidNest which sometimes re-routes to S1.
+ *    VidNest servers follow as additional fallbacks.
+ *  • Standard anime      → VidNest first (9 CDN mirrors + AnimePahe), then
+ *    MegaPlay AniList, then MegaPlay MAL (if known).
+ *
+ * Result is capped at 12 numbered servers.
+ */
 function buildServers(aniId, ep, lang, malId) {
-  const e = ep || 1;
-  const L = lang === 'dub' ? 'dub' : 'sub';
-  const isCote = COTE_IDS.has(Number(aniId));
+  const e   = ep || 1;
+  const L   = lang === 'dub' ? 'dub' : 'sub';
+  const id  = Number(aniId);
+  const isMulti = MULTI_SEASON_IDS.has(id);
+  const mid = malId || MAL_ID_MAP[id] || null;
 
-  if (isCote) {
-    // For CotE series, lead with megaplay (handles seasons better) then diverse vidnest mirrors
-    const servers = [
-      { n:'1',  url:`https://megaplay.buzz/stream/ani/${aniId}/${e}/sub` },
-      { n:'2',  url:`https://megaplay.buzz/stream/ani/${aniId}/${e}/dub` },
-      { n:'3',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=lamda` },
-      { n:'4',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=primesrc` },
-      { n:'5',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=sigma` },
-      { n:'6',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=alfa` },
-      { n:'7',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=gama` },
-      { n:'8',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=catflix` },
-      { n:'9',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=hexa` },
-      { n:'10', url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=delta` },
-      { n:'11', url:`https://vidnest.fun/animepahe/${aniId}/${e}/${L}` },
-    ];
-    // If we have MAL ID, add an extra MAL-based server as fallback
-    const mid = malId || COTE_MAL[Number(aniId)];
-    if (mid) {
-      servers.push({ n:'12', url:`https://vidnest.fun/anime/mal/${mid}/${e}/${L}?server=lamda` });
-    }
-    return servers;
-  }
+  const vnest   = VN_SERVERS.map(s =>
+    `https://vidnest.fun/anime/${aniId}/${e}/${L}?server=${s}`
+  );
+  const pahe    = `https://vidnest.fun/animepahe/${aniId}/${e}/${L}`;
+  const mgAni   = `https://megaplay.buzz/stream/ani/${aniId}/${e}/${L}`;
+  const mgMal   = mid ? `https://megaplay.buzz/stream/mal/${mid}/${e}/${L}` : null;
 
-  return [
-    { n:'1',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=lamda` },
-    { n:'2',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=primesrc` },
-    { n:'3',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=sigma` },
-    { n:'4',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=alfa` },
-    { n:'5',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=beta` },
-    { n:'6',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=gama` },
-    { n:'7',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=catflix` },
-    { n:'8',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=hexa` },
-    { n:'9',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=delta` },
-    { n:'10', url:`https://vidnest.fun/animepahe/${aniId}/${e}/${L}` },
-    { n:'11', url:`https://megaplay.buzz/stream/ani/${aniId}/${e}/${L}` },
-  ];
+  const urls = isMulti
+    ? [mgAni, mgMal, ...vnest, pahe].filter(Boolean)   // megaplay first
+    : [...vnest, pahe, mgAni, mgMal].filter(Boolean);   // vidnest first
+
+  return urls.slice(0, 12).map((url, i) => ({ n: String(i + 1), url }));
 }
 
-// Icons
+/* ─────────────────────────────────────────────────────────────
+   ICONS
+   ──────────────────────────────────────────────────────────── */
 const PIco = ({ s=16 }) => (
   <svg viewBox="0 0 20 20" fill="currentColor" style={{ width:s, height:s }}>
     <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
@@ -716,12 +813,16 @@ const BackIco = () => (
     <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"/>
   </svg>
 );
+
+/* Gmail icon (envelope with M-stroke) */
 const EmailIco = () => (
-  <svg className="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-    <polyline points="22,6 12,13 2,6"/>
+  <svg className="contact-icon" viewBox="0 0 24 24" fill="none">
+    <rect x="2" y="4" width="20" height="16" rx="3" stroke="currentColor" strokeWidth="1.75"/>
+    <path d="M2 7l10 7 10-7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
+
+/* WhatsApp icon */
 const WhatsAppIco = () => (
   <svg className="contact-icon" viewBox="0 0 24 24" fill="currentColor">
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
@@ -741,6 +842,9 @@ function Stars({ s }) {
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+   ANIME CARD
+   ──────────────────────────────────────────────────────────── */
 function AnimeCard({ a, onPlay }) {
   return (
     <div className="acard" onClick={() => onPlay(a)}>
@@ -768,27 +872,31 @@ function AnimeCard({ a, onPlay }) {
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+   HERO CAROUSEL
+   ──────────────────────────────────────────────────────────── */
 function Hero({ items, onPlay }) {
   const INTERVAL = 10000;
-  const [idx, setIdx] = useState(0);
+  const [idx, setIdx]       = useState(0);
   const [loaded, setLoaded] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const pv = useRef(null);
+  const [progress, setProg] = useState(0);
+  const pv          = useRef(null);
   const progressRef = useRef(0);
-  const touchX = useRef(null);
-  const isFirst = useRef(true);
+  const touchX      = useRef(null);
+  const touchY      = useRef(null);
+  const isFirst     = useRef(true);
 
   const startTimer = () => {
     clearInterval(pv.current);
     progressRef.current = 0;
-    setProgress(0);
+    setProg(0);
     const step = 50;
     pv.current = setInterval(() => {
       progressRef.current += step;
-      setProgress(progressRef.current);
+      setProg(progressRef.current);
       if (progressRef.current >= INTERVAL) {
         progressRef.current = 0;
-        setProgress(0);
+        setProg(0);
         setIdx(i => (i + 1) % Math.min(items.length, 8));
         setLoaded(false);
       }
@@ -806,27 +914,37 @@ function Hero({ items, onPlay }) {
     startTimer();
   }, [idx]);
 
-  const goTo = i => { setIdx(i); };
-  const prev = () => goTo((idx - 1 + Math.min(items.length, 8)) % Math.min(items.length, 8));
-  const next = () => goTo((idx + 1) % Math.min(items.length, 8));
+  const hMax = Math.min(items.length, 8);
+  const goTo = i => setIdx(i);
+  const prev = () => goTo((idx - 1 + hMax) % hMax);
+  const next = () => goTo((idx + 1) % hMax);
 
-  const onTouchStart = e => { touchX.current = e.touches[0].clientX; };
+  /* Swipe: only horizontal swipes with at least 40px threshold */
+  const onTouchStart = e => {
+    touchX.current = e.touches[0].clientX;
+    touchY.current = e.touches[0].clientY;
+  };
   const onTouchEnd = e => {
     if (touchX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchX.current;
-    if (Math.abs(dx) > 40) dx < 0 ? next() : prev();
+    const dy = Math.abs(e.changedTouches[0].clientY - touchY.current);
+    /* Only swipe if horizontal motion > 44px AND more horizontal than vertical */
+    if (Math.abs(dx) > 44 && Math.abs(dx) > dy * 1.5) {
+      dx < 0 ? next() : prev();
+    }
     touchX.current = null;
+    touchY.current = null;
   };
 
   if (!items.length) return <div style={{ minHeight:'clamp(420px,78vh,600px)', background:'var(--bg)' }}/>;
-  const a = items[idx];
-  const hMax = Math.min(items.length, 8);
+  const a   = items[idx];
   const pct = Math.min((progress / INTERVAL) * 100, 100);
 
   return (
-    <div className="hero" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+    <div className="hero"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}>
       <div className="hero-progress" style={{ width: pct + '%' }}/>
-      {/* Desktop: landscape banner. Mobile: portrait cover image — no more zoom crop */}
       <img className="hero-img-desk" key={'d-' + a.id}
         src={a.banner || a.image} alt=""
         style={{ opacity: loaded ? 1 : 0 }}
@@ -862,23 +980,30 @@ function Hero({ items, onPlay }) {
           )}
         </div>
       </div>
-      <button className="harr" style={{ left:14 }} onClick={prev}>&#8249;</button>
-      <button className="harr" style={{ right:14 }} onClick={next}>&#8250;</button>
+
+      {/* Arrows — CSS hides these on touch / ≤768px */}
+      <button className="harr" style={{ left:16 }} onClick={prev} aria-label="Previous">&#8249;</button>
+      <button className="harr" style={{ right:16 }} onClick={next} aria-label="Next">&#8250;</button>
+
       <div className="hdots">
         {Array.from({ length: hMax }).map((_, i) => (
           <button key={i} className={'hdot' + (i === idx ? ' on' : '')}
             style={{ width: i === idx ? 20 : 5 }}
-            onClick={() => goTo(i)}/>
+            onClick={() => goTo(i)}
+            aria-label={`Slide ${i + 1}`}/>
         ))}
       </div>
-      <p className="swipe-hint">← swipe →</p>
+      <p className="swipe-hint">← swipe to browse →</p>
     </div>
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+   SEARCH BAR
+   ──────────────────────────────────────────────────────────── */
 function SearchBar({ onSel }) {
-  const [q, setQ] = useState('');
-  const [res, setRes] = useState([]);
+  const [q, setQ]       = useState('');
+  const [res, setRes]   = useState([]);
   const [open, setOpen] = useState(false);
   const tmr = useRef(null);
   const ref = useRef(null);
@@ -927,41 +1052,48 @@ function SearchBar({ onSel }) {
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+   WATCH PAGE
+   ──────────────────────────────────────────────────────────── */
 function WatchPage({ anime, startTab, onBack }) {
-  const totalEps = anime.eps || 24;
-  const epNotes = EP_NOTES[Number(anime.id)] || {};
-  const isCote = COTE_IDS.has(Number(anime.id));
-  const coteLabel = SEASON_LABELS[Number(anime.id)];
-  const epList = Array.from({ length: totalEps }, (_, i) => i + 1);
+  const totalEps  = anime.eps || 24;
+  const epNotes   = EP_NOTES[Number(anime.id)] || {};
+  const id        = Number(anime.id);
+  const isMulti   = MULTI_SEASON_IDS.has(id);
+  const seasonLbl = SEASON_LABELS[id];
+  const epList    = Array.from({ length: totalEps }, (_, i) => i + 1);
 
-  const [tab, setTab] = useState(startTab || 'watch');
-  const [curEp, setCurEp] = useState(1);
-  const [lang, setLang] = useState('sub');
-  const [servers, setServers] = useState([]);
-  const [si, setSi] = useState(0);
-  const [key, setKey] = useState(0);
-  const [spin, setSpin] = useState(true);
-  const [filter, setFilter] = useState('');
+  const [tab,     setTab]    = useState(startTab || 'watch');
+  const [curEp,   setCurEp]  = useState(1);
+  const [lang,    setLang]   = useState('sub');
+  const [servers, setSrvs]   = useState([]);
+  const [si,      setSi]     = useState(0);
+  const [key,     setKey]    = useState(0);
+  const [spin,    setSpin]   = useState(true);
+  const [filter,  setFilter] = useState('');
 
   const loadEp = useCallback((ep, lng) => {
     const L = lng || lang;
-    setServers(buildServers(anime.id, ep, L, anime.malId));
+    setSrvs(buildServers(anime.id, ep, L, anime.malId));
     setSi(0); setKey(k => k + 1); setSpin(true); setCurEp(ep);
   }, [anime.id, anime.malId, lang]);
 
   useEffect(() => { loadEp(1, 'sub'); }, []);
 
-  const switchSrv = i => { setSi(i); setKey(k => k + 1); setSpin(true); };
+  const switchSrv  = i => { setSi(i); setKey(k => k + 1); setSpin(true); };
   const switchLang = l => { setLang(l); loadEp(curEp, l); };
-  const switchTab = t => { setTab(t); setKey(k => k + 1); setSpin(true); };
+  const switchTab  = t => { setTab(t); setKey(k => k + 1); setSpin(true); };
 
-  const filtered = filter ? epList.filter(n => String(n).includes(filter.trim())) : epList;
+  const filtered = filter
+    ? epList.filter(n => String(n).includes(filter.trim()))
+    : epList;
   const src = tab === 'trailer' ? anime.trailerUrl : (servers[si]?.url || '');
 
   return (
     <div className="wp">
       <div className="wp-wrap">
         <button className="wp-back" onClick={onBack}><BackIco/> Back to Browse</button>
+
         <div className="wp-layout">
           <div>
             <div className="vtabs">
@@ -990,15 +1122,20 @@ function WatchPage({ anime, startTab, onBack }) {
             </div>
 
             {tab === 'watch' && <>
-              {isCote && (
-                <div className="srv-tip">
-                  ⚡ You are watching <strong style={{color:'#c4b5fd'}}>{coteLabel}</strong>. 
-                  If the wrong season loads, try Server 3 or higher — different providers index each season differently.
+              {/* Multi-season tip — shown for ALL identified multi-season anime */}
+              {isMulti && (
+                <div className="multi-season-tip">
+                  🎌 You're watching <strong style={{color:'#fdba74'}}>{seasonLbl}</strong>.
+                  {' '}Servers 1–2 use MegaPlay and usually load the correct season directly.
+                  {' '}If you see a different season, try Server 3 onward — VidNest indexes seasons differently across its mirrors.
                 </div>
               )}
+
+              {/* Per-episode notes */}
               {epNotes[curEp] && (
                 <div className="notice">ℹ {epNotes[curEp]}</div>
               )}
+
               <div className="srv-panel">
                 <div className="srv-head">
                   <span className="srv-label">Server</span>
@@ -1020,7 +1157,7 @@ function WatchPage({ anime, startTab, onBack }) {
             <div className="winfo">
               <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap', marginBottom:8 }}>
                 <h1 className="winfo-title" style={{ margin:0 }}>{anime.title}</h1>
-                {isCote && <span className="season-chip">🎌 {coteLabel}</span>}
+                {isMulti && <span className="season-chip">🎌 {seasonLbl}</span>}
               </div>
               <div className="winfo-meta">
                 <Stars s={anime.rating}/>
@@ -1037,6 +1174,7 @@ function WatchPage({ anime, startTab, onBack }) {
             </div>
           </div>
 
+          {/* Episode sidebar */}
           <div className="ep-panel">
             <div className="ep-panel-title">Episodes ({totalEps})</div>
             <input className="ep-filter" type="number" min="1" max={totalEps}
@@ -1044,7 +1182,8 @@ function WatchPage({ anime, startTab, onBack }) {
               onChange={e => setFilter(e.target.value)}/>
             <div className="ep-list">
               {filtered.map(n => (
-                <button key={n} className={'epbtn' + (curEp===n && tab==='watch' ? ' on' : '')}
+                <button key={n}
+                  className={'epbtn' + (curEp===n && tab==='watch' ? ' on' : '')}
                   onClick={() => { setTab('watch'); loadEp(n, lang); }}>
                   <span className="ep-num">EP {n}</span>
                   <span className="ep-name">{epNotes[n] ? '⚠ ' + n : `Episode ${n}`}</span>
@@ -1058,9 +1197,32 @@ function WatchPage({ anime, startTab, onBack }) {
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+   POLICY / DMCA PAGES  — enhanced contact hover
+   ──────────────────────────────────────────────────────────── */
 function PolicyPage({ type, onBack }) {
   const isDmca = type === 'dmca';
-  const year = new Date().getFullYear();
+  const year   = new Date().getFullYear();
+
+  const ContactLinks = () => (
+    <div className="contact-box">
+      <a href="mailto:fredbv22@gmail.com" className="contact-link contact-link-email">
+        <EmailIco/>
+        <div className="contact-link-text">
+          <span className="contact-link-label">Email</span>
+          <span className="contact-link-value">fredbv22@gmail.com</span>
+        </div>
+      </a>
+      <a href="https://wa.me/2348118722788" target="_blank" rel="noopener noreferrer"
+        className="contact-link contact-link-wa">
+        <WhatsAppIco/>
+        <div className="contact-link-text">
+          <span className="contact-link-label">WhatsApp</span>
+          <span className="contact-link-value">+234 811 872 2788</span>
+        </div>
+      </a>
+    </div>
+  );
 
   return (
     <div className="policy-wrap">
@@ -1071,26 +1233,14 @@ function PolicyPage({ type, onBack }) {
             <>
               <h1 className="policy-h1">Copyright &amp; Content Policy</h1>
               <p className="policy-date">Last updated {year}</p>
-
               <div className="policy-section">
                 <h2 className="policy-h2">What JustStreamAnime Is</h2>
-                <p className="policy-p">
-                  JustStreamAnime is a free anime streaming aggregator. We curate links to video streams 
-                  served by independent third-party providers and do not upload, store, or control any 
-                  media files ourselves. All playback is handled entirely by those external providers.
-                </p>
+                <p className="policy-p">JustStreamAnime is a free anime streaming aggregator. We curate links to video streams served by independent third-party providers and do not upload, store, or control any media files ourselves. All playback is handled entirely by those external providers.</p>
               </div>
-
               <div className="policy-section">
                 <h2 className="policy-h2">Reporting Copyright Concerns</h2>
-                <p className="policy-p">
-                  If you are a rights holder and believe content accessible through this site infringes 
-                  your copyright, contact us directly. We take every notice seriously and will respond 
-                  within 48 hours of receiving a valid request.
-                </p>
-                <p className="policy-p" style={{ marginTop:'0.5rem' }}>
-                  Please include the following in your message:
-                </p>
+                <p className="policy-p">If you are a rights holder and believe content accessible through this site infringes your copyright, contact us directly. We take every notice seriously and will respond within 48 hours of receiving a valid request.</p>
+                <p className="policy-p" style={{ marginTop:'0.5rem' }}>Please include the following in your message:</p>
                 <ul className="policy-ul">
                   <li>Your full legal name and contact details</li>
                   <li>A description of the copyrighted work</li>
@@ -1100,79 +1250,38 @@ function PolicyPage({ type, onBack }) {
                   <li>Your electronic or physical signature</li>
                 </ul>
               </div>
-
               <div className="policy-section">
                 <h2 className="policy-h2">Counter-Notices</h2>
-                <p className="policy-p">
-                  If you believe content was removed in error, you may submit a counter-notice with your 
-                  contact details and a statement that the removal was a mistake. We will review it and 
-                  respond accordingly.
-                </p>
+                <p className="policy-p">If you believe content was removed in error, you may submit a counter-notice with your contact details and a statement that the removal was a mistake. We will review it and respond accordingly.</p>
               </div>
-
               <div className="policy-section">
                 <h2 className="policy-h2">Get in Touch</h2>
-                <div className="contact-box">
-                  <a href="mailto:fredbv22@gmail.com" className="contact-link contact-link-email">
-                    <EmailIco/> fredbv22@gmail.com
-                  </a>
-                  <a href="https://wa.me/2348118722788" target="_blank" rel="noopener noreferrer"
-                    className="contact-link contact-link-wa">
-                    <WhatsAppIco/> +234 811 872 2788
-                  </a>
-                </div>
+                <ContactLinks/>
               </div>
             </>
           ) : (
             <>
               <h1 className="policy-h1">Privacy Policy</h1>
               <p className="policy-date">Last updated {year}</p>
-
               <div className="policy-section">
                 <h2 className="policy-h2">Data We Collect</h2>
-                <p className="policy-p">
-                  JustStreamAnime does not collect, store, or sell personal information. No account 
-                  registration is required. We do not use tracking cookies or advertising identifiers.
-                </p>
+                <p className="policy-p">JustStreamAnime does not collect, store, or sell personal information. No account registration is required. We do not use tracking cookies or advertising identifiers.</p>
               </div>
-
               <div className="policy-section">
                 <h2 className="policy-h2">Third-Party Providers</h2>
-                <p className="policy-p">
-                  Video content is served via third-party embed providers. Those providers operate under 
-                  their own privacy policies and may collect data independently. We have no access to or 
-                  control over what they collect.
-                </p>
+                <p className="policy-p">Video content is served via third-party embed providers. Those providers operate under their own privacy policies and may collect data independently. We have no access to or control over what they collect.</p>
               </div>
-
               <div className="policy-section">
                 <h2 className="policy-h2">Server Logs</h2>
-                <p className="policy-p">
-                  Our hosting provider may automatically log standard request data — IP address, browser 
-                  type, and pages visited — for security and performance purposes only. This data is not 
-                  shared with or sold to any third party.
-                </p>
+                <p className="policy-p">Our hosting provider may automatically log standard request data — IP address, browser type, and pages visited — for security and performance purposes only. This data is not shared with or sold to any third party.</p>
               </div>
-
               <div className="policy-section">
                 <h2 className="policy-h2">Minors</h2>
-                <p className="policy-p">
-                  This service is not directed at children under 13. We do not knowingly collect 
-                  information from minors.
-                </p>
+                <p className="policy-p">This service is not directed at children under 13. We do not knowingly collect information from minors.</p>
               </div>
-
               <div className="policy-section">
                 <h2 className="policy-h2">Contact</h2>
-                <div className="contact-box">
-                  <a href="mailto:fredbv22@gmail.com" className="contact-link contact-link-email">
-                    <EmailIco/> fredbv22@gmail.com
-                  </a>
-                  <a href="https://wa.me/2348118722788" target="_blank" rel="noopener noreferrer"
-                    className="contact-link contact-link-wa">
-                    <WhatsAppIco/> +234 811 872 2788
-                  </a>
-                </div>
+                <ContactLinks/>
               </div>
             </>
           )}
@@ -1182,19 +1291,21 @@ function PolicyPage({ type, onBack }) {
   );
 }
 
-// Hash routing
+/* ─────────────────────────────────────────────────────────────
+   HASH ROUTING
+   ──────────────────────────────────────────────────────────── */
 function readHash() {
   try {
     const raw = (window.location.hash || '').slice(1);
     const [sec, b, c] = raw.split('/');
     if (sec === 'watch' && b) return { view:'watch', animeId:b, wTab:c||'watch' };
-    if (sec === 'home') return { view:'home', tab:b||'trending', page:Math.max(1, parseInt(c)||1) };
+    if (sec === 'home')      return { view:'home', tab:b||'trending', page:Math.max(1, parseInt(c)||1) };
   } catch(e) {}
   return { view:'home', tab:'trending', page:1 };
 }
 function writeHash(view, extra={}) {
   if (view === 'watch') window.location.hash = `#watch/${extra.id||''}/${extra.wTab||'watch'}`;
-  else window.location.hash = `#home/${extra.tab||'trending'}/${extra.page||1}`;
+  else                  window.location.hash = `#home/${extra.tab||'trending'}/${extra.page||1}`;
 }
 
 const TABS = [
@@ -1204,17 +1315,20 @@ const TABS = [
   { id:'airing',   label:'📡 Airing Now' },
 ];
 
+/* ─────────────────────────────────────────────────────────────
+   APP ROOT
+   ──────────────────────────────────────────────────────────── */
 function App() {
   const init = readHash();
-  const [view,    setView]  = useState(init.view);
-  const [watching,setWatch] = useState(null);
-  const [wTab,    setWTab]  = useState(init.wTab || 'watch');
-  const [tab,     setTab]   = useState(init.tab || 'trending');
-  const [page,    setPage]  = useState(init.page || 1);
-  const [totalPg, setTPg]   = useState(1);
-  const [items,   setItems] = useState([]);
-  const [hero,    setHero]  = useState([]);
-  const [loading, setLoad]  = useState(true);
+  const [view,     setView]  = useState(init.view);
+  const [watching, setWatch] = useState(null);
+  const [wTab,     setWTab]  = useState(init.wTab || 'watch');
+  const [tab,      setTab]   = useState(init.tab || 'trending');
+  const [page,     setPage]  = useState(init.page || 1);
+  const [totalPg,  setTPg]   = useState(1);
+  const [items,    setItems] = useState([]);
+  const [hero,     setHero]  = useState([]);
+  const [loading,  setLoad]  = useState(true);
   const cache = useRef({});
 
   const load = useCallback(async (t, p) => {
@@ -1298,7 +1412,7 @@ function App() {
   if (view === 'watch' && watching)
     return <WatchPage anime={watching} startTab={wTab} onBack={goHome}/>;
   if (view === 'dmca')
-    return <PolicyPage type="dmca" onBack={() => { setView('home'); writeHash('home', { tab, page }); }}/>;
+    return <PolicyPage type="dmca"    onBack={() => { setView('home'); writeHash('home', { tab, page }); }}/>;
   if (view === 'privacy')
     return <PolicyPage type="privacy" onBack={() => { setView('home'); writeHash('home', { tab, page }); }}/>;
 
