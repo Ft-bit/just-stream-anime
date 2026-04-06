@@ -95,14 +95,29 @@
     }
     .hero-img{
       position:absolute;inset:0;width:100%;height:100%;
-      object-fit:cover;filter:brightness(.42) saturate(1.1);
+      object-fit:cover;object-position:center top;
+      filter:brightness(.42) saturate(1.1);
       transition:opacity .8s;
+    }
+    @media(max-width:600px){
+      /* On mobile, show top of image (usually where characters are) */
+      .hero-img{object-position:center 20%}
+      /* Shrink hero height on mobile so content isn't squashed */
+      .hero{min-height:clamp(440px,80vh,640px)}
     }
     .hero-grad{
       position:absolute;inset:0;
       background:
-        linear-gradient(to top, var(--bg) 0%, rgba(7,7,14,.75) 40%, rgba(7,7,14,.1) 75%, transparent 100%),
-        linear-gradient(to right, rgba(7,7,14,.88) 0%, transparent 60%);
+        linear-gradient(to top, var(--bg) 0%, rgba(7,7,14,.85) 35%, rgba(7,7,14,.2) 65%, transparent 100%),
+        linear-gradient(to right, rgba(7,7,14,.92) 0%, transparent 65%);
+    }
+    @media(max-width:600px){
+      /* Full dark overlay on mobile for readability */
+      .hero-grad{
+        background:
+          linear-gradient(to top, var(--bg) 0%, rgba(7,7,14,.9) 40%, rgba(7,7,14,.5) 70%, rgba(7,7,14,.2) 100%),
+          linear-gradient(to right, rgba(7,7,14,.8) 0%, transparent 100%);
+      }
     }
     .hero-body{
       position:relative;z-index:2;
@@ -112,10 +127,15 @@
       max-width:680px;width:100%;
     }
     /* On small screens, limit desc lines and hide tags to prevent overflow */
-    @media(max-width:480px){
+    @media(max-width:600px){
       .hero-desc{-webkit-line-clamp:2}
       .hero-tags{display:none}
       .hero-season-banner{font-size:10px;padding:3px 8px}
+      /* On mobile, hero content should not go too high */
+      .hero-body{
+        padding-top:calc(var(--nav) + 1rem);
+        padding-bottom:5rem;
+      }
     }
     .hero-badge{
       display:inline-flex;align-items:center;gap:7px;
@@ -185,21 +205,50 @@
       transition:background .15s;
     }
     .btn-info:active{background:rgba(255,255,255,.16)}
+    /* Carousel arrows — visible on desktop, hidden mobile (swipe instead) */
     .harr{
-      position:absolute;top:50%;transform:translateY(-50%);z-index:5;
-      width:clamp(36px,8vw,44px);height:clamp(36px,8vw,44px);border-radius:50%;
-      background:rgba(7,7,14,.65);border:1px solid var(--border2);
-      color:#fff;font-size:clamp(18px,4vw,22px);
+      position:absolute;top:50%;transform:translateY(-50%);z-index:10;
+      width:44px;height:44px;border-radius:50%;
+      background:rgba(7,7,14,.7);border:1px solid rgba(255,255,255,.2);
+      color:#fff;font-size:22px;
       display:flex;align-items:center;justify-content:center;
-      -webkit-tap-highlight-color:transparent;transition:background .2s;
+      -webkit-tap-highlight-color:transparent;transition:all .2s;
+      backdrop-filter:blur(8px);
     }
-    .harr:active{background:rgba(225,29,72,.5)}
+    .harr:hover{background:var(--red);border-color:var(--red);transform:translateY(-50%) scale(1.08)}
+    .harr:active{transform:translateY(-50%) scale(.95)}
+    @media(max-width:600px){.harr{display:none}}
+
+    /* Progress dots — redesigned as pill strip */
     .hdots{
-      position:absolute;bottom:1.5rem;left:50%;transform:translateX(-50%);
-      display:flex;gap:6px;z-index:5;
+      position:absolute;bottom:1.2rem;left:50%;transform:translateX(-50%);
+      display:flex;align-items:center;gap:5px;z-index:10;
+      background:rgba(0,0,0,.35);backdrop-filter:blur(8px);
+      padding:6px 10px;border-radius:20px;
     }
-    .hdot{height:4px;border-radius:2px;background:rgba(255,255,255,.22);border:none;cursor:pointer;transition:width .3s,background .3s}
-    .hdot.on{background:var(--red)}
+    .hdot{
+      height:5px;border-radius:3px;
+      background:rgba(255,255,255,.3);border:none;cursor:pointer;
+      transition:width .35s cubic-bezier(.4,0,.2,1),background .35s;
+      flex-shrink:0;
+    }
+    .hdot.on{background:var(--red);width:22px !important}
+
+    /* Auto-progress bar at very top of hero */
+    .hero-progress{
+      position:absolute;top:0;left:0;height:3px;
+      background:linear-gradient(to right,var(--red),#ff6b8a);
+      z-index:10;transition:none;border-radius:0 2px 2px 0;
+    }
+
+    /* Mobile swipe hint */
+    .swipe-hint{
+      display:none;
+      position:absolute;bottom:3.5rem;left:50%;transform:translateX(-50%);
+      font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.4);
+      letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;
+    }
+    @media(max-width:600px){.swipe-hint{display:block}}
 
     /* ── TABS ── */
     .tabs-bar{
@@ -372,6 +421,12 @@
       background:var(--bg2);border:1px solid var(--border);
       border-radius:13px;padding:clamp(12px,3vw,16px);margin-bottom:14px;
     }
+    /* Server buttons — make touch targets bigger on mobile */
+    @media(max-width:480px){
+      .srv-btns{gap:5px}
+      .sbtn{min-width:38px;height:38px;padding:0 10px;font-size:12px;
+        display:flex;align-items:center;justify-content:center}
+    }
     .srv-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:8px}
     .srv-label{font-family:var(--mono);font-size:clamp(9px,2vw,10px);font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.12em}
     .lang-pills{display:flex;gap:5px}
@@ -468,12 +523,8 @@
     }
     /* Hero bottom content — add safe area for arrow buttons */
     @media(max-width:480px){
-      .harr{display:none}
-      /* Show dots more prominently on mobile */
       .hdots{bottom:1rem}
-      .hdot.on{width:18px}
-      /* Hero body — less bottom padding so dots don't overlap */
-      .hero-body{padding-bottom:3.5rem}
+      .hero-body{padding-bottom:4.5rem}
     }
     /* Card body text — prevent overflow */
     @media(max-width:360px){
@@ -618,19 +669,65 @@ function AnimeCard({a,onPlay}){
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
 function Hero({items,onPlay}){
+  const INTERVAL = 10000; // ms per slide
   const[idx,setIdx]=useState(0);
   const[loaded,setLoaded]=useState(false);
+  const[progress,setProgress]=useState(0);
   const iv=useRef(null);
+  const pv=useRef(null);
+  const touchX=useRef(null);
+  const progressRef=useRef(0);
+
+  const startTimer=(startFrom=0)=>{
+    clearInterval(iv.current);clearInterval(pv.current);
+    progressRef.current=startFrom;
+    setProgress(startFrom);
+    const step=50;
+    pv.current=setInterval(()=>{
+      progressRef.current+=step;
+      setProgress(progressRef.current);
+      if(progressRef.current>=INTERVAL){
+        progressRef.current=0;
+        setProgress(0);
+        setIdx(i=>(i+1)%Math.min(items.length,8));
+        setLoaded(false);
+      }
+    },step);
+  };
+
   useEffect(()=>{
-    clearInterval(iv.current);
-    if(items.length) iv.current=setInterval(()=>setIdx(i=>(i+1)%Math.min(items.length,8)),10000);
-    return()=>clearInterval(iv.current);
+    if(items.length) startTimer(0);
+    return()=>{clearInterval(iv.current);clearInterval(pv.current)};
   },[items]);
-  useEffect(()=>setLoaded(false),[idx]);
-  if(!items.length)return<div style={{height:'clamp(480px,90vh,780px)',background:'var(--bg)'}}/>;
+
+  // Restart timer whenever idx changes
+  const isFirst=useRef(true);
+  useEffect(()=>{
+    setLoaded(false);
+    if(isFirst.current){isFirst.current=false;return}
+    startTimer(0);
+  },[idx]);
+
+  const goTo=(i)=>{ setIdx(i); startTimer(0); };
+  const prev=()=>goTo((idx-1+Math.min(items.length,8))%Math.min(items.length,8));
+  const next=()=>goTo((idx+1)%Math.min(items.length,8));
+
+  // Touch/swipe support
+  const onTouchStart=e=>{touchX.current=e.touches[0].clientX};
+  const onTouchEnd=e=>{
+    if(touchX.current===null) return;
+    const dx=e.changedTouches[0].clientX-touchX.current;
+    if(Math.abs(dx)>40){dx<0?next():prev()}
+    touchX.current=null;
+  };
+
+  if(!items.length)return<div style={{minHeight:'clamp(440px,80vh,640px)',background:'var(--bg)'}}/>;
   const a=items[idx],hMax=Math.min(items.length,8);
-  const bump=()=>clearInterval(iv.current);
-  return<div className="hero">
+  const pct=Math.min((progress/INTERVAL)*100,100);
+
+  return<div className="hero" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+    {/* Auto-progress bar */}
+    <div className="hero-progress" style={{width:pct+'%'}}/>
     <img className="hero-img" key={a.id} src={a.banner||a.image} alt=""
       style={{opacity:loaded?1:0}} onLoad={()=>setLoaded(true)} onError={()=>setLoaded(true)}/>
     <div className="hero-grad"/>
@@ -638,7 +735,6 @@ function Hero({items,onPlay}){
     <div className="hero-body">
       <div className="hero-badge">Trending Now</div>
       <h1 className="hero-title">{a.title}</h1>
-      {/* Season always visible */}
       {a.season&&<div className="hero-season-banner">📅 {a.season} · {a.format}</div>}
       <div className="hero-meta">
         {a.rating&&<span className="hero-score">★ {a.rating}%</span>}
@@ -651,9 +747,18 @@ function Hero({items,onPlay}){
         {a.trailerUrl&&<button className="btn-info" onClick={()=>onPlay(a,'trailer')}><FilmIco/> Trailer</button>}
       </div>
     </div>
-    <button className="harr" style={{left:12}} onClick={()=>{setIdx(i=>(i-1+hMax)%hMax);bump()}}>&#8249;</button>
-    <button className="harr" style={{right:12}} onClick={()=>{setIdx(i=>(i+1)%hMax);bump()}}>&#8250;</button>
-    <div className="hdots">{Array.from({length:hMax}).map((_,i)=><button key={i} className={'hdot'+(i===idx?' on':'')} style={{width:i===idx?22:6}} onClick={()=>{setIdx(i);bump()}}/>)}</div>
+    {/* Arrow nav — hidden on mobile, swipe instead */}
+    <button className="harr" style={{left:16}} onClick={prev}>&#8249;</button>
+    <button className="harr" style={{right:16}} onClick={next}>&#8250;</button>
+    {/* Slide index */}
+    <div className="hdots">
+      {Array.from({length:hMax}).map((_,i)=>
+        <button key={i} className={'hdot'+(i===idx?' on':'')}
+          style={{width:i===idx?22:6}}
+          onClick={()=>goTo(i)}/>
+      )}
+    </div>
+    <p className="swipe-hint">← swipe →</p>
   </div>;
 }
 
@@ -692,6 +797,15 @@ function SearchBar({onSel}){
 // ── Watch Page ────────────────────────────────────────────────────────────────
 function WatchPage({anime,startTab,onBack}){
   const totalEps=anime.eps||24;
+
+  // Special episode mapping — some anime premiere with combined episodes
+  // CotE S4 (id=180745): EP1 was a 90-min special covering chapters 1-4
+  // We still show all episode numbers so users can try each server
+  const SPECIAL_NOTES = {
+    180745: {1:'EP 1 (90-min special — covers eps 1–4 on some servers)'},
+  };
+  const specialNote = (SPECIAL_NOTES[Number(anime.id)])||{};
+
   const epList=Array.from({length:totalEps},(_,i)=>i+1);
   const[tab,setTab]=useState(startTab||'watch');
   const[curEp,setCurEp]=useState(1);
@@ -736,9 +850,14 @@ function WatchPage({anime,startTab,onBack}){
           </div>
 
           {tab==='watch'&&<>
-            
-
-            
+            {/* Special episode notice — only shown for anime with known combined episodes */}
+            {specialNote[curEp]&&<div style={{
+              background:'rgba(251,191,36,.07)',border:'1px solid rgba(251,191,36,.2)',
+              borderRadius:10,padding:'9px 14px',marginBottom:12,
+              fontFamily:'var(--mono)',fontSize:11,color:'rgba(251,191,36,.85)',lineHeight:1.6
+            }}>
+              ℹ {specialNote[curEp]}. If EP 2–4 load the same content, try a different server.
+            </div>}
 
             <div className="srv-panel">
               <div className="srv-head">
@@ -779,7 +898,7 @@ function WatchPage({anime,startTab,onBack}){
             {filtered.map(n=><button key={n} className={'epbtn'+(curEp===n&&tab==='watch'?' on':'')}
               onClick={()=>{setTab('watch');loadEp(n,lang)}}>
               <span className="ep-num">EP {n}</span>
-              <span className="ep-name">Episode {n}</span>
+              <span className="ep-name">{specialNote[n]||`Episode ${n}`}</span>
             </button>)}
           </div>
         </div>
