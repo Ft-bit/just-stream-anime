@@ -9,14 +9,13 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    :root {
-      --red:#e11d48; --red2:#9f1239; --glow:rgba(225,29,72,.28);
-      --bg:#07070e; --bg2:#0e0e1b; --bg3:#141422;
-      --border:rgba(255,255,255,.07); --border2:rgba(255,255,255,.13);
-      --txt:#e4e4f0; --txt2:#8888a6; --txt3:#44445a;
+    :root{
+      --red:#e11d48;--red2:#9f1239;--glow:rgba(225,29,72,.28);
+      --bg:#07070e;--bg2:#0e0e1b;
+      --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+      --txt:#e4e4f0;--txt2:#8888a6;--txt3:#44445a;
       --mono:'JetBrains Mono',monospace;
       --nav:60px;
-      --radius:12px;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -38,37 +37,15 @@
       border-bottom:1px solid var(--border);
     }
     .logo{display:flex;align-items:center;gap:9px;flex-shrink:0;cursor:pointer}
-    .logo-mark{
-      width:30px;height:30px;border-radius:8px;flex-shrink:0;
-      background:linear-gradient(135deg,var(--red),var(--red2));
-      display:flex;align-items:center;justify-content:center;
-      box-shadow:0 3px 12px var(--glow);
-    }
+    .logo-mark{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px var(--glow)}
     .logo-name{font-size:clamp(13px,3.5vw,16px);font-weight:900;letter-spacing:-.025em;white-space:nowrap}
     .logo-name em{color:var(--red);font-style:normal}
     .nav-search{flex:1;min-width:0;position:relative}
-    .nav-inp{
-      width:100%;font-family:var(--mono);font-size:clamp(11px,2.5vw,13px);
-      background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--txt);
-      padding:8px 12px 8px 34px;border-radius:9px;outline:none;
-      transition:border-color .2s,background .2s;
-    }
+    .nav-inp{width:100%;font-family:var(--mono);font-size:clamp(11px,2.5vw,13px);background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--txt);padding:8px 12px 8px 34px;border-radius:9px;outline:none;transition:border-color .2s,background .2s}
     .nav-inp:focus{border-color:rgba(225,29,72,.45);background:rgba(255,255,255,.07)}
-    .nav-ico{
-      position:absolute;left:10px;top:50%;transform:translateY(-50%);
-      width:14px;height:14px;color:var(--txt3);pointer-events:none;
-    }
-    .search-drop{
-      position:absolute;top:calc(100% + 8px);left:0;right:0;
-      background:#12121f;border:1px solid var(--border2);border-radius:12px;
-      overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.85);z-index:600;
-      max-height:68vh;overflow-y:auto;
-    }
-    .s-row{
-      display:flex;align-items:center;gap:12px;padding:10px 14px;
-      border-bottom:1px solid var(--border);cursor:pointer;
-      transition:background .15s;
-    }
+    .nav-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--txt3);pointer-events:none}
+    .search-drop{position:absolute;top:calc(100% + 8px);left:0;right:0;background:#12121f;border:1px solid var(--border2);border-radius:12px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.85);z-index:600;max-height:68vh;overflow-y:auto}
+    .s-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
     .s-row:last-child{border-bottom:none}
     .s-row:hover,.s-row:active{background:rgba(255,255,255,.05)}
     .s-row img{width:36px;height:52px;border-radius:6px;object-fit:cover;flex-shrink:0}
@@ -76,198 +53,58 @@
     .s-meta{font-family:var(--mono);font-size:10px;color:var(--txt3);margin-top:2px}
 
     /* HERO */
-    .hero{
-      position:relative;
-      min-height:clamp(460px,88vh,760px);
-      overflow:hidden;display:flex;align-items:flex-end;
-    }
-    .hero-progress{
-      position:absolute;top:0;left:0;height:2px;
-      background:linear-gradient(to right,var(--red),#ff6b8a);
-      z-index:10;border-radius:0 2px 2px 0;
-      transition:none;
-    }
-    .hero-img-desk{
-      position:absolute;inset:0;width:100%;height:100%;
-      object-fit:cover;object-position:center top;
-      filter:brightness(.38) saturate(1.15);
-      transition:opacity .9s ease;
-    }
-    .hero-img-mob{
-      position:absolute;inset:0;width:100%;height:100%;
-      object-fit:cover;object-position:center 15%;
-      filter:brightness(.4) saturate(1.1);
-      transition:opacity .9s ease;
-      display:none;
-    }
+    .hero{position:relative;min-height:clamp(460px,88vh,760px);overflow:hidden;display:flex;align-items:flex-end}
+    .hero-progress{position:absolute;top:0;left:0;height:2px;background:linear-gradient(to right,var(--red),#ff6b8a);z-index:10;border-radius:0 2px 2px 0}
+    .hero-img-desk{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(.38) saturate(1.15);transition:opacity .9s ease}
+    .hero-img-mob{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 15%;filter:brightness(.4) saturate(1.1);transition:opacity .9s ease;display:none}
     @media(max-width:600px){
       .hero-img-desk{display:none}
       .hero-img-mob{display:block}
       .hero{min-height:clamp(420px,78vh,600px)}
     }
-    .hero-nav-fade{
-      position:absolute;top:0;left:0;right:0;
-      height:calc(var(--nav) + 50px);
-      background:linear-gradient(to bottom,rgba(7,7,14,.9),transparent);
-      pointer-events:none;z-index:1;
-    }
-    .hero-grad{
-      position:absolute;inset:0;
-      background:
-        linear-gradient(to top, var(--bg) 0%, rgba(7,7,14,.8) 32%, rgba(7,7,14,.15) 62%, transparent 100%),
-        linear-gradient(to right, rgba(7,7,14,.9) 0%, rgba(7,7,14,.2) 55%, transparent 100%);
-    }
-    @media(max-width:600px){
-      .hero-grad{
-        background:
-          linear-gradient(to top, var(--bg) 0%, rgba(7,7,14,.88) 38%, rgba(7,7,14,.45) 68%, rgba(7,7,14,.1) 100%),
-          linear-gradient(to right, rgba(7,7,14,.75) 0%, transparent 100%);
-      }
-    }
-    .hero-body{
-      position:relative;z-index:2;
-      padding:clamp(1rem,4vw,3rem) clamp(1rem,4vw,3.5rem);
-      padding-bottom:clamp(3.5rem,7vw,5rem);
-      max-width:620px;width:100%;
-    }
-    @media(max-width:600px){
-      .hero-body{
-        padding-top:calc(var(--nav) + .75rem);
-        padding-bottom:4.5rem;
-        padding-left:clamp(.85rem,4vw,1.25rem);
-        padding-right:clamp(.85rem,4vw,1.25rem);
-      }
-      .hero-tags{display:none}
-    }
-    .hero-badge{
-      display:inline-flex;align-items:center;gap:7px;
-      font-family:var(--mono);font-size:clamp(9px,1.8vw,10px);font-weight:700;
-      text-transform:uppercase;letter-spacing:.14em;color:var(--red);
-      margin-bottom:10px;
-    }
+    .hero-nav-fade{position:absolute;top:0;left:0;right:0;height:calc(var(--nav) + 50px);background:linear-gradient(to bottom,rgba(7,7,14,.9),transparent);pointer-events:none;z-index:1}
+    .hero-grad{position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,rgba(7,7,14,.8) 32%,rgba(7,7,14,.15) 62%,transparent 100%),linear-gradient(to right,rgba(7,7,14,.9) 0%,rgba(7,7,14,.2) 55%,transparent 100%)}
+    @media(max-width:600px){.hero-grad{background:linear-gradient(to top,var(--bg) 0%,rgba(7,7,14,.88) 38%,rgba(7,7,14,.45) 68%,rgba(7,7,14,.1) 100%),linear-gradient(to right,rgba(7,7,14,.75) 0%,transparent 100%)}}
+    .hero-body{position:relative;z-index:2;padding:clamp(1rem,4vw,3rem) clamp(1rem,4vw,3.5rem) clamp(3.5rem,7vw,5rem);max-width:620px;width:100%}
+    @media(max-width:600px){.hero-body{padding:calc(var(--nav) + .75rem) clamp(.85rem,4vw,1.25rem) 4.5rem}.hero-tags{display:none}}
+    .hero-badge{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:clamp(9px,1.8vw,10px);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--red);margin-bottom:10px}
     .hero-badge::before{content:'';display:block;width:14px;height:2px;background:var(--red);border-radius:1px}
-    .hero-title{
-      font-size:clamp(.95rem,3.6vw,2.5rem);
-      font-weight:900;line-height:1.1;letter-spacing:-.03em;
-      color:#fff;margin-bottom:9px;
-      text-shadow:0 2px 20px rgba(0,0,0,.45);
-    }
-    @media(max-width:600px){
-      .hero-title{
-        font-size:clamp(.92rem,5.5vw,1.4rem);
-        display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
-      }
-    }
-    .hero-season-banner{
-      display:inline-flex;align-items:center;gap:6px;
-      background:rgba(225,29,72,.1);border:1px solid rgba(225,29,72,.22);
-      color:#fb7185;padding:3px 9px;border-radius:5px;
-      font-family:var(--mono);font-size:clamp(9px,1.8vw,10px);font-weight:700;
-      margin-bottom:9px;
-    }
-    .hero-meta{
-      display:flex;align-items:center;gap:7px;flex-wrap:wrap;
-      font-family:var(--mono);font-size:clamp(10px,2vw,11px);color:var(--txt2);
-      margin-bottom:10px;
-    }
-    .hero-score{
-      color:#fbbf24;background:rgba(251,191,36,.1);
-      border:1px solid rgba(251,191,36,.18);
-      padding:2px 7px;border-radius:4px;font-weight:700;
-    }
+    .hero-title{font-size:clamp(.95rem,3.6vw,2.5rem);font-weight:900;line-height:1.1;letter-spacing:-.03em;color:#fff;margin-bottom:9px;text-shadow:0 2px 20px rgba(0,0,0,.45)}
+    @media(max-width:600px){.hero-title{font-size:clamp(.92rem,5.5vw,1.4rem);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}}
+    .hero-season-banner{display:inline-flex;align-items:center;gap:6px;background:rgba(225,29,72,.1);border:1px solid rgba(225,29,72,.22);color:#fb7185;padding:3px 9px;border-radius:5px;font-family:var(--mono);font-size:clamp(9px,1.8vw,10px);font-weight:700;margin-bottom:9px}
+    .hero-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-family:var(--mono);font-size:clamp(10px,2vw,11px);color:var(--txt2);margin-bottom:10px}
+    .hero-score{color:#fbbf24;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.18);padding:2px 7px;border-radius:4px;font-weight:700}
     .hero-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
-    .htag{
-      font-family:var(--mono);font-size:clamp(8px,1.6vw,9px);
-      text-transform:uppercase;letter-spacing:.07em;
-      padding:2px 7px;border-radius:4px;
-      border:1px solid rgba(225,29,72,.25);color:#fb7185;background:rgba(225,29,72,.06);
-    }
-    .hero-desc{
-      font-size:clamp(12px,2.2vw,13px);line-height:1.72;color:rgba(228,228,240,.75);
-      margin-bottom:18px;
-      display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
-    }
+    .htag{font-family:var(--mono);font-size:clamp(8px,1.6vw,9px);text-transform:uppercase;letter-spacing:.07em;padding:2px 7px;border-radius:4px;border:1px solid rgba(225,29,72,.25);color:#fb7185;background:rgba(225,29,72,.06)}
+    .hero-desc{font-size:clamp(12px,2.2vw,13px);line-height:1.72;color:rgba(228,228,240,.75);margin-bottom:18px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
     @media(max-width:480px){.hero-desc{-webkit-line-clamp:2}}
     .hero-btns{display:flex;gap:9px;flex-wrap:wrap}
-    .btn-play{
-      display:inline-flex;align-items:center;gap:7px;
-      padding:clamp(9px,2.5vw,12px) clamp(16px,3.5vw,22px);
-      border-radius:10px;font-size:clamp(12px,2.5vw,13px);font-weight:700;color:#fff;
-      background:linear-gradient(135deg,var(--red),var(--red2));
-      box-shadow:0 4px 20px var(--glow);border:none;
-      transition:transform .15s,box-shadow .2s,filter .15s;
-      -webkit-tap-highlight-color:transparent;
-    }
+    .btn-play{display:inline-flex;align-items:center;gap:7px;padding:clamp(9px,2.5vw,12px) clamp(16px,3.5vw,22px);border-radius:10px;font-size:clamp(12px,2.5vw,13px);font-weight:700;color:#fff;background:linear-gradient(135deg,var(--red),var(--red2));box-shadow:0 4px 20px var(--glow);border:none;transition:transform .15s,box-shadow .2s,filter .15s;-webkit-tap-highlight-color:transparent}
     .btn-play:hover{filter:brightness(1.1);box-shadow:0 6px 28px var(--glow)}
     .btn-play:active{transform:scale(.96)}
-    .btn-info{
-      display:inline-flex;align-items:center;gap:7px;
-      padding:clamp(9px,2.5vw,12px) clamp(14px,3vw,20px);
-      border-radius:10px;font-size:clamp(12px,2.5vw,13px);font-weight:700;color:var(--txt);
-      background:rgba(255,255,255,.08);border:1px solid var(--border2);
-      -webkit-tap-highlight-color:transparent;
-      transition:background .15s;
-    }
+    .btn-info{display:inline-flex;align-items:center;gap:7px;padding:clamp(9px,2.5vw,12px) clamp(14px,3vw,20px);border-radius:10px;font-size:clamp(12px,2.5vw,13px);font-weight:700;color:var(--txt);background:rgba(255,255,255,.08);border:1px solid var(--border2);-webkit-tap-highlight-color:transparent;transition:background .15s}
     .btn-info:hover{background:rgba(255,255,255,.14)}
     .btn-info:active{background:rgba(255,255,255,.16)}
 
-    /* ── CAROUSEL ARROWS ─────────────────────────────────────── */
-    /* Only show on non-touch, larger screens */
-    .harr{
-      position:absolute;top:50%;transform:translateY(-50%);z-index:10;
-      width:42px;height:42px;border-radius:50%;
-      background:rgba(7,7,14,.65);border:1px solid rgba(255,255,255,.18);
-      color:#fff;font-size:20px;
-      display:flex;align-items:center;justify-content:center;
-      -webkit-tap-highlight-color:transparent;
-      transition:all .2s;backdrop-filter:blur(8px);
-    }
+    /* Carousel arrows — desktop mouse-only screens */
+    .harr{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:42px;height:42px;border-radius:50%;background:rgba(7,7,14,.65);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:all .2s;backdrop-filter:blur(8px)}
     .harr:hover{background:var(--red);border-color:var(--red);transform:translateY(-50%) scale(1.06)}
     .harr:active{transform:translateY(-50%) scale(.94)}
-
-    /* Hide on any screen ≤ 768px OR on any touch/coarse-pointer device */
     @media(max-width:768px){.harr{display:none!important}}
     @media(pointer:coarse){.harr{display:none!important}}
+    @media(hover:none){.harr{display:none!important}}
 
-    .hdots{
-      position:absolute;bottom:1.1rem;left:50%;transform:translateX(-50%);
-      display:flex;align-items:center;gap:5px;z-index:10;
-      background:rgba(0,0,0,.3);backdrop-filter:blur(8px);
-      padding:5px 9px;border-radius:20px;
-    }
-    .hdot{
-      height:4px;border-radius:3px;
-      background:rgba(255,255,255,.28);border:none;cursor:pointer;
-      transition:width .35s cubic-bezier(.4,0,.2,1),background .3s;
-      flex-shrink:0;
-    }
+    .hdots{position:absolute;bottom:1.1rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;z-index:10;background:rgba(0,0,0,.3);backdrop-filter:blur(8px);padding:5px 9px;border-radius:20px}
+    .hdot{height:4px;border-radius:3px;background:rgba(255,255,255,.28);border:none;cursor:pointer;transition:width .35s cubic-bezier(.4,0,.2,1),background .3s;flex-shrink:0}
     .hdot.on{background:var(--red);width:20px!important}
-
-    /* Swipe hint — show on coarse-pointer devices (phones/tablets) */
-    .swipe-hint{
-      display:none;
-      position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);
-      font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.35);
-      letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;
-      pointer-events:none;
-    }
+    .swipe-hint{display:none;position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;pointer-events:none}
+    @media(max-width:768px){.swipe-hint{display:block}}
     @media(pointer:coarse){.swipe-hint{display:block}}
-    @media(max-width:600px){.swipe-hint{display:block}}
 
     /* TABS */
-    .tabs-bar{
-      display:flex;gap:5px;overflow-x:auto;
-      padding:clamp(.6rem,2vw,1rem) clamp(.75rem,3.5vw,2.5rem);
-      scrollbar-width:none;-webkit-overflow-scrolling:touch;
-      max-width:100vw;
-    }
+    .tabs-bar{display:flex;gap:5px;overflow-x:auto;padding:clamp(.6rem,2vw,1rem) clamp(.75rem,3.5vw,2.5rem);scrollbar-width:none;-webkit-overflow-scrolling:touch}
     .tabs-bar::-webkit-scrollbar{display:none}
-    .tbtn{
-      font-family:var(--mono);font-size:clamp(11px,2vw,12px);font-weight:700;
-      padding:clamp(6px,1.8vw,8px) clamp(13px,2.5vw,17px);
-      border-radius:8px;flex-shrink:0;border:1px solid;
-      transition:all .15s;-webkit-tap-highlight-color:transparent;
-    }
+    .tbtn{font-family:var(--mono);font-size:clamp(11px,2vw,12px);font-weight:700;padding:clamp(6px,1.8vw,8px) clamp(13px,2.5vw,17px);border-radius:8px;flex-shrink:0;border:1px solid;transition:all .15s;-webkit-tap-highlight-color:transparent}
     .tbtn.off{border-color:var(--border);background:rgba(255,255,255,.04);color:var(--txt2)}
     .tbtn.off:hover{background:rgba(255,255,255,.07);color:var(--txt)}
     .tbtn.on{border-color:transparent;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;box-shadow:0 3px 14px var(--glow)}
@@ -277,23 +114,14 @@
     .sec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:clamp(.9rem,2.5vw,1.3rem)}
     .sec-bar{width:3px;height:18px;border-radius:2px;background:linear-gradient(to bottom,var(--red),var(--red2));flex-shrink:0}
     .sec-title{font-size:clamp(.95rem,3vw,1.1rem);font-weight:800;letter-spacing:-.02em;color:#fff}
-    .agrid{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:clamp(7px,1.8vw,13px);
-    }
+    .agrid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(7px,1.8vw,13px)}
     @media(min-width:480px){.agrid{grid-template-columns:repeat(3,1fr)}}
     @media(min-width:680px){.agrid{grid-template-columns:repeat(4,1fr)}}
     @media(min-width:900px){.agrid{grid-template-columns:repeat(5,1fr)}}
     @media(min-width:1200px){.agrid{grid-template-columns:repeat(6,1fr)}}
 
     /* CARD */
-    .acard{
-      cursor:pointer;border-radius:10px;overflow:hidden;
-      background:var(--bg2);border:1px solid var(--border);
-      -webkit-tap-highlight-color:transparent;
-      transition:transform .22s cubic-bezier(.4,0,.2,1),box-shadow .22s,border-color .22s;
-    }
+    .acard{cursor:pointer;border-radius:10px;overflow:hidden;background:var(--bg2);border:1px solid var(--border);-webkit-tap-highlight-color:transparent;transition:transform .22s cubic-bezier(.4,0,.2,1),box-shadow .22s,border-color .22s}
     @media(hover:hover){
       .acard:hover{transform:translateY(-5px) scale(1.015);box-shadow:0 16px 36px rgba(0,0,0,.55);border-color:rgba(255,255,255,.14)}
       .acard:hover .acard-img{transform:scale(1.05)}
@@ -301,292 +129,110 @@
     }
     .acard:active{transform:scale(.97)}
     .acard-top{position:relative;overflow:hidden;padding-top:140%;background:#131328;border-radius:10px 10px 0 0}
-    .acard-img{
-      position:absolute;inset:0;width:100%;height:100%;
-      object-fit:cover;transition:transform .4s cubic-bezier(.4,0,.2,1);
-    }
+    .acard-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s cubic-bezier(.4,0,.2,1)}
     .acard-grad{position:absolute;inset:0;background:linear-gradient(to top,var(--bg2) 0%,transparent 55%)}
-    .acard-score{
-      position:absolute;top:6px;right:6px;
-      font-family:var(--mono);font-size:clamp(8px,1.8vw,10px);font-weight:700;
-      color:#fbbf24;background:rgba(0,0,0,.75);
-      backdrop-filter:blur(6px);padding:2px 6px;border-radius:5px;
-    }
-    .acard-season{
-      position:absolute;top:6px;left:6px;
-      font-family:var(--mono);font-size:clamp(7px,1.6vw,9px);font-weight:700;
-      text-transform:uppercase;letter-spacing:.04em;
-      padding:2px 5px;border-radius:4px;
-      background:rgba(225,29,72,.85);color:#fff;
-    }
-    .acard-play{
-      position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-      opacity:0;transition:opacity .18s;background:rgba(0,0,0,.35);
-    }
-    .acard-circle{
-      width:clamp(38px,7vw,50px);height:clamp(38px,7vw,50px);border-radius:50%;
-      background:linear-gradient(135deg,var(--red),var(--red2));
-      display:flex;align-items:center;justify-content:center;
-      box-shadow:0 4px 18px var(--glow);
-    }
+    .acard-score{position:absolute;top:6px;right:6px;font-family:var(--mono);font-size:clamp(8px,1.8vw,10px);font-weight:700;color:#fbbf24;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);padding:2px 6px;border-radius:5px}
+    .acard-season{position:absolute;top:6px;left:6px;font-family:var(--mono);font-size:clamp(7px,1.6vw,9px);font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 5px;border-radius:4px;background:rgba(225,29,72,.85);color:#fff}
+    .acard-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .18s;background:rgba(0,0,0,.35)}
+    .acard-circle{width:clamp(38px,7vw,50px);height:clamp(38px,7vw,50px);border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px var(--glow)}
     .acard-body{padding:clamp(7px,1.8vw,10px) clamp(8px,2vw,12px) clamp(9px,2vw,12px)}
-    .acard-title{
-      font-weight:700;font-size:clamp(11px,2.2vw,12px);
-      color:var(--txt);line-height:1.35;margin-bottom:4px;
-      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-    }
-    .acard-sub{
-      font-family:var(--mono);font-size:clamp(8px,1.8vw,10px);color:var(--txt3);
-      display:flex;gap:4px;align-items:center;flex-wrap:wrap;
-    }
-    .atag{
-      font-family:var(--mono);font-size:clamp(7px,1.5vw,9px);
-      text-transform:uppercase;letter-spacing:.05em;
-      padding:2px 5px;border-radius:4px;
-      border:1px solid rgba(225,29,72,.2);color:#fb7185;background:rgba(225,29,72,.05);
-      white-space:nowrap;
-    }
+    .acard-title{font-weight:700;font-size:clamp(11px,2.2vw,12px);color:var(--txt);line-height:1.35;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .acard-sub{font-family:var(--mono);font-size:clamp(8px,1.8vw,10px);color:var(--txt3);display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+    .atag{font-family:var(--mono);font-size:clamp(7px,1.5vw,9px);text-transform:uppercase;letter-spacing:.05em;padding:2px 5px;border-radius:4px;border:1px solid rgba(225,29,72,.2);color:#fb7185;background:rgba(225,29,72,.05);white-space:nowrap}
     .acard-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
     @media(max-width:360px){.acard-tags{display:none}}
-    .sk{
-      background:linear-gradient(90deg,#1a1a2e 25%,#20203a 50%,#1a1a2e 75%);
-      background-size:200% 100%;animation:shimmer 1.7s infinite;
-      border-radius:10px;padding-top:140%;
-    }
+    .sk{background:linear-gradient(90deg,#1a1a2e 25%,#20203a 50%,#1a1a2e 75%);background-size:200% 100%;animation:shimmer 1.7s infinite;border-radius:10px;padding-top:140%}
     @keyframes shimmer{to{background-position:-200% 0}}
 
     /* PAGINATION */
-    .pag{
-      display:flex;justify-content:center;align-items:center;
-      gap:clamp(4px,1.2vw,6px);
-      padding:clamp(.7rem,2.5vw,1rem) clamp(1rem,4vw,2.5rem) clamp(1.2rem,3.5vw,2.5rem);
-      flex-wrap:wrap;
-    }
-    .pgb{
-      min-width:clamp(30px,7vw,35px);height:clamp(30px,7vw,35px);
-      padding:0 7px;border-radius:7px;
-      display:flex;align-items:center;justify-content:center;
-      font-family:var(--mono);font-size:clamp(10px,2vw,12px);font-weight:700;
-      background:rgba(255,255,255,.05);border:1px solid var(--border);
-      color:var(--txt2);transition:all .15s;-webkit-tap-highlight-color:transparent;
-    }
+    .pag{display:flex;justify-content:center;align-items:center;gap:clamp(4px,1.2vw,6px);padding:clamp(.7rem,2.5vw,1rem) clamp(1rem,4vw,2.5rem) clamp(1.2rem,3.5vw,2.5rem);flex-wrap:wrap}
+    .pgb{min-width:clamp(30px,7vw,35px);height:clamp(30px,7vw,35px);padding:0 7px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:clamp(10px,2vw,12px);font-weight:700;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--txt2);transition:all .15s;-webkit-tap-highlight-color:transparent}
     .pgb:hover{background:rgba(255,255,255,.09);color:var(--txt)}
-    .pgb:active{background:rgba(255,255,255,.12)}
     .pgb.on{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;color:#fff;box-shadow:0 0 14px var(--glow)}
     .pgb:disabled{opacity:.2;cursor:default}
 
-    /* WATCH PAGE */
+    /* WATCH */
     .wp{min-height:100vh;background:var(--bg);padding-top:var(--nav)}
     .wp-wrap{max-width:1440px;margin:0 auto;padding:0 clamp(1rem,4vw,2rem) 4rem}
-    .wp-back{
-      display:inline-flex;align-items:center;gap:7px;
-      font-family:var(--mono);font-size:clamp(10px,2vw,11px);color:var(--txt2);
-      background:none;border:none;padding:clamp(.7rem,2.5vw,1rem) 0;
-      transition:color .15s;-webkit-tap-highlight-color:transparent;
-    }
+    .wp-back{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:clamp(10px,2vw,11px);color:var(--txt2);background:none;border:none;padding:clamp(.7rem,2.5vw,1rem) 0;transition:color .15s;-webkit-tap-highlight-color:transparent}
     .wp-back:hover{color:var(--txt)}
     .wp-layout{display:grid;grid-template-columns:1fr;gap:14px}
     @media(min-width:960px){.wp-layout{grid-template-columns:1fr 285px}}
-    .player-wrap{
-      background:#000;border-radius:clamp(10px,2vw,14px);overflow:hidden;
-      aspect-ratio:16/9;position:relative;
-      box-shadow:0 8px 40px rgba(0,0,0,.7);margin-bottom:12px;
-    }
+    .player-wrap{background:#000;border-radius:clamp(10px,2vw,14px);overflow:hidden;aspect-ratio:16/9;position:relative;box-shadow:0 8px 40px rgba(0,0,0,.7);margin-bottom:12px}
     .player-iframe{position:absolute;inset:0;width:100%;height:100%;border:none;display:block}
-    .player-loading{
-      position:absolute;inset:0;display:flex;flex-direction:column;
-      align-items:center;justify-content:center;gap:12px;
-      background:#08081a;z-index:2;pointer-events:none;
-    }
-    .spin-ring{
-      width:46px;height:46px;border-radius:50%;
-      border:3px solid rgba(225,29,72,.12);border-top-color:var(--red);
-      animation:spin .85s linear infinite;
-    }
+    .player-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#08081a;z-index:2;pointer-events:none}
+    .spin-ring{width:46px;height:46px;border-radius:50%;border:3px solid rgba(225,29,72,.12);border-top-color:var(--red);animation:spin .85s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
     .spin-txt{font-family:var(--mono);font-size:clamp(10px,2vw,11px);color:var(--txt3);text-align:center}
     .vtabs{display:flex;gap:6px;margin-bottom:11px}
-    .vtab{
-      font-family:var(--mono);font-size:clamp(10px,2vw,11px);font-weight:700;
-      padding:clamp(6px,1.8vw,8px) clamp(13px,2.5vw,17px);
-      border-radius:8px;border:1px solid var(--border);
-      background:rgba(255,255,255,.04);color:var(--txt2);
-      transition:all .15s;-webkit-tap-highlight-color:transparent;
-    }
+    .vtab{font-family:var(--mono);font-size:clamp(10px,2vw,11px);font-weight:700;padding:clamp(6px,1.8vw,8px) clamp(13px,2.5vw,17px);border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--txt2);transition:all .15s;-webkit-tap-highlight-color:transparent}
     .vtab:hover{background:rgba(255,255,255,.08);color:var(--txt)}
     .vtab.on{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;color:#fff;box-shadow:0 3px 12px var(--glow)}
-    .srv-panel{
-      background:var(--bg2);border:1px solid var(--border);
-      border-radius:12px;padding:clamp(11px,2.5vw,15px);margin-bottom:12px;
-    }
+    .srv-panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:clamp(11px,2.5vw,15px);margin-bottom:12px}
     .srv-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:7px}
     .srv-label{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.12em}
     .lang-pills{display:flex;gap:5px}
-    .lpill{
-      font-family:var(--mono);font-size:clamp(9px,2vw,10px);font-weight:700;
-      padding:4px 11px;border-radius:6px;
-      border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--txt3);
-      transition:all .15s;-webkit-tap-highlight-color:transparent;
-    }
+    .lpill{font-family:var(--mono);font-size:clamp(9px,2vw,10px);font-weight:700;padding:4px 11px;border-radius:6px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--txt3);transition:all .15s;-webkit-tap-highlight-color:transparent}
     .lpill:hover{background:rgba(255,255,255,.08);color:var(--txt)}
     .lpill.on{background:rgba(225,29,72,.16);border-color:rgba(225,29,72,.38);color:#fb7185}
     .srv-btns{display:flex;flex-wrap:wrap;gap:5px}
-    .sbtn{
-      font-family:var(--mono);font-size:clamp(10px,2vw,11px);font-weight:700;
-      padding:clamp(6px,1.8vw,8px) clamp(10px,2.5vw,14px);
-      border-radius:7px;min-width:clamp(34px,7vw,42px);
-      border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--txt2);
-      transition:all .15s;-webkit-tap-highlight-color:transparent;
-    }
+    .sbtn{font-family:var(--mono);font-size:clamp(10px,2vw,11px);font-weight:700;padding:clamp(6px,1.8vw,8px) clamp(10px,2.5vw,14px);border-radius:7px;min-width:clamp(34px,7vw,42px);border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--txt2);transition:all .15s;-webkit-tap-highlight-color:transparent}
     .sbtn:hover{background:rgba(255,255,255,.08);color:var(--txt)}
     .sbtn.on{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;color:#fff;box-shadow:0 2px 10px var(--glow)}
     @media(max-width:480px){.sbtn{min-width:32px;padding:6px 10px;font-size:10px}}
-    .season-chip{
-      display:inline-flex;align-items:center;gap:5px;
-      background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);
-      color:#a78bfa;padding:3px 9px;border-radius:5px;
-      font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;
-      letter-spacing:.08em;
-    }
     .winfo{margin-bottom:20px}
     .winfo-title{font-size:clamp(1.1rem,3.5vw,1.4rem);font-weight:900;letter-spacing:-.025em;color:#fff;margin-bottom:7px;line-height:1.15}
     .winfo-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:9px;font-family:var(--mono);font-size:clamp(9px,2vw,10px);color:var(--txt2)}
     .ep-pill{background:rgba(225,29,72,.12);border:1px solid rgba(225,29,72,.28);color:#fb7185;padding:2px 8px;border-radius:4px;font-family:var(--mono);font-size:clamp(9px,2vw,10px);font-weight:700}
     .winfo-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
     .winfo-desc{font-size:clamp(12px,2.5vw,13px);line-height:1.75;color:var(--txt2);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-    .ep-panel{
-      background:var(--bg2);border:1px solid var(--border);
-      border-radius:13px;padding:13px;
-      display:flex;flex-direction:column;
-    }
-    @media(min-width:960px){
-      .ep-panel{position:sticky;top:calc(var(--nav) + 10px);max-height:calc(100vh - var(--nav) - 22px)}
-    }
+    .ep-panel{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:13px;display:flex;flex-direction:column}
+    @media(min-width:960px){.ep-panel{position:sticky;top:calc(var(--nav) + 10px);max-height:calc(100vh - var(--nav) - 22px)}}
     .ep-panel-title{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:9px;flex-shrink:0}
-    .ep-filter{
-      font-family:var(--mono);font-size:clamp(10px,2vw,11px);
-      background:rgba(255,255,255,.04);border:1px solid var(--border);
-      color:var(--txt);padding:7px 10px;border-radius:7px;width:100%;outline:none;
-      margin-bottom:7px;flex-shrink:0;transition:border-color .15s;
-    }
+    .ep-filter{font-family:var(--mono);font-size:clamp(10px,2vw,11px);background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--txt);padding:7px 10px;border-radius:7px;width:100%;outline:none;margin-bottom:7px;flex-shrink:0;transition:border-color .15s}
     .ep-filter:focus{border-color:rgba(225,29,72,.38)}
-    .ep-list{
-      overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:4px;
-      padding-right:2px;max-height:clamp(240px,38vh,460px);
-    }
+    .ep-list{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:4px;padding-right:2px;max-height:clamp(240px,38vh,460px)}
     @media(min-width:960px){.ep-list{max-height:none}}
     .ep-list::-webkit-scrollbar{width:3px}
     .ep-list::-webkit-scrollbar-thumb{background:rgba(225,29,72,.2);border-radius:2px}
-    .epbtn{
-      display:flex;align-items:center;gap:9px;
-      padding:clamp(8px,2vw,9px) clamp(9px,2vw,11px);
-      border-radius:8px;background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.04);cursor:pointer;
-      text-align:left;width:100%;transition:all .15s;
-      -webkit-tap-highlight-color:transparent;
-    }
+    .epbtn{display:flex;align-items:center;gap:9px;padding:clamp(8px,2vw,9px) clamp(9px,2vw,11px);border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.04);cursor:pointer;text-align:left;width:100%;transition:all .15s;-webkit-tap-highlight-color:transparent}
     .epbtn:hover{background:rgba(255,255,255,.06);border-color:var(--border)}
     .epbtn.on{background:rgba(225,29,72,.1);border-color:rgba(225,29,72,.25)}
     .ep-num{font-family:var(--mono);font-size:clamp(9px,2vw,10px);font-weight:700;color:var(--red);min-width:clamp(26px,5vw,32px);flex-shrink:0}
     .ep-name{font-size:clamp(11px,2vw,12px);color:var(--txt);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .stars{display:inline-flex;gap:2px}
 
-    /* ── NOTICE / TIP BOXES ─────────────────────────────────── */
-    .notice{
-      background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.18);
-      border-radius:9px;padding:9px 13px;margin-bottom:11px;
-      font-family:var(--mono);font-size:10px;color:rgba(251,191,36,.8);line-height:1.6;
-    }
-    .srv-tip{
-      background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.18);
-      border-radius:9px;padding:8px 12px;margin-bottom:11px;
-      font-family:var(--mono);font-size:10px;color:rgba(139,92,246,.85);line-height:1.6;
-    }
-    /* NEW: multi-season tip — orange tone to differentiate from purple */
-    .multi-season-tip{
-      background:rgba(251,146,60,.07);border:1px solid rgba(251,146,60,.22);
-      border-radius:9px;padding:9px 13px;margin-bottom:11px;
-      font-family:var(--mono);font-size:10px;color:rgba(251,146,60,.9);line-height:1.65;
-    }
-
-    /* ── POLICY PAGES ───────────────────────────────────────── */
+    /* POLICY */
     .policy-wrap{min-height:100vh;background:var(--bg);padding-top:var(--nav)}
     .policy-inner{max-width:740px;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem) 4rem}
-    .policy-back{
-      display:inline-flex;align-items:center;gap:7px;
-      font-family:var(--mono);font-size:clamp(10px,2vw,11px);color:var(--txt2);
-      background:none;border:none;cursor:pointer;
-      padding:clamp(.7rem,2.5vw,1rem) 0 clamp(.7rem,2.5vw,1.2rem);
-      transition:color .15s;-webkit-tap-highlight-color:transparent;
-    }
+    .policy-back{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:clamp(10px,2vw,11px);color:var(--txt2);background:none;border:none;cursor:pointer;padding:clamp(.7rem,2.5vw,1rem) 0 clamp(.7rem,2.5vw,1.2rem);transition:color .15s;-webkit-tap-highlight-color:transparent}
     .policy-back:hover{color:var(--txt)}
-    .policy-card{
-      background:var(--bg2);border:1px solid var(--border);
-      border-radius:16px;padding:clamp(1.4rem,5vw,2.5rem);
-    }
+    .policy-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:clamp(1.4rem,5vw,2.5rem)}
     .policy-h1{font-size:clamp(1.3rem,4vw,1.85rem);font-weight:900;letter-spacing:-.03em;color:#fff;margin-bottom:.4rem;line-height:1.1}
     .policy-date{font-family:var(--mono);font-size:10px;color:var(--txt3);margin-bottom:2rem}
     .policy-section{margin-bottom:1.6rem}
     .policy-h2{font-size:.9rem;font-weight:700;color:var(--txt);margin-bottom:.5rem}
     .policy-p{font-size:13px;line-height:1.8;color:var(--txt2)}
     .policy-ul{font-size:13px;line-height:2;color:var(--txt2);padding-left:1.4rem;margin-top:.4rem}
-
-    /* ── CONTACT LINKS — icon-only pills with hover glow ──── */
     .contact-box{margin-top:1rem;display:flex;gap:12px}
-    .contact-link{
-      display:inline-flex;align-items:center;justify-content:center;
-      width:48px;height:48px;border-radius:14px;
-      transition:transform .22s cubic-bezier(.34,1.56,.64,1),
-                  box-shadow .22s ease,
-                  background .18s ease,
-                  border-color .18s ease;
-      -webkit-tap-highlight-color:transparent;
-      text-decoration:none;
-    }
-    .contact-link-email{
-      background:rgba(225,29,72,.1);border:1px solid rgba(225,29,72,.28);
-      color:#fb7185;
-    }
-    .contact-link-email:hover{
-      background:rgba(225,29,72,.22);border-color:rgba(225,29,72,.6);
-      transform:translateY(-4px) scale(1.1);
-      box-shadow:0 8px 28px rgba(225,29,72,.35);
-    }
+    .contact-link{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:14px;transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s,background .18s,border-color .18s;-webkit-tap-highlight-color:transparent}
+    .contact-link-email{background:rgba(225,29,72,.1);border:1px solid rgba(225,29,72,.28);color:#fb7185}
+    .contact-link-email:hover{background:rgba(225,29,72,.22);border-color:rgba(225,29,72,.6);transform:translateY(-4px) scale(1.1);box-shadow:0 8px 28px rgba(225,29,72,.35)}
     .contact-link-email:active{transform:scale(.95)}
-    .contact-link-wa{
-      background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.28);
-      color:#4ade80;
-    }
-    .contact-link-wa:hover{
-      background:rgba(37,211,102,.22);border-color:rgba(37,211,102,.6);
-      transform:translateY(-4px) scale(1.1);
-      box-shadow:0 8px 28px rgba(37,211,102,.25);
-    }
+    .contact-link-wa{background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.28);color:#4ade80}
+    .contact-link-wa:hover{background:rgba(37,211,102,.22);border-color:rgba(37,211,102,.6);transform:translateY(-4px) scale(1.1);box-shadow:0 8px 28px rgba(37,211,102,.25)}
     .contact-link-wa:active{transform:scale(.95)}
-    .contact-icon{
-      width:22px;height:22px;flex-shrink:0;
-      transition:transform .3s cubic-bezier(.34,1.56,.64,1);
-    }
+    .contact-icon{width:22px;height:22px;flex-shrink:0;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
     .contact-link:hover .contact-icon{transform:scale(1.15) rotate(-6deg)}
 
     /* FOOTER */
-    footer{
-      border-top:1px solid var(--border);
-      padding:clamp(1.1rem,3.5vw,1.8rem) clamp(1rem,4vw,2.5rem);
-      display:flex;align-items:center;justify-content:space-between;
-      flex-wrap:wrap;gap:1rem;
-    }
+    footer{border-top:1px solid var(--border);padding:clamp(1.1rem,3.5vw,1.8rem) clamp(1rem,4vw,2.5rem);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
     .ft-logo{font-size:clamp(12px,2.5vw,14px);font-weight:900;letter-spacing:-.02em}
     .ft-logo em{color:var(--red);font-style:normal}
     .ft-links{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .ft-link{
-      font-family:var(--mono);font-size:clamp(9px,1.8vw,10px);color:var(--txt2);
-      background:none;border:none;cursor:pointer;
-      text-decoration:underline;text-underline-offset:2px;padding:0;
-      transition:color .15s;
-    }
+    .ft-link{font-family:var(--mono);font-size:clamp(9px,1.8vw,10px);color:var(--txt2);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:2px;padding:0;transition:color .15s}
     .ft-link:hover{color:var(--txt)}
     .ft-sep{font-family:var(--mono);font-size:10px;color:var(--txt3)}
-    .stars{display:inline-flex;gap:2px}
 
     @media(max-width:480px){
       footer{padding:1rem .75rem;flex-direction:column;gap:.5rem}
@@ -596,10 +242,7 @@
       .pgb{min-width:28px;height:28px;font-size:10px}
       .wp-wrap{padding:0 .75rem 3rem}
     }
-    @media(max-width:380px){
-      .logo-name{font-size:12px}
-      .logo-mark{width:26px;height:26px}
-    }
+    @media(max-width:380px){.logo-name{font-size:12px}.logo-mark{width:26px;height:26px}}
   </style>
 </head>
 <body>
@@ -609,169 +252,119 @@ const { useState, useEffect, useRef, useCallback } = React;
 
 async function gql(query, vars={}) {
   const r = await fetch('https://graphql.anilist.co', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables: vars })
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({query,variables:vars})
   });
   return r.json();
 }
 
-const F = `id idMal title{romaji english}coverImage{extraLarge large color}bannerImage description(asHtml:false)averageScore episodes seasonYear season format genres siteUrl trailer{id site}`;
+// nextAiringEpisode{episode} gives us the NEXT episode number about to air.
+// So last aired = nextAiringEpisode.episode - 1. This auto-updates as new eps drop.
+const F = `id idMal title{romaji english}coverImage{extraLarge large color}bannerImage
+  description(asHtml:false)averageScore episodes status
+  nextAiringEpisode{episode}
+  seasonYear season format genres siteUrl trailer{id site}`;
+
 const Qs = {
-  trending: `query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,sort:TRENDING_DESC,isAdult:false){${F}}}}`,
-  popular:  `query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,sort:POPULARITY_DESC,isAdult:false){${F}}}}`,
-  top:      `query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,sort:SCORE_DESC,isAdult:false){${F}}}}`,
-  airing:   `query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,status:RELEASING,sort:TRENDING_DESC,isAdult:false){${F}}}}`,
-  search:   `query($s:String){Page(perPage:14){media(search:$s,type:ANIME,isAdult:false){${F}}}}`,
+  trending:`query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,sort:TRENDING_DESC,isAdult:false){${F}}}}`,
+  popular: `query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,sort:POPULARITY_DESC,isAdult:false){${F}}}}`,
+  top:     `query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,sort:SCORE_DESC,isAdult:false){${F}}}}`,
+  airing:  `query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,status:RELEASING,sort:TRENDING_DESC,isAdult:false){${F}}}}`,
+  search:  `query($s:String){Page(perPage:14){media(search:$s,type:ANIME,isAdult:false){${F}}}}`,
 };
 
 function mapA(a) {
   const seasonName = a.season
     ? a.season.charAt(0) + a.season.slice(1).toLowerCase() + ' ' + a.seasonYear
-    : (a.seasonYear || '');
+    : (a.seasonYear||'');
+
+  // Dynamic ep count: for airing shows use nextAiringEpisode.episode-1 (last aired ep)
+  // For finished shows just use a.episodes
+  const airedEps = a.nextAiringEpisode
+    ? a.nextAiringEpisode.episode - 1
+    : (a.episodes||null);
+
   let trailerUrl = null;
   if (a.trailer?.id) {
-    if (a.trailer.site === 'youtube')
-      trailerUrl = `https://www.youtube-nocookie.com/embed/${a.trailer.id}?rel=0&modestbranding=1`;
-    else if (a.trailer.site === 'dailymotion')
+    if (a.trailer.site==='youtube')
+      // Standard youtube.com embed with full allow flags — nocookie had referrer issues
+      trailerUrl = `https://www.youtube.com/embed/${a.trailer.id}?rel=0&modestbranding=1`;
+    else if (a.trailer.site==='dailymotion')
       trailerUrl = `https://www.dailymotion.com/embed/video/${a.trailer.id}`;
   }
+
   return {
-    id: a.id, malId: a.idMal,
-    title: a.title?.english || a.title?.romaji || 'Unknown',
-    romaji: a.title?.romaji || '',
-    image: a.coverImage?.extraLarge || a.coverImage?.large,
-    banner: a.bannerImage,
-    desc: (a.description || '').replace(/<[^>]+>/g, ''),
-    rating: a.averageScore, year: a.seasonYear, eps: a.episodes,
-    genres: a.genres || [], color: a.coverImage?.color || '#e11d48',
-    format: (a.format || 'TV').replace(/_/g, ' '),
-    season: seasonName, trailerUrl,
+    id:a.id, malId:a.idMal,
+    title:a.title?.english||a.title?.romaji||'Unknown',
+    romaji:a.title?.romaji||'',
+    image:a.coverImage?.extraLarge||a.coverImage?.large,
+    banner:a.bannerImage,
+    desc:(a.description||'').replace(/<[^>]+>/g,''),
+    rating:a.averageScore, year:a.seasonYear,
+    eps:a.episodes,   // total episodes (finished anime)
+    airedEps,         // what's actually watchable right now
+    genres:a.genres||[],
+    color:a.coverImage?.color||'#e11d48',
+    format:(a.format||'TV').replace(/_/g,' '),
+    season:seasonName, trailerUrl, status:a.status,
   };
 }
 
-/* ─────────────────────────────────────────────────────────────
-   SEASON / PROVIDER CONFIGURATION
-   ──────────────────────────────────────────────────────────── */
-
-/* Season labels — CotE only; extend for other multi-season series as needed */
-const SEASON_LABELS = {
-  98659: 'CotE — Season 1',  145545: 'CotE — Season 2',
-  146066: 'CotE — Season 3', 180745: 'CotE — Season 4',
-};
-
-/**
- * Per-episode notes (warnings / special cases).
- * shape: { [anilistId]: { [epNum]: 'note string' } }
- */
-const EP_NOTES = {
-  180745: {
-    1: 'EP 1 is a 90-min special on some providers — covers eps 1–4. If eps 2–4 repeat the same content, switch to Server 3 or higher.'
-  },
-};
-
-/* AniList IDs that are part of the CotE franchise */
-const COTE_IDS = new Set([98659, 145545, 146066, 180745]);
-
-/* Known MAL IDs for CotE seasons (used as server fallback) */
-const COTE_MAL = { 98659: 35507, 145545: 42310, 146066: 50007, 180745: null };
-
-/**
- * Episode count overrides — used when AniList hasn't finalised the count
- * (e.g. currently-airing seasons where only N eps have dropped).
- * shape: { [anilistId]: number }
- */
-const EP_COUNT_OVERRIDE = {
-  // CotE S4 "Second Year, First Semester" — only 4 episodes released so far
-  // Ep 1 is a 90-min special that counts as four 23-min episodes
-  180745: 4,
-};
-
-/**
- * Build ordered server list.
- * CotE → MegaPlay first (handles CotE seasons reliably), VidNest as fallbacks.
- * Everything else → original working VidNest-first order.
- */
-function buildServers(aniId, ep, lang, malId) {
-  const e = ep || 1;
-  const L = lang === 'dub' ? 'dub' : 'sub';
-  const isCote = COTE_IDS.has(Number(aniId));
-
-  if (isCote) {
-    const servers = [
-      { n:'1',  url:`https://megaplay.buzz/stream/ani/${aniId}/${e}/sub` },
-      { n:'2',  url:`https://megaplay.buzz/stream/ani/${aniId}/${e}/dub` },
-      { n:'3',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=lamda` },
-      { n:'4',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=primesrc` },
-      { n:'5',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=sigma` },
-      { n:'6',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=alfa` },
-      { n:'7',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=gama` },
-      { n:'8',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=catflix` },
-      { n:'9',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=hexa` },
-      { n:'10', url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=delta` },
-      { n:'11', url:`https://vidnest.fun/animepahe/${aniId}/${e}/${L}` },
-    ];
-    const mid = malId || COTE_MAL[Number(aniId)];
-    if (mid) servers.push({ n:'12', url:`https://megaplay.buzz/stream/mal/${mid}/${e}/${L}` });
-    return servers;
-  }
-
-  /* Standard anime — original working order */
+// VidNest properly indexes each anime by its unique AniList ID.
+// S1, S2, S3, S4 of the same franchise each have different AniList IDs
+// so they resolve to different episodes automatically.
+// MegaPlay removed — was returning 410 errors.
+function buildServers(aniId, ep, lang) {
+  const e = ep||1;
+  const L = lang==='dub' ? 'dub' : 'sub';
   return [
-    { n:'1',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=lamda` },
-    { n:'2',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=primesrc` },
-    { n:'3',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=sigma` },
-    { n:'4',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=alfa` },
-    { n:'5',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=beta` },
-    { n:'6',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=gama` },
-    { n:'7',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=catflix` },
-    { n:'8',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=hexa` },
-    { n:'9',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=delta` },
-    { n:'10', url:`https://vidnest.fun/animepahe/${aniId}/${e}/${L}` },
-    { n:'11', url:`https://megaplay.buzz/stream/ani/${aniId}/${e}/${L}` },
+    {n:'1',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=lamda`},
+    {n:'2',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=primesrc`},
+    {n:'3',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=sigma`},
+    {n:'4',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=alfa`},
+    {n:'5',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=beta`},
+    {n:'6',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=gama`},
+    {n:'7',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=catflix`},
+    {n:'8',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=hexa`},
+    {n:'9',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=delta`},
+    {n:'10', url:`https://vidnest.fun/animepahe/${aniId}/${e}/${L}`},
   ];
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ICONS
-   ──────────────────────────────────────────────────────────── */
-const PIco = ({ s=16 }) => (
-  <svg viewBox="0 0 20 20" fill="currentColor" style={{ width:s, height:s }}>
+const PIco = ({s=16}) => (
+  <svg viewBox="0 0 20 20" fill="currentColor" style={{width:s,height:s}}>
     <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
   </svg>
 );
 const FilmIco = () => (
-  <svg viewBox="0 0 20 20" fill="currentColor" style={{ width:13, height:13 }}>
+  <svg viewBox="0 0 20 20" fill="currentColor" style={{width:13,height:13}}>
     <path fillRule="evenodd" d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm2 0h2v2H4V6zm0 4h2v2H4v-2zm0 4h2v2H4v-2zm12-8h-2v2h2V6zm0 4h-2v2h2v-2zm0 4h-2v2h2v-2zM8 6h4v8H8V6z" clipRule="evenodd"/>
   </svg>
 );
 const BackIco = () => (
-  <svg viewBox="0 0 20 20" fill="currentColor" style={{ width:13, height:13 }}>
+  <svg viewBox="0 0 20 20" fill="currentColor" style={{width:13,height:13}}>
     <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"/>
   </svg>
 );
-
-/* Gmail icon (envelope with M-stroke) */
 const EmailIco = () => (
   <svg className="contact-icon" viewBox="0 0 24 24" fill="none">
     <rect x="2" y="4" width="20" height="16" rx="3" stroke="currentColor" strokeWidth="1.75"/>
     <path d="M2 7l10 7 10-7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
-
-/* WhatsApp icon */
 const WhatsAppIco = () => (
   <svg className="contact-icon" viewBox="0 0 24 24" fill="currentColor">
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
   </svg>
 );
 
-function Stars({ s }) {
-  const n = Math.round(((s || 0) / 100) * 5);
+function Stars({s}) {
+  const n = Math.round(((s||0)/100)*5);
   return (
     <span className="stars">
-      {[1,2,3,4,5].map(i => (
-        <svg key={i} viewBox="0 0 20 20" fill="currentColor" style={{ width:11, height:11, color: i<=n ? '#fbbf24' : '#222230' }}>
+      {[1,2,3,4,5].map(i=>(
+        <svg key={i} viewBox="0 0 20 20" fill="currentColor" style={{width:11,height:11,color:i<=n?'#fbbf24':'#222230'}}>
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
         </svg>
       ))}
@@ -779,29 +372,26 @@ function Stars({ s }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ANIME CARD
-   ──────────────────────────────────────────────────────────── */
-function AnimeCard({ a, onPlay }) {
+function AnimeCard({a,onPlay}) {
   return (
-    <div className="acard" onClick={() => onPlay(a)}>
+    <div className="acard" onClick={()=>onPlay(a)}>
       <div className="acard-top">
         <img className="acard-img" src={a.image} alt={a.title} loading="lazy"
-          onError={e => { e.target.style.display = 'none' }}/>
+          onError={e=>{e.target.style.display='none'}}/>
         <div className="acard-grad"/>
-        {a.rating && <div className="acard-score">★ {a.rating}%</div>}
-        {a.season && <div className="acard-season">{a.season}</div>}
+        {a.rating&&<div className="acard-score">★ {a.rating}%</div>}
+        {a.season&&<div className="acard-season">{a.season}</div>}
         <div className="acard-play"><div className="acard-circle"><PIco s={16}/></div></div>
       </div>
       <div className="acard-body">
         <div className="acard-title">{a.title}</div>
         <div className="acard-sub">
           <span>{a.format}</span>
-          {a.eps && <><span>·</span><span>{a.eps} eps</span></>}
+          {a.airedEps&&<><span>·</span><span>{a.airedEps} eps</span></>}
         </div>
-        {a.genres.length > 0 && (
+        {a.genres.length>0&&(
           <div className="acard-tags">
-            {a.genres.slice(0, 2).map(g => <span key={g} className="atag">{g}</span>)}
+            {a.genres.slice(0,2).map(g=><span key={g} className="atag">{g}</span>)}
           </div>
         )}
       </div>
@@ -809,125 +399,98 @@ function AnimeCard({ a, onPlay }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   HERO CAROUSEL
-   ──────────────────────────────────────────────────────────── */
-function Hero({ items, onPlay }) {
+function Hero({items,onPlay}) {
   const INTERVAL = 10000;
-  const [idx, setIdx]       = useState(0);
-  const [loaded, setLoaded] = useState(false);
-  const [progress, setProg] = useState(0);
-  const pv          = useRef(null);
-  const progressRef = useRef(0);
-  const touchX      = useRef(null);
-  const touchY      = useRef(null);
-  const isFirst     = useRef(true);
+  const [idx,setIdx]     = useState(0);
+  const [loaded,setLoad] = useState(false);
+  const [prog,setProg]   = useState(0);
+  const pv      = useRef(null);
+  const progRef = useRef(0);
+  const touchX  = useRef(null);
+  const touchY  = useRef(null);
+  const isFirst = useRef(true);
 
   const startTimer = () => {
     clearInterval(pv.current);
-    progressRef.current = 0;
-    setProg(0);
-    const step = 50;
-    pv.current = setInterval(() => {
-      progressRef.current += step;
-      setProg(progressRef.current);
-      if (progressRef.current >= INTERVAL) {
-        progressRef.current = 0;
-        setProg(0);
-        setIdx(i => (i + 1) % Math.min(items.length, 8));
-        setLoaded(false);
+    progRef.current=0; setProg(0);
+    pv.current = setInterval(()=>{
+      progRef.current+=50; setProg(progRef.current);
+      if(progRef.current>=INTERVAL){
+        progRef.current=0; setProg(0);
+        setIdx(i=>(i+1)%Math.min(items.length,8));
+        setLoad(false);
       }
-    }, step);
+    },50);
   };
 
-  useEffect(() => {
-    if (items.length) startTimer();
-    return () => clearInterval(pv.current);
-  }, [items]);
+  useEffect(()=>{
+    if(items.length) startTimer();
+    return()=>clearInterval(pv.current);
+  },[items]);
 
-  useEffect(() => {
-    setLoaded(false);
-    if (isFirst.current) { isFirst.current = false; return; }
+  useEffect(()=>{
+    setLoad(false);
+    if(isFirst.current){isFirst.current=false;return;}
     startTimer();
-  }, [idx]);
+  },[idx]);
 
-  const hMax = Math.min(items.length, 8);
+  const hMax = Math.min(items.length,8);
   const goTo = i => setIdx(i);
-  const prev = () => goTo((idx - 1 + hMax) % hMax);
-  const next = () => goTo((idx + 1) % hMax);
+  const prev = () => goTo((idx-1+hMax)%hMax);
+  const next = () => goTo((idx+1)%hMax);
 
-  /* Swipe: only horizontal swipes with at least 40px threshold */
   const onTouchStart = e => {
-    touchX.current = e.touches[0].clientX;
-    touchY.current = e.touches[0].clientY;
+    touchX.current=e.touches[0].clientX;
+    touchY.current=e.touches[0].clientY;
   };
   const onTouchEnd = e => {
-    if (touchX.current === null) return;
-    const dx = e.changedTouches[0].clientX - touchX.current;
-    const dy = Math.abs(e.changedTouches[0].clientY - touchY.current);
-    /* Only swipe if horizontal motion > 44px AND more horizontal than vertical */
-    if (Math.abs(dx) > 44 && Math.abs(dx) > dy * 1.5) {
-      dx < 0 ? next() : prev();
-    }
-    touchX.current = null;
-    touchY.current = null;
+    if(touchX.current===null) return;
+    const dx=e.changedTouches[0].clientX-touchX.current;
+    const dy=Math.abs(e.changedTouches[0].clientY-touchY.current);
+    if(Math.abs(dx)>44&&Math.abs(dx)>dy*1.5) dx<0?next():prev();
+    touchX.current=null; touchY.current=null;
   };
 
-  if (!items.length) return <div style={{ minHeight:'clamp(420px,78vh,600px)', background:'var(--bg)' }}/>;
-  const a   = items[idx];
-  const pct = Math.min((progress / INTERVAL) * 100, 100);
+  if(!items.length) return <div style={{minHeight:'clamp(420px,78vh,600px)',background:'var(--bg)'}}/>;
+  const a=items[idx];
+  const pct=Math.min((prog/INTERVAL)*100,100);
 
   return (
-    <div className="hero"
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}>
-      <div className="hero-progress" style={{ width: pct + '%' }}/>
-      <img className="hero-img-desk" key={'d-' + a.id}
-        src={a.banner || a.image} alt=""
-        style={{ opacity: loaded ? 1 : 0 }}
-        onLoad={() => setLoaded(true)} onError={() => setLoaded(true)}/>
-      <img className="hero-img-mob" key={'m-' + a.id}
+    <div className="hero" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      <div className="hero-progress" style={{width:pct+'%'}}/>
+      <img className="hero-img-desk" key={'d-'+a.id}
+        src={a.banner||a.image} alt=""
+        style={{opacity:loaded?1:0}}
+        onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
+      <img className="hero-img-mob" key={'m-'+a.id}
         src={a.image} alt=""
-        style={{ opacity: loaded ? 1 : 0 }}
-        onLoad={() => setLoaded(true)} onError={() => setLoaded(true)}/>
+        style={{opacity:loaded?1:0}}
+        onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
       <div className="hero-grad"/>
       <div className="hero-nav-fade"/>
       <div className="hero-body">
         <div className="hero-badge">Trending Now</div>
         <h1 className="hero-title">{a.title}</h1>
-        {a.season && (
-          <div className="hero-season-banner">📅 {a.season} · {a.format}</div>
-        )}
+        {a.season&&<div className="hero-season-banner">📅 {a.season} · {a.format}</div>}
         <div className="hero-meta">
-          {a.rating && <span className="hero-score">★ {a.rating}%</span>}
-          {a.eps && <span>{a.eps} Episodes</span>}
+          {a.rating&&<span className="hero-score">★ {a.rating}%</span>}
+          {a.airedEps&&<span>{a.airedEps} Episodes</span>}
         </div>
         <div className="hero-tags">
-          {a.genres.slice(0, 5).map(g => <span key={g} className="htag">{g}</span>)}
+          {a.genres.slice(0,5).map(g=><span key={g} className="htag">{g}</span>)}
         </div>
         <p className="hero-desc">{a.desc}</p>
         <div className="hero-btns">
-          <button className="btn-play" onClick={() => onPlay(a, 'watch')}>
-            <PIco s={13}/>Watch Now
-          </button>
-          {a.trailerUrl && (
-            <button className="btn-info" onClick={() => onPlay(a, 'trailer')}>
-              <FilmIco/> Trailer
-            </button>
-          )}
+          <button className="btn-play" onClick={()=>onPlay(a,'watch')}><PIco s={13}/>Watch Now</button>
+          {a.trailerUrl&&<button className="btn-info" onClick={()=>onPlay(a,'trailer')}><FilmIco/> Trailer</button>}
         </div>
       </div>
-
-      {/* Arrows — CSS hides these on touch / ≤768px */}
-      <button className="harr" style={{ left:16 }} onClick={prev} aria-label="Previous">&#8249;</button>
-      <button className="harr" style={{ right:16 }} onClick={next} aria-label="Next">&#8250;</button>
-
+      <button className="harr" style={{left:16}} onClick={prev} aria-label="Previous">&#8249;</button>
+      <button className="harr" style={{right:16}} onClick={next} aria-label="Next">&#8250;</button>
       <div className="hdots">
-        {Array.from({ length: hMax }).map((_, i) => (
-          <button key={i} className={'hdot' + (i === idx ? ' on' : '')}
-            style={{ width: i === idx ? 20 : 5 }}
-            onClick={() => goTo(i)}
-            aria-label={`Slide ${i + 1}`}/>
+        {Array.from({length:hMax}).map((_,i)=>(
+          <button key={i} className={'hdot'+(i===idx?' on':'')}
+            style={{width:i===idx?20:5}} onClick={()=>goTo(i)}/>
         ))}
       </div>
       <p className="swipe-hint">← swipe to browse →</p>
@@ -935,51 +498,42 @@ function Hero({ items, onPlay }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   SEARCH BAR
-   ──────────────────────────────────────────────────────────── */
-function SearchBar({ onSel }) {
-  const [q, setQ]       = useState('');
-  const [res, setRes]   = useState([]);
-  const [open, setOpen] = useState(false);
+function SearchBar({onSel}) {
+  const [q,setQ]     = useState('');
+  const [res,setRes] = useState([]);
+  const [open,setO]  = useState(false);
   const tmr = useRef(null);
   const ref = useRef(null);
 
-  useEffect(() => {
-    const h = e => { if (!ref.current?.contains(e.target)) setOpen(false); };
-    document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
-  }, []);
+  useEffect(()=>{
+    const h=e=>{if(!ref.current?.contains(e.target))setO(false)};
+    document.addEventListener('mousedown',h);
+    return()=>document.removeEventListener('mousedown',h);
+  },[]);
 
-  const run = useCallback(async v => {
-    if (!v.trim()) { setRes([]); setOpen(false); return; }
-    const d = await gql(Qs.search, { s: v });
-    setRes((d.data?.Page?.media || []).map(mapA));
-    setOpen(true);
-  }, []);
+  const run = useCallback(async v=>{
+    if(!v.trim()){setRes([]);setO(false);return;}
+    const d=await gql(Qs.search,{s:v});
+    setRes((d.data?.Page?.media||[]).map(mapA)); setO(true);
+  },[]);
 
-  const oc = e => {
-    setQ(e.target.value);
-    clearTimeout(tmr.current);
-    tmr.current = setTimeout(() => run(e.target.value), 360);
-  };
+  const oc=e=>{setQ(e.target.value);clearTimeout(tmr.current);tmr.current=setTimeout(()=>run(e.target.value),360)};
 
   return (
     <div className="nav-search" ref={ref}>
       <svg className="nav-ico" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       </svg>
       <input className="nav-inp" value={q} onChange={oc} placeholder="Search anime…"
-        onFocus={() => res.length && setOpen(true)}/>
-      {open && res.length > 0 && (
+        onFocus={()=>res.length&&setO(true)}/>
+      {open&&res.length>0&&(
         <div className="search-drop">
-          {res.map(a => (
-            <div key={a.id} className="s-row" onClick={() => { onSel(a); setOpen(false); setQ(''); }}>
-              <img src={a.image} alt={a.title} onError={e => e.target.style.display='none'}/>
-              <div style={{ minWidth:0 }}>
+          {res.map(a=>(
+            <div key={a.id} className="s-row" onClick={()=>{onSel(a);setO(false);setQ('');}}>
+              <img src={a.image} alt={a.title} onError={e=>e.target.style.display='none'}/>
+              <div style={{minWidth:0}}>
                 <div className="s-title">{a.title}</div>
-                <div className="s-meta">{a.season || a.year}{a.eps ? ` · ${a.eps} eps` : ''} · {a.format}</div>
+                <div className="s-meta">{a.season||a.year}{a.airedEps?` · ${a.airedEps} eps`:''} · {a.format}</div>
               </div>
             </div>
           ))}
@@ -989,142 +543,126 @@ function SearchBar({ onSel }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   WATCH PAGE
-   ──────────────────────────────────────────────────────────── */
-function WatchPage({ anime, startTab, onBack }) {
-  const id        = Number(anime.id);
-  const epNotes   = EP_NOTES[id] || {};
-  const isCote    = COTE_IDS.has(id);
-  const seasonLbl = SEASON_LABELS[id];
-  // EP_COUNT_OVERRIDE lets us cap episode list for airing seasons (e.g. CotE S4 = 4 so far)
-  const totalEps  = EP_COUNT_OVERRIDE[id] || anime.eps || 24;
-  const epList    = Array.from({ length: totalEps }, (_, i) => i + 1);
+function WatchPage({anime,startTab,onBack}) {
+  // For airing shows: use airedEps (dynamic, from AniList nextAiringEpisode).
+  // For finished shows: use eps (total count).
+  // This mirrors exactly how animepahe.pw shows episode counts.
+  const totalEps = anime.airedEps || anime.eps || 12;
+  const epList   = Array.from({length:totalEps},(_,i)=>i+1);
 
-  const [tab,     setTab]    = useState(startTab || 'watch');
-  const [curEp,   setCurEp]  = useState(1);
-  const [lang,    setLang]   = useState('sub');
-  const [servers, setSrvs]   = useState([]);
-  const [si,      setSi]     = useState(0);
-  const [key,     setKey]    = useState(0);
-  const [spin,    setSpin]   = useState(true);
-  const [filter,  setFilter] = useState('');
+  const [tab,   setTab]  = useState(startTab||'watch');
+  const [curEp, setCurEp]= useState(1);
+  const [lang,  setLang] = useState('sub');
+  const [srvs,  setSrvs] = useState([]);
+  const [si,    setSi]   = useState(0);
+  const [key,   setKey]  = useState(0);
+  const [spin,  setSpin] = useState(true);
+  const [fil,   setFil]  = useState('');
 
-  const loadEp = useCallback((ep, lng) => {
-    const L = lng || lang;
-    setSrvs(buildServers(anime.id, ep, L, anime.malId));
-    setSi(0); setKey(k => k + 1); setSpin(true); setCurEp(ep);
-  }, [anime.id, anime.malId, lang]);
+  const loadEp = useCallback((ep,lng)=>{
+    const L=lng||lang;
+    setSrvs(buildServers(anime.id,ep,L));
+    setSi(0);setKey(k=>k+1);setSpin(true);setCurEp(ep);
+  },[anime.id,lang]);
 
-  useEffect(() => { loadEp(1, 'sub'); }, []);
+  useEffect(()=>{loadEp(1,'sub');},[]);
 
-  const switchSrv  = i => { setSi(i); setKey(k => k + 1); setSpin(true); };
-  const switchLang = l => { setLang(l); loadEp(curEp, l); };
-  const switchTab  = t => { setTab(t); setKey(k => k + 1); setSpin(true); };
+  const switchSrv  = i=>{setSi(i);setKey(k=>k+1);setSpin(true)};
+  const switchLang = l=>{setLang(l);loadEp(curEp,l)};
+  const switchTab  = t=>{setTab(t);setKey(k=>k+1);setSpin(true)};
 
-  const filtered = filter
-    ? epList.filter(n => String(n).includes(filter.trim()))
-    : epList;
-  const src = tab === 'trailer' ? anime.trailerUrl : (servers[si]?.url || '');
+  const filtered = fil ? epList.filter(n=>String(n).includes(fil.trim())) : epList;
+  const src = tab==='trailer' ? anime.trailerUrl : (srvs[si]?.url||'');
+
+  // YouTube requires proper allow + referrerPolicy to load
+  const isYT = tab==='trailer' && anime.trailerUrl?.includes('youtube.com');
+  const allowStr = isYT
+    ? "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    : "autoplay; fullscreen; picture-in-picture; encrypted-media";
+  const refPolicy = isYT ? "strict-origin-when-cross-origin" : "no-referrer";
 
   return (
     <div className="wp">
       <div className="wp-wrap">
         <button className="wp-back" onClick={onBack}><BackIco/> Back to Browse</button>
-
         <div className="wp-layout">
           <div>
             <div className="vtabs">
-              <button className={'vtab' + (tab==='watch' ? ' on' : '')} onClick={() => switchTab('watch')}>
+              <button className={'vtab'+(tab==='watch'?' on':'')} onClick={()=>switchTab('watch')}>
                 <PIco s={11}/>&nbsp; Watch
               </button>
-              {anime.trailerUrl && (
-                <button className={'vtab' + (tab==='trailer' ? ' on' : '')} onClick={() => switchTab('trailer')}>
+              {anime.trailerUrl&&(
+                <button className={'vtab'+(tab==='trailer'?' on':'')} onClick={()=>switchTab('trailer')}>
                   <FilmIco/>&nbsp; Trailer
                 </button>
               )}
             </div>
 
             <div className="player-wrap">
-              {spin && (
+              {spin&&(
                 <div className="player-loading">
                   <div className="spin-ring"/>
-                  <p className="spin-txt">{tab==='trailer' ? 'Loading trailer…' : 'Loading stream…'}</p>
+                  <p className="spin-txt">{tab==='trailer'?'Loading trailer…':'Loading stream…'}</p>
                 </div>
               )}
-              {src && (
+              {src&&(
                 <iframe key={`${tab}-${key}`} className="player-iframe" src={src}
-                  allowFullScreen allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-                  referrerPolicy="no-referrer" scrolling="no" onLoad={() => setSpin(false)}/>
+                  allowFullScreen
+                  allow={allowStr}
+                  referrerPolicy={refPolicy}
+                  scrolling="no"
+                  onLoad={()=>setSpin(false)}/>
               )}
             </div>
 
-            {tab === 'watch' && <>
-              {/* CotE-specific season tip */}
-              {isCote && (
-                <div className="multi-season-tip">
-                  🎌 You're watching <strong style={{color:'#fdba74'}}>{seasonLbl}</strong>.
-                  {' '}Servers 1–2 use MegaPlay and load the correct CotE season directly.
-                  {' '}If the wrong season appears, try Server 3 onward (VidNest mirrors).
-                </div>
-              )}
-
-              {/* Per-episode notes */}
-              {epNotes[curEp] && (
-                <div className="notice">ℹ {epNotes[curEp]}</div>
-              )}
-
+            {tab==='watch'&&(
               <div className="srv-panel">
                 <div className="srv-head">
                   <span className="srv-label">Server</span>
                   <div className="lang-pills">
-                    <button className={'lpill' + (lang==='sub' ? ' on' : '')} onClick={() => switchLang('sub')}>SUB</button>
-                    <button className={'lpill' + (lang==='dub' ? ' on' : '')} onClick={() => switchLang('dub')}>DUB</button>
+                    <button className={'lpill'+(lang==='sub'?' on':'')} onClick={()=>switchLang('sub')}>SUB</button>
+                    <button className={'lpill'+(lang==='dub'?' on':'')} onClick={()=>switchLang('dub')}>DUB</button>
                   </div>
                 </div>
                 <div className="srv-btns">
-                  {servers.map((s, i) => (
-                    <button key={i} className={'sbtn' + (si===i ? ' on' : '')} onClick={() => switchSrv(i)}>
+                  {srvs.map((s,i)=>(
+                    <button key={i} className={'sbtn'+(si===i?' on':'')} onClick={()=>switchSrv(i)}>
                       {s.n}
                     </button>
                   ))}
                 </div>
               </div>
-            </>}
+            )}
 
             <div className="winfo">
-              <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap', marginBottom:8 }}>
-                <h1 className="winfo-title" style={{ margin:0 }}>{anime.title}</h1>
-                {isCote && <span className="season-chip">🎌 {seasonLbl}</span>}
-              </div>
+              <h1 className="winfo-title">{anime.title}</h1>
               <div className="winfo-meta">
                 <Stars s={anime.rating}/>
-                {anime.rating && <span>{anime.rating}%</span>}
-                {anime.season && <><span style={{color:'var(--txt3)'}}>·</span><span>{anime.season}</span></>}
-                {anime.format && <><span style={{color:'var(--txt3)'}}>·</span><span>{anime.format}</span></>}
-                {anime.eps && <><span style={{color:'var(--txt3)'}}>·</span><span>{anime.eps} eps</span></>}
-                {tab === 'watch' && <span className="ep-pill">EP {curEp}</span>}
+                {anime.rating&&<span>{anime.rating}%</span>}
+                {anime.season&&<><span style={{color:'var(--txt3)'}}>·</span><span>{anime.season}</span></>}
+                {anime.format&&<><span style={{color:'var(--txt3)'}}>·</span><span>{anime.format}</span></>}
+                {totalEps&&<><span style={{color:'var(--txt3)'}}>·</span><span>{totalEps} eps</span></>}
+                {tab==='watch'&&<span className="ep-pill">EP {curEp}</span>}
               </div>
               <div className="winfo-tags">
-                {anime.genres.slice(0, 6).map(g => <span key={g} className="atag">{g}</span>)}
+                {anime.genres.slice(0,6).map(g=><span key={g} className="atag">{g}</span>)}
               </div>
               <p className="winfo-desc">{anime.desc}</p>
             </div>
           </div>
 
-          {/* Episode sidebar */}
           <div className="ep-panel">
             <div className="ep-panel-title">Episodes ({totalEps})</div>
             <input className="ep-filter" type="number" min="1" max={totalEps}
-              placeholder="Jump to episode…" value={filter}
-              onChange={e => setFilter(e.target.value)}/>
+              placeholder="Jump to episode…" value={fil}
+              onChange={e=>setFil(e.target.value)}/>
             <div className="ep-list">
-              {filtered.map(n => (
+              {filtered.map(n=>(
                 <button key={n}
-                  className={'epbtn' + (curEp===n && tab==='watch' ? ' on' : '')}
-                  onClick={() => { setTab('watch'); loadEp(n, lang); }}>
+                  className={'epbtn'+(curEp===n&&tab==='watch'?' on':'')}
+                  onClick={()=>{setTab('watch');loadEp(n,lang);}}>
                   <span className="ep-num">EP {n}</span>
-                  <span className="ep-name">{epNotes[n] ? '⚠ ' + n : `Episode ${n}`}</span>
+                  <span className="ep-name">Episode {n}</span>
                 </button>
               ))}
             </div>
@@ -1135,16 +673,13 @@ function WatchPage({ anime, startTab, onBack }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   POLICY / DMCA PAGES  — enhanced contact hover
-   ──────────────────────────────────────────────────────────── */
-function PolicyPage({ type, onBack }) {
-  const isDmca = type === 'dmca';
+function PolicyPage({type,onBack}) {
+  const isDmca = type==='dmca';
   const year   = new Date().getFullYear();
-
   const ContactLinks = () => (
     <div className="contact-box">
-      <a href="mailto:fredbv22@gmail.com" className="contact-link contact-link-email" title="fredbv22@gmail.com" aria-label="Email">
+      <a href="mailto:fredbv22@gmail.com" className="contact-link contact-link-email"
+        title="fredbv22@gmail.com" aria-label="Email">
         <EmailIco/>
       </a>
       <a href="https://wa.me/2348118722788" target="_blank" rel="noopener noreferrer"
@@ -1153,24 +688,23 @@ function PolicyPage({ type, onBack }) {
       </a>
     </div>
   );
-
   return (
     <div className="policy-wrap">
       <div className="policy-inner">
         <button className="policy-back" onClick={onBack}><BackIco/> Back</button>
         <div className="policy-card">
-          {isDmca ? (
+          {isDmca?(
             <>
               <h1 className="policy-h1">Copyright &amp; Content Policy</h1>
               <p className="policy-date">Last updated {year}</p>
               <div className="policy-section">
                 <h2 className="policy-h2">What JustStreamAnime Is</h2>
-                <p className="policy-p">JustStreamAnime is a free anime streaming aggregator. We curate links to video streams served by independent third-party providers and do not upload, store, or control any media files ourselves. All playback is handled entirely by those external providers.</p>
+                <p className="policy-p">JustStreamAnime is a free anime streaming aggregator. We curate links to video streams served by independent third-party providers and do not upload, store, or control any media files. All playback is handled entirely by those external providers.</p>
               </div>
               <div className="policy-section">
                 <h2 className="policy-h2">Reporting Copyright Concerns</h2>
-                <p className="policy-p">If you are a rights holder and believe content accessible through this site infringes your copyright, contact us directly. We take every notice seriously and will respond within 48 hours of receiving a valid request.</p>
-                <p className="policy-p" style={{ marginTop:'0.5rem' }}>Please include the following in your message:</p>
+                <p className="policy-p">If you are a rights holder and believe content accessible through this site infringes your copyright, contact us directly. We take every notice seriously and respond within 48 hours.</p>
+                <p className="policy-p" style={{marginTop:'.5rem'}}>Please include:</p>
                 <ul className="policy-ul">
                   <li>Your full legal name and contact details</li>
                   <li>A description of the copyrighted work</li>
@@ -1182,14 +716,14 @@ function PolicyPage({ type, onBack }) {
               </div>
               <div className="policy-section">
                 <h2 className="policy-h2">Counter-Notices</h2>
-                <p className="policy-p">If you believe content was removed in error, you may submit a counter-notice with your contact details and a statement that the removal was a mistake. We will review it and respond accordingly.</p>
+                <p className="policy-p">If you believe content was removed in error, submit a counter-notice with your contact details and a statement that the removal was a mistake. We will review it promptly.</p>
               </div>
               <div className="policy-section">
                 <h2 className="policy-h2">Get in Touch</h2>
                 <ContactLinks/>
               </div>
             </>
-          ) : (
+          ):(
             <>
               <h1 className="policy-h1">Privacy Policy</h1>
               <p className="policy-date">Last updated {year}</p>
@@ -1203,7 +737,7 @@ function PolicyPage({ type, onBack }) {
               </div>
               <div className="policy-section">
                 <h2 className="policy-h2">Server Logs</h2>
-                <p className="policy-p">Our hosting provider may automatically log standard request data — IP address, browser type, and pages visited — for security and performance purposes only. This data is not shared with or sold to any third party.</p>
+                <p className="policy-p">Our hosting provider may automatically log standard request data — IP address, browser type, and pages visited — for security and performance only. This data is not shared with third parties.</p>
               </div>
               <div className="policy-section">
                 <h2 className="policy-h2">Minors</h2>
@@ -1221,130 +755,119 @@ function PolicyPage({ type, onBack }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   HASH ROUTING
-   ──────────────────────────────────────────────────────────── */
 function readHash() {
   try {
-    const raw = (window.location.hash || '').slice(1);
-    const [sec, b, c] = raw.split('/');
-    if (sec === 'watch' && b) return { view:'watch', animeId:b, wTab:c||'watch' };
-    if (sec === 'home')      return { view:'home', tab:b||'trending', page:Math.max(1, parseInt(c)||1) };
-  } catch(e) {}
-  return { view:'home', tab:'trending', page:1 };
+    const raw=(window.location.hash||'').slice(1);
+    const [sec,b,c]=raw.split('/');
+    if(sec==='watch'&&b) return{view:'watch',animeId:b,wTab:c||'watch'};
+    if(sec==='home')     return{view:'home',tab:b||'trending',page:Math.max(1,parseInt(c)||1)};
+  }catch(e){}
+  return{view:'home',tab:'trending',page:1};
 }
-function writeHash(view, extra={}) {
-  if (view === 'watch') window.location.hash = `#watch/${extra.id||''}/${extra.wTab||'watch'}`;
-  else                  window.location.hash = `#home/${extra.tab||'trending'}/${extra.page||1}`;
+function writeHash(view,extra={}) {
+  if(view==='watch') window.location.hash=`#watch/${extra.id||''}/${extra.wTab||'watch'}`;
+  else               window.location.hash=`#home/${extra.tab||'trending'}/${extra.page||1}`;
 }
 
-const TABS = [
-  { id:'trending', label:'🔥 Trending' },
-  { id:'popular',  label:'📈 Popular' },
-  { id:'top',      label:'⭐ Top Rated' },
-  { id:'airing',   label:'📡 Airing Now' },
+const TABS=[
+  {id:'trending',label:'🔥 Trending'},
+  {id:'popular', label:'📈 Popular'},
+  {id:'top',     label:'⭐ Top Rated'},
+  {id:'airing',  label:'📡 Airing Now'},
 ];
 
-/* ─────────────────────────────────────────────────────────────
-   APP ROOT
-   ──────────────────────────────────────────────────────────── */
 function App() {
-  const init = readHash();
-  const [view,     setView]  = useState(init.view);
-  const [watching, setWatch] = useState(null);
-  const [wTab,     setWTab]  = useState(init.wTab || 'watch');
-  const [tab,      setTab]   = useState(init.tab || 'trending');
-  const [page,     setPage]  = useState(init.page || 1);
-  const [totalPg,  setTPg]   = useState(1);
-  const [items,    setItems] = useState([]);
-  const [hero,     setHero]  = useState([]);
-  const [loading,  setLoad]  = useState(true);
-  const cache = useRef({});
+  const init=readHash();
+  const [view,    setView] =useState(init.view);
+  const [watching,setWatch]=useState(null);
+  const [wTab,    setWTab] =useState(init.wTab||'watch');
+  const [tab,     setTab]  =useState(init.tab||'trending');
+  const [page,    setPage] =useState(init.page||1);
+  const [totalPg, setTPg]  =useState(1);
+  const [items,   setItems]=useState([]);
+  const [hero,    setHero] =useState([]);
+  const [loading, setLoad] =useState(true);
+  const cache=useRef({});
 
-  const load = useCallback(async (t, p) => {
+  const load=useCallback(async(t,p)=>{
     setLoad(true);
-    const d = await gql(Qs[t], { p });
-    const list = (d.data?.Page?.media || []).map(mapA);
-    list.forEach(a => { cache.current[String(a.id)] = a; });
+    const d=await gql(Qs[t],{p});
+    const list=(d.data?.Page?.media||[]).map(mapA);
+    list.forEach(a=>{cache.current[String(a.id)]=a;});
     setItems(list);
-    setTPg(d.data?.Page?.pageInfo?.lastPage || 1);
-    if (t === 'trending' && p === 1) setHero(list);
+    setTPg(d.data?.Page?.pageInfo?.lastPage||1);
+    if(t==='trending'&&p===1) setHero(list);
     setLoad(false);
-  }, []);
+  },[]);
 
-  const booted = useRef(false);
-  useEffect(() => {
-    if (booted.current) return;
-    booted.current = true;
-    if (init.view === 'watch') {
-      (async () => {
+  const booted=useRef(false);
+  useEffect(()=>{
+    if(booted.current) return;
+    booted.current=true;
+    if(init.view==='watch'){
+      (async()=>{
         setLoad(true);
-        const d = await gql(Qs.trending, { p:1 });
-        const list = (d.data?.Page?.media || []).map(mapA);
-        list.forEach(a => { cache.current[String(a.id)] = a; });
-        setHero(list); setItems(list);
-        setTPg(d.data?.Page?.pageInfo?.lastPage || 1);
+        const d=await gql(Qs.trending,{p:1});
+        const list=(d.data?.Page?.media||[]).map(mapA);
+        list.forEach(a=>{cache.current[String(a.id)]=a;});
+        setHero(list);setItems(list);
+        setTPg(d.data?.Page?.pageInfo?.lastPage||1);
         setLoad(false);
-        const cached = cache.current[String(init.animeId)];
-        if (cached) { setWatch(cached); setWTab(init.wTab || 'watch'); setView('watch'); }
-        else { setView('home'); writeHash('home', { tab:'trending', page:1 }); }
+        const cached=cache.current[String(init.animeId)];
+        if(cached){setWatch(cached);setWTab(init.wTab||'watch');setView('watch');}
+        else{setView('home');writeHash('home',{tab:'trending',page:1});}
       })();
     } else {
-      load(init.tab || 'trending', init.page || 1);
+      load(init.tab||'trending',init.page||1);
     }
-  }, []);
+  },[]);
 
-  const prevTab = useRef(init.tab);
-  useEffect(() => {
-    if (prevTab.current === tab) return;
-    prevTab.current = tab;
-    setPage(1); load(tab, 1); writeHash('home', { tab, page:1 });
-  }, [tab]);
+  const prevTab=useRef(init.tab);
+  useEffect(()=>{
+    if(prevTab.current===tab) return;
+    prevTab.current=tab;
+    setPage(1);load(tab,1);writeHash('home',{tab,page:1});
+  },[tab]);
 
-  useEffect(() => { if (page > 1) load(tab, page); }, [page]);
+  useEffect(()=>{if(page>1)load(tab,page);},[page]);
 
-  const openWatch = (a, t='watch') => {
-    cache.current[String(a.id)] = a;
-    setWatch(a); setWTab(t); setView('watch');
-    writeHash('watch', { id:a.id, wTab:t });
-    window.scrollTo({ top:0 });
+  const openWatch=(a,t='watch')=>{
+    cache.current[String(a.id)]=a;
+    setWatch(a);setWTab(t);setView('watch');
+    writeHash('watch',{id:a.id,wTab:t});
+    window.scrollTo({top:0});
   };
-  const goHome = () => {
-    setView('home'); setWatch(null);
-    writeHash('home', { tab, page });
-    window.scrollTo({ top:0 });
+  const goHome=()=>{
+    setView('home');setWatch(null);
+    writeHash('home',{tab,page});
+    window.scrollTo({top:0});
   };
-  const chPg = p => {
-    setPage(p); writeHash('home', { tab, page:p });
-    window.scrollTo({ top:0, behavior:'smooth' });
+  const chPg=p=>{
+    setPage(p);writeHash('home',{tab,page:p});
+    window.scrollTo({top:0,behavior:'smooth'});
   };
 
-  useEffect(() => {
-    const onPop = () => {
-      const h = readHash();
-      if (h.view === 'watch') {
-        const cached = cache.current[String(h.animeId)];
-        if (cached) { setWatch(cached); setWTab(h.wTab); setView('watch'); }
+  useEffect(()=>{
+    const onPop=()=>{
+      const h=readHash();
+      if(h.view==='watch'){
+        const cached=cache.current[String(h.animeId)];
+        if(cached){setWatch(cached);setWTab(h.wTab);setView('watch');}
         else setView('home');
       } else {
-        setView('home'); setWatch(null);
-        setTab(h.tab); setPage(h.page);
+        setView('home');setWatch(null);setTab(h.tab);setPage(h.page);
       }
     };
-    window.addEventListener('popstate', onPop);
-    return () => window.removeEventListener('popstate', onPop);
-  }, []);
+    window.addEventListener('popstate',onPop);
+    return()=>window.removeEventListener('popstate',onPop);
+  },[]);
 
-  const ps = [];
-  const s = Math.max(1, page - 2), e2 = Math.min(totalPg, s + 4);
-  for (let i = s; i <= e2; i++) ps.push(i);
+  const ps=[],s=Math.max(1,page-2),e2=Math.min(totalPg,s+4);
+  for(let i=s;i<=e2;i++) ps.push(i);
 
-  if (view === 'watch' && watching)
-    return <WatchPage anime={watching} startTab={wTab} onBack={goHome}/>;
-  if (view === 'dmca')
-    return <PolicyPage type="dmca"    onBack={() => { setView('home'); writeHash('home', { tab, page }); }}/>;
-  if (view === 'privacy')
-    return <PolicyPage type="privacy" onBack={() => { setView('home'); writeHash('home', { tab, page }); }}/>;
+  if(view==='watch'&&watching) return <WatchPage anime={watching} startTab={wTab} onBack={goHome}/>;
+  if(view==='dmca')    return <PolicyPage type="dmca"    onBack={()=>{setView('home');writeHash('home',{tab,page});}}/>;
+  if(view==='privacy') return <PolicyPage type="privacy" onBack={()=>{setView('home');writeHash('home',{tab,page});}}/>;
 
   return (
     <>
@@ -1353,16 +876,15 @@ function App() {
           <div className="logo-mark"><PIco s={13}/></div>
           <div className="logo-name">just<em>stream</em>anime</div>
         </div>
-        <SearchBar onSel={a => openWatch(a, 'watch')}/>
+        <SearchBar onSel={a=>openWatch(a,'watch')}/>
       </nav>
 
-      {tab === 'trending' && page === 1 && <Hero items={hero} onPlay={openWatch}/>}
+      {tab==='trending'&&page===1&&<Hero items={hero} onPlay={openWatch}/>}
 
-      <div style={{ paddingTop: tab==='trending' && page===1 ? '0' : 'calc(var(--nav) + 0.5rem)' }}>
+      <div style={{paddingTop:tab==='trending'&&page===1?'0':'calc(var(--nav) + 0.5rem)'}}>
         <div className="tabs-bar">
-          {TABS.map(t => (
-            <button key={t.id} className={'tbtn ' + (tab===t.id ? 'on' : 'off')}
-              onClick={() => setTab(t.id)}>
+          {TABS.map(t=>(
+            <button key={t.id} className={'tbtn '+(tab===t.id?'on':'off')} onClick={()=>setTab(t.id)}>
               {t.label}
             </button>
           ))}
@@ -1373,29 +895,29 @@ function App() {
         <div className="sec-hdr">
           <div className="sec-bar"/>
           <h2 className="sec-title">
-            {TABS.find(t => t.id===tab)?.label}{page > 1 ? ` — Page ${page}` : ''}
+            {TABS.find(t=>t.id===tab)?.label}{page>1?` — Page ${page}`:''}
           </h2>
         </div>
         {loading
-          ? <div className="agrid">{Array(12).fill(0).map((_, i) => <div key={i} className="sk"/>)}</div>
-          : <div className="agrid">{items.map(a => <AnimeCard key={a.id} a={a} onPlay={openWatch}/>)}</div>
+          ?<div className="agrid">{Array(12).fill(0).map((_,i)=><div key={i} className="sk"/>)}</div>
+          :<div className="agrid">{items.map(a=><AnimeCard key={a.id} a={a} onPlay={openWatch}/>)}</div>
         }
       </div>
 
       <div className="pag">
-        <button className="pgb" disabled={page===1} onClick={() => chPg(page-1)}>‹</button>
-        {ps.map(p => (
-          <button key={p} className={'pgb' + (p===page ? ' on' : '')} onClick={() => chPg(p)}>{p}</button>
+        <button className="pgb" disabled={page===1} onClick={()=>chPg(page-1)}>‹</button>
+        {ps.map(p=>(
+          <button key={p} className={'pgb'+(p===page?' on':'')} onClick={()=>chPg(p)}>{p}</button>
         ))}
-        <button className="pgb" disabled={page===totalPg} onClick={() => chPg(page+1)}>›</button>
+        <button className="pgb" disabled={page===totalPg} onClick={()=>chPg(page+1)}>›</button>
       </div>
 
       <footer>
         <div className="ft-logo">just<em>stream</em>anime</div>
         <div className="ft-links">
-          <button className="ft-link" onClick={() => setView('dmca')}>Copyright Policy</button>
+          <button className="ft-link" onClick={()=>setView('dmca')}>Copyright Policy</button>
           <span className="ft-sep">·</span>
-          <button className="ft-link" onClick={() => setView('privacy')}>Privacy</button>
+          <button className="ft-link" onClick={()=>setView('privacy')}>Privacy</button>
         </div>
       </footer>
     </>
