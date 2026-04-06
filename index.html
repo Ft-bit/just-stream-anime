@@ -41,6 +41,7 @@
     .s-row img{width:36px;height:52px;border-radius:6px;object-fit:cover;flex-shrink:0}
     .s-title{font-weight:700;font-size:13px;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .s-meta{font-family:var(--mono);font-size:10px;color:var(--txt3);margin-top:2px}
+    /* HERO */
     .hero{position:relative;min-height:clamp(460px,88vh,760px);overflow:hidden;display:flex;align-items:flex-end}
     .hero-progress{position:absolute;top:0;left:0;height:2px;background:linear-gradient(to right,var(--red),#ff6b8a);z-index:10;border-radius:0 2px 2px 0}
     .hero-img-desk{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(.38) saturate(1.15);transition:opacity .9s ease}
@@ -143,17 +144,22 @@
     .lpill{font-family:var(--mono);font-size:clamp(9px,2vw,10px);font-weight:700;padding:4px 11px;border-radius:6px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--txt3);transition:all .15s;-webkit-tap-highlight-color:transparent}
     .lpill:hover{background:rgba(255,255,255,.08);color:var(--txt)}
     .lpill.on{background:rgba(225,29,72,.16);border-color:rgba(225,29,72,.38);color:#fb7185}
-    .srv-btns{display:flex;flex-wrap:wrap;gap:5px}
+    .srv-btns{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
     .sbtn{font-family:var(--mono);font-size:clamp(10px,2vw,11px);font-weight:700;padding:clamp(6px,1.8vw,8px) clamp(10px,2.5vw,14px);border-radius:7px;min-width:clamp(34px,7vw,42px);border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--txt2);transition:all .15s;-webkit-tap-highlight-color:transparent}
     .sbtn:hover{background:rgba(255,255,255,.08);color:var(--txt)}
     .sbtn.on{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;color:#fff;box-shadow:0 2px 10px var(--glow)}
     @media(max-width:480px){.sbtn{min-width:32px;padding:6px 10px;font-size:10px}}
-    .winfo{margin-bottom:20px}
+    .srv-hint{font-family:var(--mono);font-size:10px;color:var(--txt3);line-height:1.5}
+    .srv-hint span{color:var(--txt2)}
+    .winfo{margin-bottom:16px}
     .winfo-title{font-size:clamp(1.1rem,3.5vw,1.4rem);font-weight:900;letter-spacing:-.025em;color:#fff;margin-bottom:7px;line-height:1.15}
     .winfo-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:9px;font-family:var(--mono);font-size:clamp(9px,2vw,10px);color:var(--txt2)}
     .ep-pill{background:rgba(225,29,72,.12);border:1px solid rgba(225,29,72,.28);color:#fb7185;padding:2px 8px;border-radius:4px;font-family:var(--mono);font-size:clamp(9px,2vw,10px);font-weight:700}
     .winfo-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
-    .winfo-desc{font-size:clamp(12px,2.5vw,13px);line-height:1.75;color:var(--txt2);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+    .winfo-desc{font-size:clamp(12px,2.5vw,13px);line-height:1.75;color:var(--txt2);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:12px}
+    .ext-links{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .ext-link{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 10px;border-radius:6px;border:1px solid var(--border2);color:var(--txt2);background:rgba(255,255,255,.04);transition:all .15s;-webkit-tap-highlight-color:transparent}
+    .ext-link:hover{background:rgba(255,255,255,.09);color:var(--txt);border-color:rgba(255,255,255,.2)}
     .stars{display:inline-flex;gap:2px}
     /* EPISODE PANEL */
     .ep-panel{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:14px;display:flex;flex-direction:column;gap:10px}
@@ -166,7 +172,6 @@
     .ep-toggle-btn.on{background:rgba(225,29,72,.14);border-color:rgba(225,29,72,.4);color:#fb7185}
     .ep-filter{font-family:var(--mono);font-size:clamp(10px,2vw,11px);background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--txt);padding:7px 10px;border-radius:7px;width:100%;outline:none;flex-shrink:0;transition:border-color .15s}
     .ep-filter:focus{border-color:rgba(225,29,72,.38)}
-    /* scrollable wrapper */
     .ep-scroll{overflow-y:auto;flex:1;max-height:clamp(280px,42vh,520px)}
     @media(min-width:960px){.ep-scroll{max-height:none}}
     .ep-scroll::-webkit-scrollbar{width:3px}
@@ -178,17 +183,19 @@
     .ep-tc:hover{border-color:rgba(255,255,255,.16);transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.5)}
     .ep-tc.on{border-color:var(--red);box-shadow:0 0 0 1px var(--red)}
     .ep-tc-img{position:relative;padding-top:56.25%;background:#0d0d1a;overflow:hidden}
-    .ep-tc-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .3s ease}
-    .ep-tc:hover .ep-tc-img img{transform:scale(1.05)}
-    /* Skeleton placeholder when no thumbnail */
+    /* Episode-specific thumbnail (Crunchyroll/AniList) */
+    .ep-tc-img .ep-thumb-real{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .3s ease}
+    /* Poster fallback — anime cover art, darkened */
+    .ep-tc-img .ep-thumb-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.28) saturate(.7);transition:transform .3s ease}
+    .ep-tc:hover .ep-thumb-real,.ep-tc:hover .ep-thumb-poster{transform:scale(1.05)}
     .ep-tc-skel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#131328,#1c1c38)}
     .ep-tc-skel-n{font-family:var(--mono);font-size:clamp(18px,3vw,26px);font-weight:900;color:rgba(225,29,72,.18)}
-    /* Hover play overlay */
     .ep-tc-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .18s;background:rgba(0,0,0,.38)}
     .ep-tc:hover .ep-tc-ov,.ep-tc.on .ep-tc-ov{opacity:1}
     .ep-tc-pc{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;box-shadow:0 3px 14px var(--glow)}
-    /* Ep number badge bottom-right */
     .ep-tc-badge{position:absolute;bottom:5px;right:6px;font-family:var(--mono);font-size:9px;font-weight:700;color:#fff;background:rgba(0,0,0,.75);padding:2px 5px;border-radius:4px;backdrop-filter:blur(4px)}
+    /* Ep number overlay when using poster fallback — centered big */
+    .ep-tc-poster-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:clamp(20px,4vw,28px);font-weight:900;color:rgba(255,255,255,.55);pointer-events:none}
     .ep-tc-body{padding:7px 8px 9px}
     .ep-tc-title{font-size:clamp(10px,1.9vw,11px);font-weight:600;color:var(--txt);line-height:1.32;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     /* LIST VIEW */
@@ -236,20 +243,20 @@
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
 
-async function gql(query,vars={}) {
-  const r=await fetch('https://graphql.anilist.co',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query,variables:vars})});
+async function gql(query, vars={}) {
+  const r = await fetch('https://graphql.anilist.co', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({query, variables:vars})
+  });
   return r.json();
 }
 
-// Base fields for list queries
-const FL=`id idMal title{romaji english}coverImage{extraLarge large color}bannerImage
+const FL = `id idMal siteUrl title{romaji english}coverImage{extraLarge large color}bannerImage
   description(asHtml:false)averageScore episodes status nextAiringEpisode{episode}
   seasonYear season format genres trailer{id site}`;
+const FD = `${FL} streamingEpisodes{title thumbnail url site}`;
 
-// Detail query also fetches per-episode thumbnails via streamingEpisodes
-const FD=`${FL} streamingEpisodes{title thumbnail url site}`;
-
-const Qs={
+const Qs = {
   trending:`query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,sort:TRENDING_DESC,isAdult:false){${FL}}}}`,
   popular: `query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,sort:POPULARITY_DESC,isAdult:false){${FL}}}}`,
   top:     `query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,sort:SCORE_DESC,isAdult:false){${FL}}}}`,
@@ -259,207 +266,328 @@ const Qs={
 };
 
 function mapA(a) {
-  const seasonName=a.season?a.season.charAt(0)+a.season.slice(1).toLowerCase()+' '+a.seasonYear:(a.seasonYear||'');
-  const airedEps=a.nextAiringEpisode?a.nextAiringEpisode.episode-1:(a.episodes||null);
-  let trailerUrl=null;
-  if(a.trailer?.id){
-    trailerUrl=a.trailer.site==='youtube'
-      ?`https://www.youtube.com/embed/${a.trailer.id}?rel=0&modestbranding=1`
-      :a.trailer.site==='dailymotion'
-      ?`https://www.dailymotion.com/embed/video/${a.trailer.id}`:null;
+  const seasonName = a.season
+    ? a.season.charAt(0) + a.season.slice(1).toLowerCase() + ' ' + a.seasonYear
+    : (a.seasonYear||'');
+  const airedEps = a.nextAiringEpisode ? a.nextAiringEpisode.episode - 1 : (a.episodes||null);
+  let trailerUrl = null;
+  if (a.trailer?.id) {
+    trailerUrl = a.trailer.site==='youtube'
+      ? `https://www.youtube.com/embed/${a.trailer.id}?rel=0&modestbranding=1`
+      : a.trailer.site==='dailymotion'
+      ? `https://www.dailymotion.com/embed/video/${a.trailer.id}` : null;
   }
-  // AniList returns streamingEpisodes newest-first; reverse → ep1 at index 0
-  const streamEps=a.streamingEpisodes?[...a.streamingEpisodes].reverse():[];
+  const streamEps = a.streamingEpisodes ? [...a.streamingEpisodes].reverse() : [];
   return {
-    id:a.id,malId:a.idMal,
-    title:a.title?.english||a.title?.romaji||'Unknown',
-    romaji:a.title?.romaji||'',
-    image:a.coverImage?.extraLarge||a.coverImage?.large,
-    banner:a.bannerImage,
-    desc:(a.description||'').replace(/<[^>]+>/g,''),
-    rating:a.averageScore,year:a.seasonYear,
-    eps:a.episodes,airedEps,
-    genres:a.genres||[],color:a.coverImage?.color||'#e11d48',
-    format:(a.format||'TV').replace(/_/g,' '),
-    season:seasonName,trailerUrl,status:a.status,streamEps,
+    id: a.id, malId: a.idMal, siteUrl: a.siteUrl||null,
+    title: a.title?.english||a.title?.romaji||'Unknown',
+    romaji: a.title?.romaji||'',
+    image: a.coverImage?.extraLarge||a.coverImage?.large,
+    banner: a.bannerImage,
+    desc: (a.description||'').replace(/<[^>]+>/g,''),
+    rating: a.averageScore, year: a.seasonYear,
+    eps: a.episodes, airedEps,
+    genres: a.genres||[],
+    color: a.coverImage?.color||'#e11d48',
+    format: (a.format||'TV').replace(/_/g,' '),
+    season: seasonName, trailerUrl, status: a.status, streamEps,
   };
 }
 
-function buildServers(aniId,ep,lang){
-  const e=ep||1,L=lang==='dub'?'dub':'sub';
-  return [
-    {n:'1', url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=lamda`},
-    {n:'2', url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=primesrc`},
-    {n:'3', url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=sigma`},
-    {n:'4', url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=alfa`},
-    {n:'5', url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=beta`},
-    {n:'6', url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=gama`},
-    {n:'7', url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=catflix`},
-    {n:'8', url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=hexa`},
-    {n:'9', url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=delta`},
-    {n:'10',url:`https://vidnest.fun/animepahe/${aniId}/${e}/${L}`},
+/**
+ * Build a diverse server list using multiple independent providers.
+ *
+ * VidNest  (servers 1-10) — uses AniList ID. Different server params = different CDN mirrors.
+ *   Every season of a franchise has its own AniList ID, so seasons resolve correctly.
+ *
+ * VidSrc.xyz (11) & VidSrc.to (12) — uses MAL ID. Completely independent infrastructure.
+ *   Good fallback when VidNest doesn't have a title.
+ *
+ * 2embed / embed.su (13-14) — also MAL based, different library.
+ *
+ * smashy.stream (15) — another independent MAL-based source.
+ */
+function buildServers(aniId, ep, lang, malId) {
+  const e = ep || 1;
+  const L = lang === 'dub' ? 'dub' : 'sub';
+
+  const list = [
+    // VidNest — AniList ID
+    {n:'1',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=lamda`},
+    {n:'2',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=primesrc`},
+    {n:'3',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=sigma`},
+    {n:'4',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=alfa`},
+    {n:'5',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=beta`},
+    {n:'6',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=gama`},
+    {n:'7',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=catflix`},
+    {n:'8',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=hexa`},
+    {n:'9',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=delta`},
+    {n:'10', url:`https://vidnest.fun/animepahe/${aniId}/${e}/${L}`},
   ];
+
+  if (malId) {
+    list.push(
+      // VidSrc — MAL ID
+      {n:'11', url:`https://vidsrc.xyz/embed/anime?mal=${malId}&ep=${e}`},
+      {n:'12', url:`https://vidsrc.to/embed/anime/${malId}/${e}`},
+      // embed.su — MAL ID
+      {n:'13', url:`https://embed.su/embed/anime/${malId}/${e}`},
+      // 2embed — MAL ID
+      {n:'14', url:`https://www.2embed.cc/embedanime/${malId}?ep=${e}`},
+      // smashy — MAL ID
+      {n:'15', url:`https://player.smashy.stream/anime/${malId}?ep=${e}`},
+    );
+  }
+  return list;
 }
 
-/* ── icons ── */
-const PIco=({s=16})=>(<svg viewBox="0 0 20 20" fill="currentColor" style={{width:s,height:s}}><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>);
-const FilmIco=()=>(<svg viewBox="0 0 20 20" fill="currentColor" style={{width:13,height:13}}><path fillRule="evenodd" d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm2 0h2v2H4V6zm0 4h2v2H4v-2zm0 4h2v2H4v-2zm12-8h-2v2h2V6zm0 4h-2v2h2v-2zm0 4h-2v2h2v-2zM8 6h4v8H8V6z" clipRule="evenodd"/></svg>);
-const BackIco=()=>(<svg viewBox="0 0 20 20" fill="currentColor" style={{width:13,height:13}}><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"/></svg>);
-const GridIco=()=>(<svg viewBox="0 0 16 16" fill="currentColor" style={{width:13,height:13}}><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>);
-const ListIco=()=>(<svg viewBox="0 0 16 16" fill="currentColor" style={{width:13,height:13}}><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg>);
-const EmailIco=()=>(<svg className="contact-icon" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="3" stroke="currentColor" strokeWidth="1.75"/><path d="M2 7l10 7 10-7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/></svg>);
-const WhatsAppIco=()=>(<svg className="contact-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>);
+// Icons
+const PIco = ({s=16}) => (<svg viewBox="0 0 20 20" fill="currentColor" style={{width:s,height:s}}><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>);
+const FilmIco = () => (<svg viewBox="0 0 20 20" fill="currentColor" style={{width:13,height:13}}><path fillRule="evenodd" d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm2 0h2v2H4V6zm0 4h2v2H4v-2zm0 4h2v2H4v-2zm12-8h-2v2h2V6zm0 4h-2v2h2v-2zm0 4h-2v2h2v-2zM8 6h4v8H8V6z" clipRule="evenodd"/></svg>);
+const BackIco = () => (<svg viewBox="0 0 20 20" fill="currentColor" style={{width:13,height:13}}><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"/></svg>);
+const GridIco = () => (<svg viewBox="0 0 16 16" fill="currentColor" style={{width:13,height:13}}><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>);
+const ListIco = () => (<svg viewBox="0 0 16 16" fill="currentColor" style={{width:13,height:13}}><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg>);
+const ExtLinkIco = () => (<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" style={{width:10,height:10}}><path d="M6.5 3.5H3a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V9m-3-5.5H13.5m0 0v5.5m0-5.5L7 9" strokeLinecap="round" strokeLinejoin="round"/></svg>);
+const EmailIco = () => (<svg className="contact-icon" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="3" stroke="currentColor" strokeWidth="1.75"/><path d="M2 7l10 7 10-7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/></svg>);
+const WhatsAppIco = () => (<svg className="contact-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>);
 
-function Stars({s}){const n=Math.round(((s||0)/100)*5);return(<span className="stars">{[1,2,3,4,5].map(i=>(<svg key={i} viewBox="0 0 20 20" fill="currentColor" style={{width:11,height:11,color:i<=n?'#fbbf24':'#222230'}}><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>))}</span>);}
+function Stars({s}) {
+  const n = Math.round(((s||0)/100)*5);
+  return (<span className="stars">{[1,2,3,4,5].map(i=>(<svg key={i} viewBox="0 0 20 20" fill="currentColor" style={{width:11,height:11,color:i<=n?'#fbbf24':'#222230'}}><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>))}</span>);
+}
 
-function AnimeCard({a,onPlay}){return(<div className="acard" onClick={()=>onPlay(a)}><div className="acard-top"><img className="acard-img" src={a.image} alt={a.title} loading="lazy" onError={e=>{e.target.style.display='none'}}/><div className="acard-grad"/>{a.rating&&<div className="acard-score">★ {a.rating}%</div>}{a.season&&<div className="acard-season">{a.season}</div>}<div className="acard-play"><div className="acard-circle"><PIco s={16}/></div></div></div><div className="acard-body"><div className="acard-title">{a.title}</div><div className="acard-sub"><span>{a.format}</span>{a.airedEps&&<><span>·</span><span>{a.airedEps} eps</span></>}</div>{a.genres.length>0&&<div className="acard-tags">{a.genres.slice(0,2).map(g=><span key={g} className="atag">{g}</span>)}</div>}</div></div>);}
+function AnimeCard({a, onPlay}) {
+  return (
+    <div className="acard" onClick={()=>onPlay(a)}>
+      <div className="acard-top">
+        <img className="acard-img" src={a.image} alt={a.title} loading="lazy" onError={e=>{e.target.style.display='none'}}/>
+        <div className="acard-grad"/>
+        {a.rating && <div className="acard-score">★ {a.rating}%</div>}
+        {a.season && <div className="acard-season">{a.season}</div>}
+        <div className="acard-play"><div className="acard-circle"><PIco s={16}/></div></div>
+      </div>
+      <div className="acard-body">
+        <div className="acard-title">{a.title}</div>
+        <div className="acard-sub">
+          <span>{a.format}</span>
+          {a.airedEps && <><span>·</span><span>{a.airedEps} eps</span></>}
+        </div>
+        {a.genres.length > 0 && (
+          <div className="acard-tags">{a.genres.slice(0,2).map(g=><span key={g} className="atag">{g}</span>)}</div>
+        )}
+      </div>
+    </div>
+  );
+}
 
-function Hero({items,onPlay}){
-  const IV=10000;
-  const [idx,setIdx]=useState(0),[loaded,setLoad]=useState(false),[prog,setProg]=useState(0);
-  const pv=useRef(null),pr=useRef(0),tx=useRef(null),ty=useRef(null),fi=useRef(true);
-  const go=i=>setIdx(i),prev=()=>go((idx-1+Math.min(items.length,8))%Math.min(items.length,8)),next=()=>go((idx+1)%Math.min(items.length,8));
-  const start=()=>{clearInterval(pv.current);pr.current=0;setProg(0);pv.current=setInterval(()=>{pr.current+=50;setProg(pr.current);if(pr.current>=IV){pr.current=0;setProg(0);setIdx(i=>(i+1)%Math.min(items.length,8));setLoad(false);}},50);};
-  useEffect(()=>{if(items.length)start();return()=>clearInterval(pv.current);},[items]);
-  useEffect(()=>{setLoad(false);if(fi.current){fi.current=false;return;}start();},[idx]);
-  const onTS=e=>{tx.current=e.touches[0].clientX;ty.current=e.touches[0].clientY;};
-  const onTE=e=>{if(tx.current===null)return;const dx=e.changedTouches[0].clientX-tx.current,dy=Math.abs(e.changedTouches[0].clientY-ty.current);if(Math.abs(dx)>44&&Math.abs(dx)>dy*1.5)dx<0?next():prev();tx.current=null;ty.current=null;};
-  if(!items.length)return <div style={{minHeight:'clamp(420px,78vh,600px)',background:'var(--bg)'}}/>;
-  const a=items[idx],hMax=Math.min(items.length,8);
-  return(
+function Hero({items, onPlay}) {
+  const IV = 10000;
+  const [idx,setIdx]     = useState(0);
+  const [loaded,setLoad] = useState(false);
+  const [prog,setProg]   = useState(0);
+  const pv = useRef(null), pr = useRef(0), tx = useRef(null), ty = useRef(null), fi = useRef(true);
+  const hMax = useCallback(() => Math.min(items.length, 8), [items.length]);
+  const go   = i => setIdx(i);
+  const prev = () => go((idx - 1 + hMax()) % hMax());
+  const next = () => go((idx + 1) % hMax());
+  const start = () => {
+    clearInterval(pv.current); pr.current = 0; setProg(0);
+    pv.current = setInterval(() => {
+      pr.current += 50; setProg(pr.current);
+      if (pr.current >= IV) { pr.current = 0; setProg(0); setIdx(i => (i+1) % hMax()); setLoad(false); }
+    }, 50);
+  };
+  useEffect(() => { if (items.length) start(); return () => clearInterval(pv.current); }, [items]);
+  useEffect(() => { setLoad(false); if (fi.current) { fi.current = false; return; } start(); }, [idx]);
+  const onTS = e => { tx.current = e.touches[0].clientX; ty.current = e.touches[0].clientY; };
+  const onTE = e => {
+    if (tx.current === null) return;
+    const dx = e.changedTouches[0].clientX - tx.current, dy = Math.abs(e.changedTouches[0].clientY - ty.current);
+    if (Math.abs(dx) > 44 && Math.abs(dx) > dy * 1.5) dx < 0 ? next() : prev();
+    tx.current = null; ty.current = null;
+  };
+  if (!items.length) return <div style={{minHeight:'clamp(420px,78vh,600px)',background:'var(--bg)'}}/>;
+  const a = items[idx], h = hMax();
+  return (
     <div className="hero" onTouchStart={onTS} onTouchEnd={onTE}>
       <div className="hero-progress" style={{width:Math.min((prog/IV)*100,100)+'%'}}/>
       <img className="hero-img-desk" key={'d-'+a.id} src={a.banner||a.image} alt="" style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
-      <img className="hero-img-mob"  key={'m-'+a.id} src={a.image}            alt="" style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
+      <img className="hero-img-mob"  key={'m-'+a.id} src={a.image} alt="" style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
       <div className="hero-grad"/><div className="hero-nav-fade"/>
       <div className="hero-body">
         <div className="hero-badge">Trending Now</div>
         <h1 className="hero-title">{a.title}</h1>
-        {a.season&&<div className="hero-season-banner">📅 {a.season} · {a.format}</div>}
-        <div className="hero-meta">{a.rating&&<span className="hero-score">★ {a.rating}%</span>}{a.airedEps&&<span>{a.airedEps} Episodes</span>}</div>
+        {a.season && <div className="hero-season-banner">📅 {a.season} · {a.format}</div>}
+        <div className="hero-meta">
+          {a.rating && <span className="hero-score">★ {a.rating}%</span>}
+          {a.airedEps && <span>{a.airedEps} Episodes</span>}
+        </div>
         <div className="hero-tags">{a.genres.slice(0,5).map(g=><span key={g} className="htag">{g}</span>)}</div>
         <p className="hero-desc">{a.desc}</p>
         <div className="hero-btns">
           <button className="btn-play" onClick={()=>onPlay(a,'watch')}><PIco s={13}/>Watch Now</button>
-          {a.trailerUrl&&<button className="btn-info" onClick={()=>onPlay(a,'trailer')}><FilmIco/> Trailer</button>}
+          {a.trailerUrl && <button className="btn-info" onClick={()=>onPlay(a,'trailer')}><FilmIco/> Trailer</button>}
         </div>
       </div>
       <button className="harr" style={{left:16}} onClick={prev}>&#8249;</button>
       <button className="harr" style={{right:16}} onClick={next}>&#8250;</button>
-      <div className="hdots">{Array.from({length:hMax}).map((_,i)=>(<button key={i} className={'hdot'+(i===idx?' on':'')} style={{width:i===idx?20:5}} onClick={()=>go(i)}/>))}</div>
+      <div className="hdots">{Array.from({length:h}).map((_,i)=>(<button key={i} className={'hdot'+(i===idx?' on':'')} style={{width:i===idx?20:5}} onClick={()=>go(i)}/>))}</div>
       <p className="swipe-hint">← swipe to browse →</p>
     </div>
   );
 }
 
-function SearchBar({onSel}){
-  const [q,setQ]=useState(''),[res,setRes]=useState(''),[open,setO]=useState(false);
-  const tmr=useRef(null),ref=useRef(null);
-  useEffect(()=>{const h=e=>{if(!ref.current?.contains(e.target))setO(false)};document.addEventListener('mousedown',h);return()=>document.removeEventListener('mousedown',h);},[]);
-  const run=useCallback(async v=>{if(!v.trim()){setRes([]);setO(false);return;}const d=await gql(Qs.search,{s:v});setRes((d.data?.Page?.media||[]).map(mapA));setO(true);},[]);
-  const oc=e=>{setQ(e.target.value);clearTimeout(tmr.current);tmr.current=setTimeout(()=>run(e.target.value),360);};
-  return(
+function SearchBar({onSel}) {
+  const [q,setQ] = useState(''), [res,setRes] = useState([]), [open,setO] = useState(false);
+  const tmr = useRef(null), ref = useRef(null);
+  useEffect(() => {
+    const h = e => { if (!ref.current?.contains(e.target)) setO(false); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
+  const run = useCallback(async v => {
+    if (!v.trim()) { setRes([]); setO(false); return; }
+    const d = await gql(Qs.search, {s:v});
+    setRes((d.data?.Page?.media||[]).map(mapA)); setO(true);
+  }, []);
+  const oc = e => { setQ(e.target.value); clearTimeout(tmr.current); tmr.current = setTimeout(()=>run(e.target.value), 360); };
+  return (
     <div className="nav-search" ref={ref}>
-      <svg className="nav-ico" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <svg className="nav-ico" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
       <input className="nav-inp" value={q} onChange={oc} placeholder="Search anime…" onFocus={()=>res.length&&setO(true)}/>
-      {open&&res.length>0&&(
-        <div className="search-drop">{res.map(a=>(<div key={a.id} className="s-row" onClick={()=>{onSel(a);setO(false);setQ('');}}><img src={a.image} alt={a.title} onError={e=>e.target.style.display='none'}/><div style={{minWidth:0}}><div className="s-title">{a.title}</div><div className="s-meta">{a.season||a.year}{a.airedEps?` · ${a.airedEps} eps`:''} · {a.format}</div></div></div>))}</div>
+      {open && res.length > 0 && (
+        <div className="search-drop">
+          {res.map(a=>(
+            <div key={a.id} className="s-row" onClick={()=>{onSel(a);setO(false);setQ('');}}>
+              <img src={a.image} alt={a.title} onError={e=>e.target.style.display='none'}/>
+              <div style={{minWidth:0}}>
+                <div className="s-title">{a.title}</div>
+                <div className="s-meta">{a.season||a.year}{a.airedEps?` · ${a.airedEps} eps`:''} · {a.format}</div>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
 }
 
-/* ── Episode thumbnail card component ─────────────────────── */
-function EpCard({n,thumb,title,active,onClick}){
-  const [imgErr,setImgErr]=useState(false);
-  return(
+/**
+ * Episode thumbnail card.
+ *
+ * Priority:
+ * 1. AniList streamingEpisode thumbnail (from Crunchyroll) — best quality
+ * 2. If that fails/missing → anime poster image dimmed as background (looks great, always available)
+ * 3. If poster also fails → dark gradient skeleton with big episode number
+ */
+function EpCard({n, thumb, title, active, onClick, posterImg}) {
+  const [thumbErr, setThumbErr]   = useState(false);
+  const [posterErr, setPosterErr] = useState(false);
+  const showRealThumb  = !thumbErr && !!thumb;
+  const showPoster     = !showRealThumb && !posterErr && !!posterImg;
+  const showSkel       = !showRealThumb && !showPoster;
+
+  return (
     <div className={'ep-tc'+(active?' on':'')} onClick={onClick}>
       <div className="ep-tc-img">
-        {!imgErr&&thumb
-          ?<img src={thumb} alt={title||`Episode ${n}`} loading="lazy" onError={()=>setImgErr(true)}/>
-          :<div className="ep-tc-skel"><span className="ep-tc-skel-n">{n}</span></div>
-        }
+        {showRealThumb && (
+          <img className="ep-thumb-real" src={thumb} alt={title||`Episode ${n}`}
+            loading="lazy" onError={()=>setThumbErr(true)}/>
+        )}
+        {showPoster && (
+          <>
+            <img className="ep-thumb-poster" src={posterImg} alt=""
+              onError={()=>setPosterErr(true)}/>
+            <div className="ep-tc-poster-num">{n}</div>
+          </>
+        )}
+        {showSkel && (
+          <div className="ep-tc-skel"><span className="ep-tc-skel-n">{n}</span></div>
+        )}
         <div className="ep-tc-ov"><div className="ep-tc-pc"><PIco s={12}/></div></div>
         <div className="ep-tc-badge">{n}</div>
       </div>
-      {title&&<div className="ep-tc-body"><div className="ep-tc-title">{title}</div></div>}
+      {title && <div className="ep-tc-body"><div className="ep-tc-title">{title}</div></div>}
     </div>
   );
 }
 
-/* ── Watch page ─────────────────────────────────────────────── */
-function WatchPage({anime,startTab,onBack}){
-  const totalEps=anime.airedEps||anime.eps||12;
-  const [tab,setTab]=useState(startTab||'watch');
-  const [curEp,setCurEp]=useState(1);
-  const [lang,setLang]=useState('sub');
-  const [srvs,setSrvs]=useState([]);
-  const [si,setSi]=useState(0);
-  const [key,setKey]=useState(0);
-  const [spin,setSpin]=useState(true);
-  const [fil,setFil]=useState('');
-  const [vm,setVm]=useState('thumb'); // 'thumb' or 'list'
+function WatchPage({anime, startTab, onBack}) {
+  const totalEps = anime.airedEps || anime.eps || 12;
+  const [tab,    setTab]    = useState(startTab||'watch');
+  const [curEp,  setCurEp]  = useState(1);
+  const [lang,   setLang]   = useState('sub');
+  const [srvs,   setSrvs]   = useState([]);
+  const [si,     setSi]     = useState(0);
+  const [key,    setKey]    = useState(0);
+  const [spin,   setSpin]   = useState(true);
+  const [fil,    setFil]    = useState('');
+  const [vm,     setVm]     = useState('thumb');
+  const [streamEps, setStreamEps] = useState(anime.streamEps||[]);
+  const [epsLoad, setEpsLoad]     = useState(false);
 
-  // streamEps: array of {title,thumbnail} indexed ep-1
-  const [streamEps,setStreamEps]=useState(anime.streamEps||[]);
-  const [epsLoad,setEpsLoad]=useState(false);
-
-  useEffect(()=>{
-    // If we already got streamEps from the list query skip re-fetch
-    if(streamEps.length>0)return;
+  useEffect(() => {
+    if (streamEps.length > 0) return;
     setEpsLoad(true);
-    (async()=>{
-      try{
-        const d=await gql(Qs.detail,{id:Number(anime.id)});
-        const m=d.data?.Media;
-        if(m?.streamingEpisodes?.length){
-          setStreamEps([...m.streamingEpisodes].reverse());
-        }
-      }catch(e){}
+    (async () => {
+      try {
+        const d = await gql(Qs.detail, {id: Number(anime.id)});
+        const m = d.data?.Media;
+        if (m?.streamingEpisodes?.length) setStreamEps([...m.streamingEpisodes].reverse());
+      } catch(e) {}
       setEpsLoad(false);
     })();
-  },[anime.id]);
+  }, [anime.id]);
 
-  const loadEp=useCallback((ep,lng)=>{
-    const L=lng||lang;
-    setSrvs(buildServers(anime.id, ep, L)); // animepahe (Server 1) loads automatically
-    setSi(0);setKey(k=>k+1);setSpin(true);setCurEp(ep);
-  },[anime.id,lang]);
+  const loadEp = useCallback((ep, lng) => {
+    const L = lng || lang;
+    setSrvs(buildServers(anime.id, ep, L, anime.malId));
+    setSi(0); setKey(k=>k+1); setSpin(true); setCurEp(ep);
+  }, [anime.id, anime.malId, lang]);
 
-  useEffect(()=>{loadEp(1,'sub');},[]);
+  useEffect(() => { loadEp(1, 'sub'); }, []);
 
-  const switchSrv =i=>{setSi(i);setKey(k=>k+1);setSpin(true);};
-  const switchLang=l=>{setLang(l);loadEp(curEp,l);};
-  const switchTab =t=>{setTab(t);setKey(k=>k+1);setSpin(true);};
+  const switchSrv  = i => { setSi(i); setKey(k=>k+1); setSpin(true); };
+  const switchLang = l => { setLang(l); loadEp(curEp, l); };
+  const switchTab  = t => { setTab(t); setKey(k=>k+1); setSpin(true); };
 
-  const isYT=tab==='trailer'&&anime.trailerUrl?.includes('youtube.com');
-  const src=tab==='trailer'?anime.trailerUrl:(srvs[si]?.url||'');
+  const isYT = tab==='trailer' && anime.trailerUrl?.includes('youtube.com');
+  const src  = tab==='trailer' ? anime.trailerUrl : (srvs[si]?.url||'');
 
-  const epNums=Array.from({length:totalEps},(_,i)=>i+1);
-  const getEp=n=>{const s=streamEps[n-1];return{thumb:s?.thumbnail||null,title:s?.title||null};};
-  const filtered=fil.trim()
-    ?epNums.filter(n=>{const{title}=getEp(n);return String(n).includes(fil.trim())||(title&&title.toLowerCase().includes(fil.toLowerCase()));})
-    :epNums;
+  const epNums   = Array.from({length:totalEps}, (_,i) => i+1);
+  const getEp    = n => { const s = streamEps[n-1]; return {thumb:s?.thumbnail||null, title:s?.title||null}; };
+  const filtered = fil.trim()
+    ? epNums.filter(n => { const {title} = getEp(n); return String(n).includes(fil.trim()) || (title&&title.toLowerCase().includes(fil.toLowerCase())); })
+    : epNums;
 
-  return(
+  // Poster image used as thumbnail fallback for ALL episode cards
+  const posterImg = anime.image || null;
+
+  return (
     <div className="wp">
       <div className="wp-wrap">
         <button className="wp-back" onClick={onBack}><BackIco/> Back to Browse</button>
         <div className="wp-layout">
-          {/* LEFT */}
           <div>
             <div className="vtabs">
               <button className={'vtab'+(tab==='watch'?' on':'')} onClick={()=>switchTab('watch')}><PIco s={11}/>&nbsp;Watch</button>
-              {anime.trailerUrl&&<button className={'vtab'+(tab==='trailer'?' on':'')} onClick={()=>switchTab('trailer')}><FilmIco/>&nbsp;Trailer</button>}
+              {anime.trailerUrl && <button className={'vtab'+(tab==='trailer'?' on':'')} onClick={()=>switchTab('trailer')}><FilmIco/>&nbsp;Trailer</button>}
             </div>
+
             <div className="player-wrap">
-              {spin&&<div className="player-loading"><div className="spin-ring"/><p className="spin-txt">{tab==='trailer'?'Loading trailer…':'Loading stream…'}</p></div>}
-              {src&&<iframe key={`${tab}-${key}`} className="player-iframe" src={src} allowFullScreen
-                allow={isYT?"accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture":"autoplay;fullscreen;picture-in-picture;encrypted-media"}
-                referrerPolicy={isYT?"strict-origin-when-cross-origin":"no-referrer"}
-                scrolling="no" onLoad={()=>setSpin(false)}/>}
+              {spin && <div className="player-loading"><div className="spin-ring"/><p className="spin-txt">{tab==='trailer'?'Loading trailer…':'Loading stream…'}</p></div>}
+              {src && (
+                <iframe key={`${tab}-${key}`} className="player-iframe" src={src}
+                  allowFullScreen
+                  allow={isYT ? "accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" : "autoplay;fullscreen;picture-in-picture;encrypted-media"}
+                  referrerPolicy={isYT ? "strict-origin-when-cross-origin" : "no-referrer"}
+                  scrolling="no" onLoad={()=>setSpin(false)}/>
+              )}
             </div>
-            {tab==='watch'&&(
+
+            {tab === 'watch' && (
               <div className="srv-panel">
                 <div className="srv-head">
                   <span className="srv-label">Server</span>
@@ -468,26 +596,42 @@ function WatchPage({anime,startTab,onBack}){
                     <button className={'lpill'+(lang==='dub'?' on':'')} onClick={()=>switchLang('dub')}>DUB</button>
                   </div>
                 </div>
-                <div className="srv-btns">{srvs.map((s,i)=>(<button key={i} className={'sbtn'+(si===i?' on':'')} onClick={()=>switchSrv(i)}>{s.n}</button>))}</div>
-                <p style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:8,lineHeight:1.55}}><span style={{color:'var(--txt2)'}}>Server 1 (AnimePahe)</span> starts by default — works on almost everything. Switch servers above if it buffers.</p>
+                <div className="srv-btns">
+                  {srvs.map((s,i)=>(
+                    <button key={i} className={'sbtn'+(si===i?' on':'')} onClick={()=>switchSrv(i)}>{s.n}</button>
+                  ))}
+                </div>
+                <p className="srv-hint">If your server isn't loading, <span>click another one above.</span></p>
               </div>
             )}
+
             <div className="winfo">
               <h1 className="winfo-title">{anime.title}</h1>
               <div className="winfo-meta">
                 <Stars s={anime.rating}/>
-                {anime.rating&&<span>{anime.rating}%</span>}
-                {anime.season&&<><span style={{color:'var(--txt3)'}}>·</span><span>{anime.season}</span></>}
-                {anime.format&&<><span style={{color:'var(--txt3)'}}>·</span><span>{anime.format}</span></>}
-                {totalEps&&<><span style={{color:'var(--txt3)'}}>·</span><span>{totalEps} eps</span></>}
-                {tab==='watch'&&<span className="ep-pill">EP {curEp}</span>}
+                {anime.rating && <span>{anime.rating}%</span>}
+                {anime.season && <><span style={{color:'var(--txt3)'}}>·</span><span>{anime.season}</span></>}
+                {anime.format && <><span style={{color:'var(--txt3)'}}>·</span><span>{anime.format}</span></>}
+                {totalEps     && <><span style={{color:'var(--txt3)'}}>·</span><span>{totalEps} eps</span></>}
+                {tab==='watch' && <span className="ep-pill">EP {curEp}</span>}
               </div>
               <div className="winfo-tags">{anime.genres.slice(0,6).map(g=><span key={g} className="atag">{g}</span>)}</div>
               <p className="winfo-desc">{anime.desc}</p>
+              <div className="ext-links">
+                {anime.siteUrl && (
+                  <a href={anime.siteUrl} target="_blank" rel="noopener noreferrer" className="ext-link">
+                    <ExtLinkIco/> AniList
+                  </a>
+                )}
+                {anime.malId && (
+                  <a href={`https://myanimelist.net/anime/${anime.malId}`} target="_blank" rel="noopener noreferrer" className="ext-link">
+                    <ExtLinkIco/> MAL
+                  </a>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* RIGHT — episode panel */}
           <div className="ep-panel">
             <div className="ep-panel-hdr">
               <span className="ep-panel-title">Episodes ({totalEps})</span>
@@ -496,24 +640,37 @@ function WatchPage({anime,startTab,onBack}){
                 <button className={'ep-toggle-btn'+(vm==='list' ?' on':'')} onClick={()=>setVm('list')}  title="List view"><ListIco/></button>
               </div>
             </div>
-
             <input className="ep-filter"
               placeholder={vm==='thumb'?"Search episodes…":"Jump to episode…"}
               value={fil} onChange={e=>setFil(e.target.value)}/>
-
             <div className="ep-scroll">
               {epsLoad
-                ?<div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:9,height:80}}>
-                   <div className="spin-ring" style={{width:22,height:22,borderWidth:2}}/> 
-                   <span style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>Fetching episode data…</span>
-                 </div>
-                :vm==='thumb'
-                ?<div className="ep-thumb-grid">
-                   {filtered.map(n=>{const{thumb,title}=getEp(n);return <EpCard key={n} n={n} thumb={thumb} title={title} active={curEp===n&&tab==='watch'} onClick={()=>{setTab('watch');loadEp(n,lang);}}/>;  })}
-                 </div>
-                :<div className="ep-list">
-                   {filtered.map(n=>{const{title}=getEp(n);return(<button key={n} className={'epbtn'+(curEp===n&&tab==='watch'?' on':'')} onClick={()=>{setTab('watch');loadEp(n,lang);}}><span className="ep-num">EP {n}</span><span className="ep-name">{title||`Episode ${n}`}</span></button>);})}
-                 </div>
+                ? <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:9,height:80}}>
+                    <div className="spin-ring" style={{width:22,height:22,borderWidth:2}}/>
+                    <span style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>Fetching episode data…</span>
+                  </div>
+                : vm==='thumb'
+                ? <div className="ep-thumb-grid">
+                    {filtered.map(n => {
+                      const {thumb, title} = getEp(n);
+                      return <EpCard key={n} n={n} thumb={thumb} title={title}
+                        posterImg={posterImg}
+                        active={curEp===n&&tab==='watch'}
+                        onClick={()=>{ setTab('watch'); loadEp(n, lang); }}/>;
+                    })}
+                  </div>
+                : <div className="ep-list">
+                    {filtered.map(n => {
+                      const {title} = getEp(n);
+                      return (
+                        <button key={n} className={'epbtn'+(curEp===n&&tab==='watch'?' on':'')}
+                          onClick={()=>{ setTab('watch'); loadEp(n, lang); }}>
+                          <span className="ep-num">EP {n}</span>
+                          <span className="ep-name">{title||`Episode ${n}`}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
               }
             </div>
           </div>
@@ -523,129 +680,171 @@ function WatchPage({anime,startTab,onBack}){
   );
 }
 
-function PolicyPage({type,onBack}){
-  const isDmca=type==='dmca',year=new Date().getFullYear();
-  const CL=()=>(<div className="contact-box"><a href="mailto:fredbv22@gmail.com" className="contact-link contact-link-email" title="fredbv22@gmail.com" aria-label="Email"><EmailIco/></a><a href="https://wa.me/2348118722788" target="_blank" rel="noopener noreferrer" className="contact-link contact-link-wa" title="+234 811 872 2788" aria-label="WhatsApp"><WhatsAppIco/></a></div>);
-  return(
+function PolicyPage({type, onBack}) {
+  const isDmca = type === 'dmca';
+  const year   = new Date().getFullYear();
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&to=fredbv22%40gmail.com&su=Contact%20JustStreamAnime`;
+  const CL = () => (
+    <div className="contact-box">
+      <a href={gmailUrl} target="_blank" rel="noopener noreferrer"
+        className="contact-link contact-link-email" title="fredbv22@gmail.com" aria-label="Email">
+        <EmailIco/>
+      </a>
+      <a href="https://wa.me/2348118722788" target="_blank" rel="noopener noreferrer"
+        className="contact-link contact-link-wa" title="+234 811 872 2788" aria-label="WhatsApp">
+        <WhatsAppIco/>
+      </a>
+    </div>
+  );
+  return (
     <div className="policy-wrap"><div className="policy-inner">
       <button className="policy-back" onClick={onBack}><BackIco/> Back</button>
       <div className="policy-card">
-        {isDmca?(
-          <><h1 className="policy-h1">Copyright &amp; Content Policy</h1><p className="policy-date">Last updated {year}</p>
-          <div className="policy-section"><h2 className="policy-h2">What JustStreamAnime Is</h2><p className="policy-p">JustStreamAnime is a free anime streaming aggregator. We curate links to video streams served by independent third-party providers and do not upload, store, or control any media files. All playback is handled entirely by those external providers.</p></div>
-          <div className="policy-section"><h2 className="policy-h2">Reporting Copyright Concerns</h2><p className="policy-p">If you are a rights holder and believe content accessible through this site infringes your copyright, contact us directly. We respond within 48 hours.</p><p className="policy-p" style={{marginTop:'.5rem'}}>Please include:</p><ul className="policy-ul"><li>Your full legal name and contact details</li><li>A description of the copyrighted work</li><li>The specific page URL(s) where the content appears</li><li>A statement of good-faith belief that the use is not authorised</li><li>A confirmation that the information is accurate</li><li>Your electronic or physical signature</li></ul></div>
-          <div className="policy-section"><h2 className="policy-h2">Counter-Notices</h2><p className="policy-p">If you believe content was removed in error, submit a counter-notice with your contact details and a statement that the removal was a mistake. We will review it promptly.</p></div>
-          <div className="policy-section"><h2 className="policy-h2">Get in Touch</h2><CL/></div></>
-        ):(
-          <><h1 className="policy-h1">Privacy Policy</h1><p className="policy-date">Last updated {year}</p>
-          <div className="policy-section"><h2 className="policy-h2">Data We Collect</h2><p className="policy-p">JustStreamAnime does not collect, store, or sell personal information. No account registration is required. We do not use tracking cookies or advertising identifiers.</p></div>
-          <div className="policy-section"><h2 className="policy-h2">Third-Party Providers</h2><p className="policy-p">Video content is served via third-party embed providers. Those providers operate under their own privacy policies and may collect data independently.</p></div>
-          <div className="policy-section"><h2 className="policy-h2">Server Logs</h2><p className="policy-p">Our hosting provider may automatically log standard request data — IP address, browser type, and pages visited — for security and performance only. This data is not shared with third parties.</p></div>
-          <div className="policy-section"><h2 className="policy-h2">Minors</h2><p className="policy-p">This service is not directed at children under 13. We do not knowingly collect information from minors.</p></div>
-          <div className="policy-section"><h2 className="policy-h2">Contact</h2><CL/></div></>
+        {isDmca ? (
+          <>
+            <h1 className="policy-h1">Copyright &amp; Content Policy</h1>
+            <p className="policy-date">Last updated {year}</p>
+            <div className="policy-section"><h2 className="policy-h2">What JustStreamAnime Is</h2><p className="policy-p">JustStreamAnime is a free anime streaming aggregator. We curate links to video streams served by independent third-party providers and do not upload, store, or control any media files. All playback is handled entirely by those external providers.</p></div>
+            <div className="policy-section"><h2 className="policy-h2">Reporting Copyright Concerns</h2><p className="policy-p">If you are a rights holder and believe content accessible through this site infringes your copyright, contact us directly. We respond within 48 hours.</p><p className="policy-p" style={{marginTop:'.5rem'}}>Please include:</p><ul className="policy-ul"><li>Your full legal name and contact details</li><li>A description of the copyrighted work</li><li>The specific page URL(s) where the content appears</li><li>A statement of good-faith belief that the use is not authorised</li><li>A confirmation that the information is accurate</li><li>Your electronic or physical signature</li></ul></div>
+            <div className="policy-section"><h2 className="policy-h2">Counter-Notices</h2><p className="policy-p">If you believe content was removed in error, submit a counter-notice with your contact details. We will review it promptly.</p></div>
+            <div className="policy-section"><h2 className="policy-h2">Get in Touch</h2><CL/></div>
+          </>
+        ) : (
+          <>
+            <h1 className="policy-h1">Privacy Policy</h1>
+            <p className="policy-date">Last updated {year}</p>
+            <div className="policy-section"><h2 className="policy-h2">Data We Collect</h2><p className="policy-p">JustStreamAnime does not collect, store, or sell personal information. No account registration is required. We do not use tracking cookies or advertising identifiers.</p></div>
+            <div className="policy-section"><h2 className="policy-h2">Third-Party Providers</h2><p className="policy-p">Video content is served via third-party embed providers. Those providers operate under their own privacy policies and may collect data independently.</p></div>
+            <div className="policy-section"><h2 className="policy-h2">Server Logs</h2><p className="policy-p">Our hosting provider may automatically log standard request data for security and performance only. This data is not shared with third parties.</p></div>
+            <div className="policy-section"><h2 className="policy-h2">Minors</h2><p className="policy-p">This service is not directed at children under 13. We do not knowingly collect information from minors.</p></div>
+            <div className="policy-section"><h2 className="policy-h2">Contact</h2><CL/></div>
+          </>
         )}
       </div>
     </div></div>
   );
 }
 
-function readHash(){try{const raw=(window.location.hash||'').slice(1);const[sec,b,c]=raw.split('/');if(sec==='watch'&&b)return{view:'watch',animeId:b,wTab:c||'watch'};if(sec==='home')return{view:'home',tab:b||'trending',page:Math.max(1,parseInt(c)||1)};}catch(e){}return{view:'home',tab:'trending',page:1};}
-function writeHash(view,extra={}){if(view==='watch')window.location.hash=`#watch/${extra.id||''}/${extra.wTab||'watch'}`;else window.location.hash=`#home/${extra.tab||'trending'}/${extra.page||1}`;}
+function readHash() {
+  try {
+    const raw = (window.location.hash||'').slice(1);
+    const [sec,b,c] = raw.split('/');
+    if (sec==='watch'&&b) return {view:'watch',animeId:b,wTab:c||'watch'};
+    if (sec==='home')     return {view:'home',tab:b||'trending',page:Math.max(1,parseInt(c)||1)};
+  } catch(e) {}
+  return {view:'home',tab:'trending',page:1};
+}
+function writeHash(view, extra={}) {
+  if (view==='watch') window.location.hash=`#watch/${extra.id||''}/${extra.wTab||'watch'}`;
+  else                window.location.hash=`#home/${extra.tab||'trending'}/${extra.page||1}`;
+}
 
-const TABS=[{id:'trending',label:'🔥 Trending'},{id:'popular',label:'📈 Popular'},{id:'top',label:'⭐ Top Rated'},{id:'airing',label:'📡 Airing Now'}];
+const TABS = [
+  {id:'trending',label:'🔥 Trending'},
+  {id:'popular', label:'📈 Popular'},
+  {id:'top',     label:'⭐ Top Rated'},
+  {id:'airing',  label:'📡 Airing Now'},
+];
 
-function App(){
-  const init=readHash();
-  const [view,setView]=useState(init.view),[watching,setWatch]=useState(null),[wTab,setWTab]=useState(init.wTab||'watch');
-  const [tab,setTab]=useState(init.tab||'trending'),[page,setPage]=useState(init.page||1),[totalPg,setTPg]=useState(1);
-  const [items,setItems]=useState([]),[hero,setHero]=useState([]),[loading,setLoad]=useState(true);
-  const cache=useRef({});
+function App() {
+  const init = readHash();
+  const [view,    setView]  = useState(init.view);
+  const [watching,setWatch] = useState(null);
+  const [wTab,    setWTab]  = useState(init.wTab||'watch');
+  const [tab,     setTab]   = useState(init.tab||'trending');
+  const [page,    setPage]  = useState(init.page||1);
+  const [totalPg, setTPg]   = useState(1);
+  const [items,   setItems] = useState([]);
+  const [hero,    setHero]  = useState([]);
+  const [loading, setLoad]  = useState(true);
+  const cache = useRef({});
 
-  const load=useCallback(async(t,p)=>{
+  const load = useCallback(async (t, p) => {
     setLoad(true);
-    const d=await gql(Qs[t],{p});
-    const list=(d.data?.Page?.media||[]).map(mapA);
-    list.forEach(a=>{cache.current[String(a.id)]=a;});
-    setItems(list);setTPg(d.data?.Page?.pageInfo?.lastPage||1);
-    if(t==='trending'&&p===1)setHero(list);
+    const d = await gql(Qs[t], {p});
+    const list = (d.data?.Page?.media||[]).map(mapA);
+    list.forEach(a => { cache.current[String(a.id)] = a; });
+    setItems(list); setTPg(d.data?.Page?.pageInfo?.lastPage||1);
+    if (t==='trending'&&p===1) setHero(list);
     setLoad(false);
-  },[]);
+  }, []);
 
-  const booted=useRef(false);
-  useEffect(()=>{
-    if(booted.current)return;booted.current=true;
-    if(init.view==='watch'){
-      (async()=>{
+  const booted = useRef(false);
+  useEffect(() => {
+    if (booted.current) return; booted.current = true;
+    if (init.view === 'watch') {
+      (async () => {
         setLoad(true);
-        const d=await gql(Qs.trending,{p:1});
-        const list=(d.data?.Page?.media||[]).map(mapA);
-        list.forEach(a=>{cache.current[String(a.id)]=a;});
-        setHero(list);setItems(list);setTPg(d.data?.Page?.pageInfo?.lastPage||1);setLoad(false);
-        const cached=cache.current[String(init.animeId)];
-        if(cached){setWatch(cached);setWTab(init.wTab||'watch');setView('watch');}
-        else{setView('home');writeHash('home',{tab:'trending',page:1});}
+        const d = await gql(Qs.trending, {p:1});
+        const list = (d.data?.Page?.media||[]).map(mapA);
+        list.forEach(a => { cache.current[String(a.id)] = a; });
+        setHero(list); setItems(list); setTPg(d.data?.Page?.pageInfo?.lastPage||1); setLoad(false);
+        const cached = cache.current[String(init.animeId)];
+        if (cached) { setWatch(cached); setWTab(init.wTab||'watch'); setView('watch'); }
+        else { setView('home'); writeHash('home',{tab:'trending',page:1}); }
       })();
-    } else {load(init.tab||'trending',init.page||1);}
-  },[]);
+    } else { load(init.tab||'trending', init.page||1); }
+  }, []);
 
-  const prevTab=useRef(init.tab);
-  useEffect(()=>{if(prevTab.current===tab)return;prevTab.current=tab;setPage(1);load(tab,1);writeHash('home',{tab,page:1});},[tab]);
-  useEffect(()=>{if(page>1)load(tab,page);},[page]);
+  const prevTab = useRef(init.tab);
+  useEffect(() => {
+    if (prevTab.current===tab) return;
+    prevTab.current = tab; setPage(1); load(tab,1); writeHash('home',{tab,page:1});
+  }, [tab]);
+  useEffect(() => { if (page>1) load(tab,page); }, [page]);
 
-  // ── Auto-refresh: silently reload current tab every 5 min while home page is visible.
-  // This ensures new episodes & newly airing anime surface without a manual refresh.
-  // AniList's nextAiringEpisode field also updates airedEps counts automatically.
-  const refreshRef = useRef(null);
-  useEffect(()=>{
-    if(view!=='home') return; // don't poll while watching
-    const tick = () => {
-      // Only refresh if document is visible (don't waste calls in background tabs)
-      if(!document.hidden) load(tab, page);
+  const openWatch = (a, t='watch') => {
+    cache.current[String(a.id)] = a;
+    setWatch(a); setWTab(t); setView('watch');
+    writeHash('watch',{id:a.id,wTab:t}); window.scrollTo({top:0});
+  };
+  const goHome = () => { setView('home'); setWatch(null); writeHash('home',{tab,page}); window.scrollTo({top:0}); };
+  const chPg   = p  => { setPage(p); writeHash('home',{tab,page:p}); window.scrollTo({top:0,behavior:'smooth'}); };
+
+  useEffect(() => {
+    const onPop = () => {
+      const h = readHash();
+      if (h.view==='watch') {
+        const c = cache.current[String(h.animeId)];
+        if (c) { setWatch(c); setWTab(h.wTab); setView('watch'); } else setView('home');
+      } else { setView('home'); setWatch(null); setTab(h.tab); setPage(h.page); }
     };
-    refreshRef.current = setInterval(tick, 5 * 60 * 1000); // every 5 minutes
-    return () => clearInterval(refreshRef.current);
-  },[view, tab, page]);
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
-  // Also refresh when tab becomes visible again after being hidden (user switches back)
-  useEffect(()=>{
-    const onVisible = () => {
-      if(!document.hidden && view==='home') load(tab, page);
-    };
-    document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
-  },[view, tab, page]);
+  const ps=[], s=Math.max(1,page-2), e2=Math.min(totalPg,s+4);
+  for (let i=s; i<=e2; i++) ps.push(i);
 
-  const openWatch=(a,t='watch')=>{cache.current[String(a.id)]=a;setWatch(a);setWTab(t);setView('watch');writeHash('watch',{id:a.id,wTab:t});window.scrollTo({top:0});};
-  const goHome=()=>{setView('home');setWatch(null);writeHash('home',{tab,page});window.scrollTo({top:0});};
-  const chPg=p=>{setPage(p);writeHash('home',{tab,page:p});window.scrollTo({top:0,behavior:'smooth'});};
+  if (view==='watch'&&watching) return <WatchPage anime={watching} startTab={wTab} onBack={goHome}/>;
+  if (view==='dmca')    return <PolicyPage type="dmca"    onBack={()=>{setView('home');writeHash('home',{tab,page});}}/>;
+  if (view==='privacy') return <PolicyPage type="privacy" onBack={()=>{setView('home');writeHash('home',{tab,page});}}/>;
 
-  useEffect(()=>{
-    const onPop=()=>{const h=readHash();if(h.view==='watch'){const c=cache.current[String(h.animeId)];if(c){setWatch(c);setWTab(h.wTab);setView('watch');}else setView('home');}else{setView('home');setWatch(null);setTab(h.tab);setPage(h.page);}};
-    window.addEventListener('popstate',onPop);return()=>window.removeEventListener('popstate',onPop);
-  },[]);
-
-  const ps=[],s=Math.max(1,page-2),e2=Math.min(totalPg,s+4);
-  for(let i=s;i<=e2;i++)ps.push(i);
-
-  if(view==='watch'&&watching)return <WatchPage anime={watching} startTab={wTab} onBack={goHome}/>;
-  if(view==='dmca')   return <PolicyPage type="dmca"    onBack={()=>{setView('home');writeHash('home',{tab,page});}}/>;
-  if(view==='privacy')return <PolicyPage type="privacy" onBack={()=>{setView('home');writeHash('home',{tab,page});}}/>;
-
-  return(
+  return (
     <>
       <nav className="nav">
-        <div className="logo" onClick={goHome}><div className="logo-mark"><PIco s={13}/></div><div className="logo-name">just<em>stream</em>anime</div></div>
+        <div className="logo" onClick={goHome}>
+          <div className="logo-mark"><PIco s={13}/></div>
+          <div className="logo-name">just<em>stream</em>anime</div>
+        </div>
         <SearchBar onSel={a=>openWatch(a,'watch')}/>
       </nav>
       {tab==='trending'&&page===1&&<Hero items={hero} onPlay={openWatch}/>}
       <div style={{paddingTop:tab==='trending'&&page===1?'0':'calc(var(--nav) + 0.5rem)'}}>
-        <div className="tabs-bar">{TABS.map(t=>(<button key={t.id} className={'tbtn '+(tab===t.id?'on':'off')} onClick={()=>setTab(t.id)}>{t.label}</button>))}</div>
+        <div className="tabs-bar">
+          {TABS.map(t=>(
+            <button key={t.id} className={'tbtn '+(tab===t.id?'on':'off')} onClick={()=>setTab(t.id)}>{t.label}</button>
+          ))}
+        </div>
       </div>
       <div className="section">
-        <div className="sec-hdr"><div className="sec-bar"/><h2 className="sec-title">{TABS.find(t=>t.id===tab)?.label}{page>1?` — Page ${page}`:''}</h2></div>
+        <div className="sec-hdr">
+          <div className="sec-bar"/>
+          <h2 className="sec-title">{TABS.find(t=>t.id===tab)?.label}{page>1?` — Page ${page}`:''}</h2>
+        </div>
         {loading
-          ?<div className="agrid">{Array(12).fill(0).map((_,i)=><div key={i} className="sk"/>)}</div>
-          :<div className="agrid">{items.map(a=><AnimeCard key={a.id} a={a} onPlay={openWatch}/>)}</div>
+          ? <div className="agrid">{Array(12).fill(0).map((_,i)=><div key={i} className="sk"/>)}</div>
+          : <div className="agrid">{items.map(a=><AnimeCard key={a.id} a={a} onPlay={openWatch}/>)}</div>
         }
       </div>
       <div className="pag">
