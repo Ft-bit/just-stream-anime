@@ -530,65 +530,43 @@
     .policy-p{font-size:13px;line-height:1.8;color:var(--txt2)}
     .policy-ul{font-size:13px;line-height:2;color:var(--txt2);padding-left:1.4rem;margin-top:.4rem}
 
-    /* ── CONTACT LINKS — enhanced hover ────────────────────── */
-    .contact-box{margin-top:1rem;display:flex;flex-direction:column;gap:10px}
+    /* ── CONTACT LINKS — icon-only pills with hover glow ──── */
+    .contact-box{margin-top:1rem;display:flex;gap:12px}
     .contact-link{
-      display:inline-flex;align-items:center;gap:12px;
-      padding:13px 18px;border-radius:12px;
-      font-weight:700;font-size:13px;
+      display:inline-flex;align-items:center;justify-content:center;
+      width:48px;height:48px;border-radius:14px;
       transition:transform .22s cubic-bezier(.34,1.56,.64,1),
                   box-shadow .22s ease,
                   background .18s ease,
                   border-color .18s ease;
       -webkit-tap-highlight-color:transparent;
       text-decoration:none;
-      position:relative;overflow:hidden;
     }
-
-    /* Email (red) */
     .contact-link-email{
-      background:rgba(225,29,72,.08);border:1px solid rgba(225,29,72,.22);
+      background:rgba(225,29,72,.1);border:1px solid rgba(225,29,72,.28);
       color:#fb7185;
     }
     .contact-link-email:hover{
-      background:rgba(225,29,72,.16);
-      border-color:rgba(225,29,72,.5);
-      transform:translateX(6px) scale(1.01);
-      box-shadow:0 6px 28px rgba(225,29,72,.25);
+      background:rgba(225,29,72,.22);border-color:rgba(225,29,72,.6);
+      transform:translateY(-4px) scale(1.1);
+      box-shadow:0 8px 28px rgba(225,29,72,.35);
     }
-    .contact-link-email:active{transform:translateX(3px) scale(.98)}
-
-    /* WhatsApp (green) */
+    .contact-link-email:active{transform:scale(.95)}
     .contact-link-wa{
-      background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.22);
+      background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.28);
       color:#4ade80;
     }
     .contact-link-wa:hover{
-      background:rgba(37,211,102,.16);
-      border-color:rgba(37,211,102,.5);
-      transform:translateX(6px) scale(1.01);
-      box-shadow:0 6px 28px rgba(37,211,102,.2);
+      background:rgba(37,211,102,.22);border-color:rgba(37,211,102,.6);
+      transform:translateY(-4px) scale(1.1);
+      box-shadow:0 8px 28px rgba(37,211,102,.25);
     }
-    .contact-link-wa:active{transform:translateX(3px) scale(.98)}
-
-    /* Icon animation on hover */
+    .contact-link-wa:active{transform:scale(.95)}
     .contact-icon{
-      width:20px;height:20px;flex-shrink:0;
+      width:22px;height:22px;flex-shrink:0;
       transition:transform .3s cubic-bezier(.34,1.56,.64,1);
     }
-    .contact-link:hover .contact-icon{transform:scale(1.25) rotate(-8deg)}
-    .contact-link:active .contact-icon{transform:scale(1.1) rotate(-4deg)}
-
-    /* Contact text */
-    .contact-link-text{
-      display:flex;flex-direction:column;gap:1px;
-    }
-    .contact-link-label{
-      font-family:var(--mono);font-size:9px;font-weight:700;
-      text-transform:uppercase;letter-spacing:.1em;
-      opacity:.55;
-    }
-    .contact-link-value{font-size:13px;font-weight:700}
+    .contact-link:hover .contact-icon{transform:scale(1.15) rotate(-6deg)}
 
     /* FOOTER */
     footer{
@@ -676,77 +654,11 @@ function mapA(a) {
    SEASON / PROVIDER CONFIGURATION
    ──────────────────────────────────────────────────────────── */
 
-/**
- * Known MAL IDs keyed by AniList ID.
- * MegaPlay supports /stream/mal/{mal_id}/{ep}/{lang} as a fallback
- * that often handles sequel seasons better when AniList mapping is missing.
- */
-const MAL_ID_MAP = {
-  // Classroom of the Elite
-  98659: 35507,  145545: 42310,  146066: 50007,
-  // Overlord
-  79693: 29803,  98437: 33974,  101268: 36765,  133844: 48895,
-  // Attack on Titan
-  16498: 14277,  20958: 25777,  99147: 35760,  104578: 38524,
-  110277: 40028, 131681: 48583, 145139: 51009,
-  // Re:Zero
-  21355: 31240,  108632: 39587, 119661: 42422,
-  // Sword Art Online (SAO MAL IDs match AniList IDs by coincidence here — verified)
-  11757: 11757,  21597: 21597,
-  // Mushoku Tensei
-  108465: 39535, 127720: 45576,
-  // Demon Slayer / Kimetsu no Yaiba
-  101922: 38000,
-  // Black Clover seasons
-  97940: 36009,
-  // Jujutsu Kaisen
-  113415: 40748, 145064: 51179,
-};
-
-/**
- * Human-readable season label for every AniList ID that belongs
- * to a multi-season series. ALSO used to flag "multi-season" status
- * so the player leads with the most season-aware providers.
- */
+/* Season labels — CotE only; extend for other multi-season series as needed */
 const SEASON_LABELS = {
-  // Classroom of the Elite
   98659: 'CotE — Season 1',  145545: 'CotE — Season 2',
   146066: 'CotE — Season 3', 180745: 'CotE — Season 4',
-
-  // Overlord
-  79693: 'Overlord — S1',  98437: 'Overlord — S2',
-  101268: 'Overlord — S3', 133844: 'Overlord — S4',
-
-  // Attack on Titan
-  16498: 'AoT — Season 1',      20958: 'AoT — Season 2',
-  99147: 'AoT — S3 Part 1',    104578: 'AoT — S3 Part 2',
-  110277: 'AoT — Final S4 P1', 131681: 'AoT — Final S4 P2',
-  145139: 'AoT — Final S4 P3',
-
-  // Re:Zero
-  21355: 'Re:Zero — S1',  108632: 'Re:Zero S2 Part 1',
-  119661: 'Re:Zero S2 Part 2',
-
-  // Mushoku Tensei
-  108465: 'Mushoku Tensei — S1', 127720: 'Mushoku Tensei — S2',
-
-  // Jujutsu Kaisen
-  113415: 'JJK — Season 1', 145064: 'JJK — Season 2',
-
-  // Sword Art Online
-  11757: 'SAO — Season 1', 21597: 'SAO — Season 2',
-
-  // My Hero Academia (listed separately per season so each loads correctly)
-  77239: 'MHA — Season 1', 82186: 'MHA — Season 2',
-  86996: 'MHA — Season 3', 99541: 'MHA — Season 4',
-  108465: 'MHA — Season 5', // note: may share key with Mushoku S1 — keep whichever is inserted last
-  116589: 'MHA — Season 6', 154597: 'MHA — Season 7',
-
-  // Demon Slayer arcs
-  101922: 'Kimetsu — Season 1',
 };
-
-const MULTI_SEASON_IDS = new Set(Object.keys(SEASON_LABELS).map(Number));
 
 /**
  * Per-episode notes (warnings / special cases).
@@ -758,41 +670,66 @@ const EP_NOTES = {
   },
 };
 
-/* VidNest server param list — these map to different CDN mirrors */
-const VN_SERVERS = ['lamda','primesrc','sigma','alfa','beta','gama','catflix','hexa','delta'];
+/* AniList IDs that are part of the CotE franchise */
+const COTE_IDS = new Set([98659, 145545, 146066, 180745]);
+
+/* Known MAL IDs for CotE seasons (used as server fallback) */
+const COTE_MAL = { 98659: 35507, 145545: 42310, 146066: 50007, 180745: null };
 
 /**
- * Build the ordered server list for a given anime + episode + language.
- *
- * Strategy:
- *  • Multi-season anime  → lead with MegaPlay (AniList + MAL when available)
- *    because MegaPlay's HiAnime-backed library handles sequel seasons more
- *    reliably than VidNest which sometimes re-routes to S1.
- *    VidNest servers follow as additional fallbacks.
- *  • Standard anime      → VidNest first (9 CDN mirrors + AnimePahe), then
- *    MegaPlay AniList, then MegaPlay MAL (if known).
- *
- * Result is capped at 12 numbered servers.
+ * Episode count overrides — used when AniList hasn't finalised the count
+ * (e.g. currently-airing seasons where only N eps have dropped).
+ * shape: { [anilistId]: number }
+ */
+const EP_COUNT_OVERRIDE = {
+  // CotE S4 "Second Year, First Semester" — only 4 episodes released so far
+  // Ep 1 is a 90-min special that counts as four 23-min episodes
+  180745: 4,
+};
+
+/**
+ * Build ordered server list.
+ * CotE → MegaPlay first (handles CotE seasons reliably), VidNest as fallbacks.
+ * Everything else → original working VidNest-first order.
  */
 function buildServers(aniId, ep, lang, malId) {
-  const e   = ep || 1;
-  const L   = lang === 'dub' ? 'dub' : 'sub';
-  const id  = Number(aniId);
-  const isMulti = MULTI_SEASON_IDS.has(id);
-  const mid = malId || MAL_ID_MAP[id] || null;
+  const e = ep || 1;
+  const L = lang === 'dub' ? 'dub' : 'sub';
+  const isCote = COTE_IDS.has(Number(aniId));
 
-  const vnest   = VN_SERVERS.map(s =>
-    `https://vidnest.fun/anime/${aniId}/${e}/${L}?server=${s}`
-  );
-  const pahe    = `https://vidnest.fun/animepahe/${aniId}/${e}/${L}`;
-  const mgAni   = `https://megaplay.buzz/stream/ani/${aniId}/${e}/${L}`;
-  const mgMal   = mid ? `https://megaplay.buzz/stream/mal/${mid}/${e}/${L}` : null;
+  if (isCote) {
+    const servers = [
+      { n:'1',  url:`https://megaplay.buzz/stream/ani/${aniId}/${e}/sub` },
+      { n:'2',  url:`https://megaplay.buzz/stream/ani/${aniId}/${e}/dub` },
+      { n:'3',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=lamda` },
+      { n:'4',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=primesrc` },
+      { n:'5',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=sigma` },
+      { n:'6',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=alfa` },
+      { n:'7',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=gama` },
+      { n:'8',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=catflix` },
+      { n:'9',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=hexa` },
+      { n:'10', url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=delta` },
+      { n:'11', url:`https://vidnest.fun/animepahe/${aniId}/${e}/${L}` },
+    ];
+    const mid = malId || COTE_MAL[Number(aniId)];
+    if (mid) servers.push({ n:'12', url:`https://megaplay.buzz/stream/mal/${mid}/${e}/${L}` });
+    return servers;
+  }
 
-  const urls = isMulti
-    ? [mgAni, mgMal, ...vnest, pahe].filter(Boolean)   // megaplay first
-    : [...vnest, pahe, mgAni, mgMal].filter(Boolean);   // vidnest first
-
-  return urls.slice(0, 12).map((url, i) => ({ n: String(i + 1), url }));
+  /* Standard anime — original working order */
+  return [
+    { n:'1',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=lamda` },
+    { n:'2',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=primesrc` },
+    { n:'3',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=sigma` },
+    { n:'4',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=alfa` },
+    { n:'5',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=beta` },
+    { n:'6',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=gama` },
+    { n:'7',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=catflix` },
+    { n:'8',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=hexa` },
+    { n:'9',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=delta` },
+    { n:'10', url:`https://vidnest.fun/animepahe/${aniId}/${e}/${L}` },
+    { n:'11', url:`https://megaplay.buzz/stream/ani/${aniId}/${e}/${L}` },
+  ];
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -1056,11 +993,12 @@ function SearchBar({ onSel }) {
    WATCH PAGE
    ──────────────────────────────────────────────────────────── */
 function WatchPage({ anime, startTab, onBack }) {
-  const totalEps  = anime.eps || 24;
-  const epNotes   = EP_NOTES[Number(anime.id)] || {};
   const id        = Number(anime.id);
-  const isMulti   = MULTI_SEASON_IDS.has(id);
+  const epNotes   = EP_NOTES[id] || {};
+  const isCote    = COTE_IDS.has(id);
   const seasonLbl = SEASON_LABELS[id];
+  // EP_COUNT_OVERRIDE lets us cap episode list for airing seasons (e.g. CotE S4 = 4 so far)
+  const totalEps  = EP_COUNT_OVERRIDE[id] || anime.eps || 24;
   const epList    = Array.from({ length: totalEps }, (_, i) => i + 1);
 
   const [tab,     setTab]    = useState(startTab || 'watch');
@@ -1122,12 +1060,12 @@ function WatchPage({ anime, startTab, onBack }) {
             </div>
 
             {tab === 'watch' && <>
-              {/* Multi-season tip — shown for ALL identified multi-season anime */}
-              {isMulti && (
+              {/* CotE-specific season tip */}
+              {isCote && (
                 <div className="multi-season-tip">
                   🎌 You're watching <strong style={{color:'#fdba74'}}>{seasonLbl}</strong>.
-                  {' '}Servers 1–2 use MegaPlay and usually load the correct season directly.
-                  {' '}If you see a different season, try Server 3 onward — VidNest indexes seasons differently across its mirrors.
+                  {' '}Servers 1–2 use MegaPlay and load the correct CotE season directly.
+                  {' '}If the wrong season appears, try Server 3 onward (VidNest mirrors).
                 </div>
               )}
 
@@ -1157,7 +1095,7 @@ function WatchPage({ anime, startTab, onBack }) {
             <div className="winfo">
               <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap', marginBottom:8 }}>
                 <h1 className="winfo-title" style={{ margin:0 }}>{anime.title}</h1>
-                {isMulti && <span className="season-chip">🎌 {seasonLbl}</span>}
+                {isCote && <span className="season-chip">🎌 {seasonLbl}</span>}
               </div>
               <div className="winfo-meta">
                 <Stars s={anime.rating}/>
@@ -1206,20 +1144,12 @@ function PolicyPage({ type, onBack }) {
 
   const ContactLinks = () => (
     <div className="contact-box">
-      <a href="mailto:fredbv22@gmail.com" className="contact-link contact-link-email">
+      <a href="mailto:fredbv22@gmail.com" className="contact-link contact-link-email" title="fredbv22@gmail.com" aria-label="Email">
         <EmailIco/>
-        <div className="contact-link-text">
-          <span className="contact-link-label">Email</span>
-          <span className="contact-link-value">fredbv22@gmail.com</span>
-        </div>
       </a>
       <a href="https://wa.me/2348118722788" target="_blank" rel="noopener noreferrer"
-        className="contact-link contact-link-wa">
+        className="contact-link contact-link-wa" title="+234 811 872 2788" aria-label="WhatsApp">
         <WhatsAppIco/>
-        <div className="contact-link-text">
-          <span className="contact-link-label">WhatsApp</span>
-          <span className="contact-link-value">+234 811 872 2788</span>
-        </div>
       </a>
     </div>
   );
