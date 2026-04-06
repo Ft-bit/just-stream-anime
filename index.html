@@ -25,8 +25,6 @@
     ::-webkit-scrollbar{width:4px;height:4px}
     ::-webkit-scrollbar-track{background:var(--bg)}
     ::-webkit-scrollbar-thumb{background:#e11d4840;border-radius:2px}
-
-    /* NAV */
     .nav{position:fixed;top:0;left:0;right:0;z-index:500;height:var(--nav);display:flex;align-items:center;gap:14px;padding:0 clamp(1rem,4vw,2.5rem);background:rgba(7,7,14,.96);backdrop-filter:blur(20px) saturate(160%);border-bottom:1px solid var(--border)}
     .logo{display:flex;align-items:center;gap:9px;flex-shrink:0;cursor:pointer}
     .logo-mark{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px var(--glow)}
@@ -43,7 +41,6 @@
     .s-row img{width:36px;height:52px;border-radius:6px;object-fit:cover;flex-shrink:0}
     .s-title{font-weight:700;font-size:13px;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .s-meta{font-family:var(--mono);font-size:10px;color:var(--txt3);margin-top:2px}
-
     /* HERO */
     .hero{position:relative;min-height:clamp(460px,88vh,760px);overflow:hidden;display:flex;align-items:flex-end}
     .hero-progress{position:absolute;top:0;left:0;height:2px;background:linear-gradient(to right,var(--red),#ff6b8a);z-index:10;border-radius:0 2px 2px 0}
@@ -73,8 +70,6 @@
     .btn-info{display:inline-flex;align-items:center;gap:7px;padding:clamp(9px,2.5vw,12px) clamp(14px,3vw,20px);border-radius:10px;font-size:clamp(12px,2.5vw,13px);font-weight:700;color:var(--txt);background:rgba(255,255,255,.08);border:1px solid var(--border2);-webkit-tap-highlight-color:transparent;transition:background .15s}
     .btn-info:hover{background:rgba(255,255,255,.14)}
     .btn-info:active{background:rgba(255,255,255,.16)}
-
-    /* Carousel arrows — mouse+large only */
     .harr{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:42px;height:42px;border-radius:50%;background:rgba(7,7,14,.65);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:all .2s;backdrop-filter:blur(8px)}
     .harr:hover{background:var(--red);border-color:var(--red);transform:translateY(-50%) scale(1.06)}
     .harr:active{transform:translateY(-50%) scale(.94)}
@@ -87,16 +82,12 @@
     .swipe-hint{display:none;position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;pointer-events:none}
     @media(max-width:768px){.swipe-hint{display:block}}
     @media(pointer:coarse){.swipe-hint{display:block}}
-
-    /* TABS */
     .tabs-bar{display:flex;gap:5px;overflow-x:auto;padding:clamp(.6rem,2vw,1rem) clamp(.75rem,3.5vw,2.5rem);scrollbar-width:none;-webkit-overflow-scrolling:touch}
     .tabs-bar::-webkit-scrollbar{display:none}
     .tbtn{font-family:var(--mono);font-size:clamp(11px,2vw,12px);font-weight:700;padding:clamp(6px,1.8vw,8px) clamp(13px,2.5vw,17px);border-radius:8px;flex-shrink:0;border:1px solid;transition:all .15s;-webkit-tap-highlight-color:transparent}
     .tbtn.off{border-color:var(--border);background:rgba(255,255,255,.04);color:var(--txt2)}
     .tbtn.off:hover{background:rgba(255,255,255,.07);color:var(--txt)}
     .tbtn.on{border-color:transparent;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;box-shadow:0 3px 14px var(--glow)}
-
-    /* GRID */
     .section{padding:0 clamp(.75rem,3.5vw,2.5rem) clamp(1rem,3vw,2.5rem)}
     .sec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:clamp(.9rem,2.5vw,1.3rem)}
     .sec-bar{width:3px;height:18px;border-radius:2px;background:linear-gradient(to bottom,var(--red),var(--red2));flex-shrink:0}
@@ -106,8 +97,6 @@
     @media(min-width:680px){.agrid{grid-template-columns:repeat(4,1fr)}}
     @media(min-width:900px){.agrid{grid-template-columns:repeat(5,1fr)}}
     @media(min-width:1200px){.agrid{grid-template-columns:repeat(6,1fr)}}
-
-    /* CARD */
     .acard{cursor:pointer;border-radius:10px;overflow:hidden;background:var(--bg2);border:1px solid var(--border);-webkit-tap-highlight-color:transparent;transition:transform .22s cubic-bezier(.4,0,.2,1),box-shadow .22s,border-color .22s}
     @media(hover:hover){.acard:hover{transform:translateY(-5px) scale(1.015);box-shadow:0 16px 36px rgba(0,0,0,.55);border-color:rgba(255,255,255,.14)}.acard:hover .acard-img{transform:scale(1.05)}.acard:hover .acard-play{opacity:1}}
     .acard:active{transform:scale(.97)}
@@ -126,14 +115,11 @@
     @media(max-width:360px){.acard-tags{display:none}}
     .sk{background:linear-gradient(90deg,#1a1a2e 25%,#20203a 50%,#1a1a2e 75%);background-size:200% 100%;animation:shimmer 1.7s infinite;border-radius:10px;padding-top:140%}
     @keyframes shimmer{to{background-position:-200% 0}}
-
-    /* PAGINATION */
     .pag{display:flex;justify-content:center;align-items:center;gap:clamp(4px,1.2vw,6px);padding:clamp(.7rem,2.5vw,1rem) clamp(1rem,4vw,2.5rem) clamp(1.2rem,3.5vw,2.5rem);flex-wrap:wrap}
     .pgb{min-width:clamp(30px,7vw,35px);height:clamp(30px,7vw,35px);padding:0 7px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:clamp(10px,2vw,12px);font-weight:700;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--txt2);transition:all .15s;-webkit-tap-highlight-color:transparent}
     .pgb:hover{background:rgba(255,255,255,.09);color:var(--txt)}
     .pgb.on{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;color:#fff;box-shadow:0 0 14px var(--glow)}
     .pgb:disabled{opacity:.2;cursor:default}
-
     /* WATCH */
     .wp{min-height:100vh;background:var(--bg);padding-top:var(--nav)}
     .wp-wrap{max-width:1440px;margin:0 auto;padding:0 clamp(1rem,4vw,2rem) 4rem}
@@ -163,26 +149,18 @@
     .sbtn:hover{background:rgba(255,255,255,.08);color:var(--txt)}
     .sbtn.on{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;color:#fff;box-shadow:0 2px 10px var(--glow)}
     @media(max-width:480px){.sbtn{min-width:32px;padding:6px 10px;font-size:10px}}
-    /* Server hint — minimal, non-intrusive */
     .srv-hint{font-family:var(--mono);font-size:10px;color:var(--txt3);line-height:1.5}
     .srv-hint span{color:var(--txt2)}
-
-    /* Watch info */
     .winfo{margin-bottom:16px}
     .winfo-title{font-size:clamp(1.1rem,3.5vw,1.4rem);font-weight:900;letter-spacing:-.025em;color:#fff;margin-bottom:7px;line-height:1.15}
     .winfo-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:9px;font-family:var(--mono);font-size:clamp(9px,2vw,10px);color:var(--txt2)}
     .ep-pill{background:rgba(225,29,72,.12);border:1px solid rgba(225,29,72,.28);color:#fb7185;padding:2px 8px;border-radius:4px;font-family:var(--mono);font-size:clamp(9px,2vw,10px);font-weight:700}
     .winfo-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
     .winfo-desc{font-size:clamp(12px,2.5vw,13px);line-height:1.75;color:var(--txt2);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:12px}
-
-    /* External links row */
     .ext-links{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
     .ext-link{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 10px;border-radius:6px;border:1px solid var(--border2);color:var(--txt2);background:rgba(255,255,255,.04);transition:all .15s;-webkit-tap-highlight-color:transparent}
     .ext-link:hover{background:rgba(255,255,255,.09);color:var(--txt);border-color:rgba(255,255,255,.2)}
-    .ext-link svg{opacity:.7}
-
     .stars{display:inline-flex;gap:2px}
-
     /* EPISODE PANEL */
     .ep-panel{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:14px;display:flex;flex-direction:column;gap:10px}
     @media(min-width:960px){.ep-panel{position:sticky;top:calc(var(--nav) + 10px);max-height:calc(100vh - var(--nav) - 22px)}}
@@ -198,7 +176,6 @@
     @media(min-width:960px){.ep-scroll{max-height:none}}
     .ep-scroll::-webkit-scrollbar{width:3px}
     .ep-scroll::-webkit-scrollbar-thumb{background:rgba(225,29,72,.2);border-radius:2px}
-
     /* THUMBNAIL GRID */
     .ep-thumb-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:2px}
     @media(max-width:959px){.ep-thumb-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
@@ -206,17 +183,21 @@
     .ep-tc:hover{border-color:rgba(255,255,255,.16);transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.5)}
     .ep-tc.on{border-color:var(--red);box-shadow:0 0 0 1px var(--red)}
     .ep-tc-img{position:relative;padding-top:56.25%;background:#0d0d1a;overflow:hidden}
-    .ep-tc-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .3s ease}
-    .ep-tc:hover .ep-tc-img img{transform:scale(1.05)}
+    /* Episode-specific thumbnail (Crunchyroll/AniList) */
+    .ep-tc-img .ep-thumb-real{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .3s ease}
+    /* Poster fallback — anime cover art, darkened */
+    .ep-tc-img .ep-thumb-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.28) saturate(.7);transition:transform .3s ease}
+    .ep-tc:hover .ep-thumb-real,.ep-tc:hover .ep-thumb-poster{transform:scale(1.05)}
     .ep-tc-skel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#131328,#1c1c38)}
     .ep-tc-skel-n{font-family:var(--mono);font-size:clamp(18px,3vw,26px);font-weight:900;color:rgba(225,29,72,.18)}
     .ep-tc-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .18s;background:rgba(0,0,0,.38)}
     .ep-tc:hover .ep-tc-ov,.ep-tc.on .ep-tc-ov{opacity:1}
     .ep-tc-pc{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;box-shadow:0 3px 14px var(--glow)}
     .ep-tc-badge{position:absolute;bottom:5px;right:6px;font-family:var(--mono);font-size:9px;font-weight:700;color:#fff;background:rgba(0,0,0,.75);padding:2px 5px;border-radius:4px;backdrop-filter:blur(4px)}
+    /* Ep number overlay when using poster fallback — centered big */
+    .ep-tc-poster-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:clamp(20px,4vw,28px);font-weight:900;color:rgba(255,255,255,.55);pointer-events:none}
     .ep-tc-body{padding:7px 8px 9px}
     .ep-tc-title{font-size:clamp(10px,1.9vw,11px);font-weight:600;color:var(--txt);line-height:1.32;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-
     /* LIST VIEW */
     .ep-list{display:flex;flex-direction:column;gap:4px;padding:2px}
     .epbtn{display:flex;align-items:center;gap:9px;padding:clamp(8px,2vw,9px) clamp(9px,2vw,11px);border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.04);cursor:pointer;text-align:left;width:100%;transition:all .15s;-webkit-tap-highlight-color:transparent}
@@ -224,7 +205,6 @@
     .epbtn.on{background:rgba(225,29,72,.1);border-color:rgba(225,29,72,.25)}
     .ep-num{font-family:var(--mono);font-size:clamp(9px,2vw,10px);font-weight:700;color:var(--red);min-width:clamp(26px,5vw,32px);flex-shrink:0}
     .ep-name{font-size:clamp(11px,2vw,12px);color:var(--txt);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
     /* POLICY */
     .policy-wrap{min-height:100vh;background:var(--bg);padding-top:var(--nav)}
     .policy-inner{max-width:740px;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem) 4rem}
@@ -247,8 +227,6 @@
     .contact-link-wa:active{transform:scale(.95)}
     .contact-icon{width:22px;height:22px;flex-shrink:0;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
     .contact-link:hover .contact-icon{transform:scale(1.15) rotate(-6deg)}
-
-    /* FOOTER */
     footer{border-top:1px solid var(--border);padding:clamp(1.1rem,3.5vw,1.8rem) clamp(1rem,4vw,2.5rem);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
     .ft-logo{font-size:clamp(12px,2.5vw,14px);font-weight:900;letter-spacing:-.02em}
     .ft-logo em{color:var(--red);font-style:normal}
@@ -273,7 +251,6 @@ async function gql(query, vars={}) {
   return r.json();
 }
 
-// siteUrl added so we can link out to AniList
 const FL = `id idMal siteUrl title{romaji english}coverImage{extraLarge large color}bannerImage
   description(asHtml:false)averageScore episodes status nextAiringEpisode{episode}
   seasonYear season format genres trailer{id site}`;
@@ -292,16 +269,14 @@ function mapA(a) {
   const seasonName = a.season
     ? a.season.charAt(0) + a.season.slice(1).toLowerCase() + ' ' + a.seasonYear
     : (a.seasonYear||'');
-  // For airing shows: nextAiringEpisode.episode - 1 = last aired ep (auto-updates)
   const airedEps = a.nextAiringEpisode ? a.nextAiringEpisode.episode - 1 : (a.episodes||null);
   let trailerUrl = null;
   if (a.trailer?.id) {
-    trailerUrl = a.trailer.site === 'youtube'
+    trailerUrl = a.trailer.site==='youtube'
       ? `https://www.youtube.com/embed/${a.trailer.id}?rel=0&modestbranding=1`
-      : a.trailer.site === 'dailymotion'
+      : a.trailer.site==='dailymotion'
       ? `https://www.dailymotion.com/embed/video/${a.trailer.id}` : null;
   }
-  // AniList returns streamingEpisodes newest-first; reverse so ep1 = index 0
   const streamEps = a.streamingEpisodes ? [...a.streamingEpisodes].reverse() : [];
   return {
     id: a.id, malId: a.idMal, siteUrl: a.siteUrl||null,
@@ -319,14 +294,25 @@ function mapA(a) {
   };
 }
 
-// Server builder — VidNest (AniList ID) + VidSrc (MAL ID) + VidSrc.to
-// Each season of a franchise has its own unique AniList ID, so VidNest
-// will load the correct season automatically.
+/**
+ * Build a diverse server list using multiple independent providers.
+ *
+ * VidNest  (servers 1-10) — uses AniList ID. Different server params = different CDN mirrors.
+ *   Every season of a franchise has its own AniList ID, so seasons resolve correctly.
+ *
+ * VidSrc.xyz (11) & VidSrc.to (12) — uses MAL ID. Completely independent infrastructure.
+ *   Good fallback when VidNest doesn't have a title.
+ *
+ * 2embed / embed.su (13-14) — also MAL based, different library.
+ *
+ * smashy.stream (15) — another independent MAL-based source.
+ */
 function buildServers(aniId, ep, lang, malId) {
   const e = ep || 1;
   const L = lang === 'dub' ? 'dub' : 'sub';
+
   const list = [
-    // VidNest mirrors — use AniList ID directly
+    // VidNest — AniList ID
     {n:'1',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=lamda`},
     {n:'2',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=primesrc`},
     {n:'3',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=sigma`},
@@ -338,10 +324,19 @@ function buildServers(aniId, ep, lang, malId) {
     {n:'9',  url:`https://vidnest.fun/anime/${aniId}/${e}/${L}?server=delta`},
     {n:'10', url:`https://vidnest.fun/animepahe/${aniId}/${e}/${L}`},
   ];
-  // VidSrc servers use MAL ID — reliable alternative when VidNest fails
+
   if (malId) {
-    list.push({n:'11', url:`https://vidsrc.xyz/embed/anime?mal=${malId}&ep=${e}`});
-    list.push({n:'12', url:`https://vidsrc.to/embed/anime/${malId}/${e}`});
+    list.push(
+      // VidSrc — MAL ID
+      {n:'11', url:`https://vidsrc.xyz/embed/anime?mal=${malId}&ep=${e}`},
+      {n:'12', url:`https://vidsrc.to/embed/anime/${malId}/${e}`},
+      // embed.su — MAL ID
+      {n:'13', url:`https://embed.su/embed/anime/${malId}/${e}`},
+      // 2embed — MAL ID
+      {n:'14', url:`https://www.2embed.cc/embedanime/${malId}?ep=${e}`},
+      // smashy — MAL ID
+      {n:'15', url:`https://player.smashy.stream/anime/${malId}?ep=${e}`},
+    );
   }
   return list;
 }
@@ -391,43 +386,28 @@ function Hero({items, onPlay}) {
   const [loaded,setLoad] = useState(false);
   const [prog,setProg]   = useState(0);
   const pv = useRef(null), pr = useRef(0), tx = useRef(null), ty = useRef(null), fi = useRef(true);
-
+  const hMax = useCallback(() => Math.min(items.length, 8), [items.length]);
   const go   = i => setIdx(i);
-  const hMax = () => Math.min(items.length, 8);
   const prev = () => go((idx - 1 + hMax()) % hMax());
   const next = () => go((idx + 1) % hMax());
-
   const start = () => {
     clearInterval(pv.current); pr.current = 0; setProg(0);
     pv.current = setInterval(() => {
       pr.current += 50; setProg(pr.current);
-      if (pr.current >= IV) {
-        pr.current = 0; setProg(0);
-        setIdx(i => (i+1) % hMax());
-        setLoad(false);
-      }
+      if (pr.current >= IV) { pr.current = 0; setProg(0); setIdx(i => (i+1) % hMax()); setLoad(false); }
     }, 50);
   };
-
   useEffect(() => { if (items.length) start(); return () => clearInterval(pv.current); }, [items]);
-  useEffect(() => {
-    setLoad(false);
-    if (fi.current) { fi.current = false; return; }
-    start();
-  }, [idx]);
-
+  useEffect(() => { setLoad(false); if (fi.current) { fi.current = false; return; } start(); }, [idx]);
   const onTS = e => { tx.current = e.touches[0].clientX; ty.current = e.touches[0].clientY; };
   const onTE = e => {
     if (tx.current === null) return;
-    const dx = e.changedTouches[0].clientX - tx.current;
-    const dy = Math.abs(e.changedTouches[0].clientY - ty.current);
+    const dx = e.changedTouches[0].clientX - tx.current, dy = Math.abs(e.changedTouches[0].clientY - ty.current);
     if (Math.abs(dx) > 44 && Math.abs(dx) > dy * 1.5) dx < 0 ? next() : prev();
     tx.current = null; ty.current = null;
   };
-
   if (!items.length) return <div style={{minHeight:'clamp(420px,78vh,600px)',background:'var(--bg)'}}/>;
   const a = items[idx], h = hMax();
-
   return (
     <div className="hero" onTouchStart={onTS} onTouchEnd={onTE}>
       <div className="hero-progress" style={{width:Math.min((prog/IV)*100,100)+'%'}}/>
@@ -451,20 +431,14 @@ function Hero({items, onPlay}) {
       </div>
       <button className="harr" style={{left:16}} onClick={prev}>&#8249;</button>
       <button className="harr" style={{right:16}} onClick={next}>&#8250;</button>
-      <div className="hdots">
-        {Array.from({length:h}).map((_,i)=>(
-          <button key={i} className={'hdot'+(i===idx?' on':'')} style={{width:i===idx?20:5}} onClick={()=>go(i)}/>
-        ))}
-      </div>
+      <div className="hdots">{Array.from({length:h}).map((_,i)=>(<button key={i} className={'hdot'+(i===idx?' on':'')} style={{width:i===idx?20:5}} onClick={()=>go(i)}/>))}</div>
       <p className="swipe-hint">← swipe to browse →</p>
     </div>
   );
 }
 
 function SearchBar({onSel}) {
-  const [q,setQ]     = useState('');
-  const [res,setRes] = useState([]);
-  const [open,setO]  = useState(false);
+  const [q,setQ] = useState(''), [res,setRes] = useState([]), [open,setO] = useState(false);
   const tmr = useRef(null), ref = useRef(null);
   useEffect(() => {
     const h = e => { if (!ref.current?.contains(e.target)) setO(false); };
@@ -500,15 +474,38 @@ function SearchBar({onSel}) {
   );
 }
 
-function EpCard({n, thumb, title, active, onClick}) {
-  const [imgErr, setImgErr] = useState(false);
+/**
+ * Episode thumbnail card.
+ *
+ * Priority:
+ * 1. AniList streamingEpisode thumbnail (from Crunchyroll) — best quality
+ * 2. If that fails/missing → anime poster image dimmed as background (looks great, always available)
+ * 3. If poster also fails → dark gradient skeleton with big episode number
+ */
+function EpCard({n, thumb, title, active, onClick, posterImg}) {
+  const [thumbErr, setThumbErr]   = useState(false);
+  const [posterErr, setPosterErr] = useState(false);
+  const showRealThumb  = !thumbErr && !!thumb;
+  const showPoster     = !showRealThumb && !posterErr && !!posterImg;
+  const showSkel       = !showRealThumb && !showPoster;
+
   return (
     <div className={'ep-tc'+(active?' on':'')} onClick={onClick}>
       <div className="ep-tc-img">
-        {!imgErr && thumb
-          ? <img src={thumb} alt={title||`Episode ${n}`} loading="lazy" onError={()=>setImgErr(true)}/>
-          : <div className="ep-tc-skel"><span className="ep-tc-skel-n">{n}</span></div>
-        }
+        {showRealThumb && (
+          <img className="ep-thumb-real" src={thumb} alt={title||`Episode ${n}`}
+            loading="lazy" onError={()=>setThumbErr(true)}/>
+        )}
+        {showPoster && (
+          <>
+            <img className="ep-thumb-poster" src={posterImg} alt=""
+              onError={()=>setPosterErr(true)}/>
+            <div className="ep-tc-poster-num">{n}</div>
+          </>
+        )}
+        {showSkel && (
+          <div className="ep-tc-skel"><span className="ep-tc-skel-n">{n}</span></div>
+        )}
         <div className="ep-tc-ov"><div className="ep-tc-pc"><PIco s={12}/></div></div>
         <div className="ep-tc-badge">{n}</div>
       </div>
@@ -546,7 +543,6 @@ function WatchPage({anime, startTab, onBack}) {
 
   const loadEp = useCallback((ep, lng) => {
     const L = lng || lang;
-    // Pass malId so VidSrc servers (11, 12) also work
     setSrvs(buildServers(anime.id, ep, L, anime.malId));
     setSi(0); setKey(k=>k+1); setSpin(true); setCurEp(ep);
   }, [anime.id, anime.malId, lang]);
@@ -565,6 +561,9 @@ function WatchPage({anime, startTab, onBack}) {
   const filtered = fil.trim()
     ? epNums.filter(n => { const {title} = getEp(n); return String(n).includes(fil.trim()) || (title&&title.toLowerCase().includes(fil.toLowerCase())); })
     : epNums;
+
+  // Poster image used as thumbnail fallback for ALL episode cards
+  const posterImg = anime.image || null;
 
   return (
     <div className="wp">
@@ -602,8 +601,7 @@ function WatchPage({anime, startTab, onBack}) {
                     <button key={i} className={'sbtn'+(si===i?' on':'')} onClick={()=>switchSrv(i)}>{s.n}</button>
                   ))}
                 </div>
-                {/* Minimal hint — no verbose warnings */}
-                <p className="srv-hint">If a server isn't loading, <span>try another one above.</span></p>
+                <p className="srv-hint">If your server isn't loading, <span>click another one above.</span></p>
               </div>
             )}
 
@@ -617,12 +615,8 @@ function WatchPage({anime, startTab, onBack}) {
                 {totalEps     && <><span style={{color:'var(--txt3)'}}>·</span><span>{totalEps} eps</span></>}
                 {tab==='watch' && <span className="ep-pill">EP {curEp}</span>}
               </div>
-              <div className="winfo-tags">
-                {anime.genres.slice(0,6).map(g=><span key={g} className="atag">{g}</span>)}
-              </div>
+              <div className="winfo-tags">{anime.genres.slice(0,6).map(g=><span key={g} className="atag">{g}</span>)}</div>
               <p className="winfo-desc">{anime.desc}</p>
-
-              {/* External links — AniList + MAL */}
               <div className="ext-links">
                 {anime.siteUrl && (
                   <a href={anime.siteUrl} target="_blank" rel="noopener noreferrer" className="ext-link">
@@ -638,7 +632,6 @@ function WatchPage({anime, startTab, onBack}) {
             </div>
           </div>
 
-          {/* Episode panel */}
           <div className="ep-panel">
             <div className="ep-panel-hdr">
               <span className="ep-panel-title">Episodes ({totalEps})</span>
@@ -661,6 +654,7 @@ function WatchPage({anime, startTab, onBack}) {
                     {filtered.map(n => {
                       const {thumb, title} = getEp(n);
                       return <EpCard key={n} n={n} thumb={thumb} title={title}
+                        posterImg={posterImg}
                         active={curEp===n&&tab==='watch'}
                         onClick={()=>{ setTab('watch'); loadEp(n, lang); }}/>;
                     })}
@@ -689,7 +683,6 @@ function WatchPage({anime, startTab, onBack}) {
 function PolicyPage({type, onBack}) {
   const isDmca = type === 'dmca';
   const year   = new Date().getFullYear();
-  // Email link opens Gmail compose directly to fredbv22@gmail.com
   const gmailUrl = `https://mail.google.com/mail/?view=cm&to=fredbv22%40gmail.com&su=Contact%20JustStreamAnime`;
   const CL = () => (
     <div className="contact-box">
@@ -711,56 +704,20 @@ function PolicyPage({type, onBack}) {
           <>
             <h1 className="policy-h1">Copyright &amp; Content Policy</h1>
             <p className="policy-date">Last updated {year}</p>
-            <div className="policy-section">
-              <h2 className="policy-h2">What JustStreamAnime Is</h2>
-              <p className="policy-p">JustStreamAnime is a free anime streaming aggregator. We curate links to video streams served by independent third-party providers and do not upload, store, or control any media files. All playback is handled entirely by those external providers.</p>
-            </div>
-            <div className="policy-section">
-              <h2 className="policy-h2">Reporting Copyright Concerns</h2>
-              <p className="policy-p">If you are a rights holder and believe content accessible through this site infringes your copyright, contact us directly. We respond within 48 hours.</p>
-              <p className="policy-p" style={{marginTop:'.5rem'}}>Please include:</p>
-              <ul className="policy-ul">
-                <li>Your full legal name and contact details</li>
-                <li>A description of the copyrighted work</li>
-                <li>The specific page URL(s) where the content appears</li>
-                <li>A statement of good-faith belief that the use is not authorised</li>
-                <li>A confirmation that the information is accurate</li>
-                <li>Your electronic or physical signature</li>
-              </ul>
-            </div>
-            <div className="policy-section">
-              <h2 className="policy-h2">Counter-Notices</h2>
-              <p className="policy-p">If you believe content was removed in error, submit a counter-notice with your contact details and a statement that the removal was a mistake. We will review it promptly.</p>
-            </div>
-            <div className="policy-section">
-              <h2 className="policy-h2">Get in Touch</h2>
-              <CL/>
-            </div>
+            <div className="policy-section"><h2 className="policy-h2">What JustStreamAnime Is</h2><p className="policy-p">JustStreamAnime is a free anime streaming aggregator. We curate links to video streams served by independent third-party providers and do not upload, store, or control any media files. All playback is handled entirely by those external providers.</p></div>
+            <div className="policy-section"><h2 className="policy-h2">Reporting Copyright Concerns</h2><p className="policy-p">If you are a rights holder and believe content accessible through this site infringes your copyright, contact us directly. We respond within 48 hours.</p><p className="policy-p" style={{marginTop:'.5rem'}}>Please include:</p><ul className="policy-ul"><li>Your full legal name and contact details</li><li>A description of the copyrighted work</li><li>The specific page URL(s) where the content appears</li><li>A statement of good-faith belief that the use is not authorised</li><li>A confirmation that the information is accurate</li><li>Your electronic or physical signature</li></ul></div>
+            <div className="policy-section"><h2 className="policy-h2">Counter-Notices</h2><p className="policy-p">If you believe content was removed in error, submit a counter-notice with your contact details. We will review it promptly.</p></div>
+            <div className="policy-section"><h2 className="policy-h2">Get in Touch</h2><CL/></div>
           </>
         ) : (
           <>
             <h1 className="policy-h1">Privacy Policy</h1>
             <p className="policy-date">Last updated {year}</p>
-            <div className="policy-section">
-              <h2 className="policy-h2">Data We Collect</h2>
-              <p className="policy-p">JustStreamAnime does not collect, store, or sell personal information. No account registration is required. We do not use tracking cookies or advertising identifiers.</p>
-            </div>
-            <div className="policy-section">
-              <h2 className="policy-h2">Third-Party Providers</h2>
-              <p className="policy-p">Video content is served via third-party embed providers. Those providers operate under their own privacy policies and may collect data independently.</p>
-            </div>
-            <div className="policy-section">
-              <h2 className="policy-h2">Server Logs</h2>
-              <p className="policy-p">Our hosting provider may automatically log standard request data — IP address, browser type, and pages visited — for security and performance only. This data is not shared with third parties.</p>
-            </div>
-            <div className="policy-section">
-              <h2 className="policy-h2">Minors</h2>
-              <p className="policy-p">This service is not directed at children under 13. We do not knowingly collect information from minors.</p>
-            </div>
-            <div className="policy-section">
-              <h2 className="policy-h2">Contact</h2>
-              <CL/>
-            </div>
+            <div className="policy-section"><h2 className="policy-h2">Data We Collect</h2><p className="policy-p">JustStreamAnime does not collect, store, or sell personal information. No account registration is required. We do not use tracking cookies or advertising identifiers.</p></div>
+            <div className="policy-section"><h2 className="policy-h2">Third-Party Providers</h2><p className="policy-p">Video content is served via third-party embed providers. Those providers operate under their own privacy policies and may collect data independently.</p></div>
+            <div className="policy-section"><h2 className="policy-h2">Server Logs</h2><p className="policy-p">Our hosting provider may automatically log standard request data for security and performance only. This data is not shared with third parties.</p></div>
+            <div className="policy-section"><h2 className="policy-h2">Minors</h2><p className="policy-p">This service is not directed at children under 13. We do not knowingly collect information from minors.</p></div>
+            <div className="policy-section"><h2 className="policy-h2">Contact</h2><CL/></div>
           </>
         )}
       </div>
@@ -768,7 +725,6 @@ function PolicyPage({type, onBack}) {
   );
 }
 
-// Hash routing
 function readHash() {
   try {
     const raw = (window.location.hash||'').slice(1);
@@ -840,8 +796,7 @@ function App() {
   const openWatch = (a, t='watch') => {
     cache.current[String(a.id)] = a;
     setWatch(a); setWTab(t); setView('watch');
-    writeHash('watch',{id:a.id,wTab:t});
-    window.scrollTo({top:0});
+    writeHash('watch',{id:a.id,wTab:t}); window.scrollTo({top:0});
   };
   const goHome = () => { setView('home'); setWatch(null); writeHash('home',{tab,page}); window.scrollTo({top:0}); };
   const chPg   = p  => { setPage(p); writeHash('home',{tab,page:p}); window.scrollTo({top:0,behavior:'smooth'}); };
@@ -874,9 +829,7 @@ function App() {
         </div>
         <SearchBar onSel={a=>openWatch(a,'watch')}/>
       </nav>
-
       {tab==='trending'&&page===1&&<Hero items={hero} onPlay={openWatch}/>}
-
       <div style={{paddingTop:tab==='trending'&&page===1?'0':'calc(var(--nav) + 0.5rem)'}}>
         <div className="tabs-bar">
           {TABS.map(t=>(
@@ -884,7 +837,6 @@ function App() {
           ))}
         </div>
       </div>
-
       <div className="section">
         <div className="sec-hdr">
           <div className="sec-bar"/>
@@ -895,13 +847,11 @@ function App() {
           : <div className="agrid">{items.map(a=><AnimeCard key={a.id} a={a} onPlay={openWatch}/>)}</div>
         }
       </div>
-
       <div className="pag">
         <button className="pgb" disabled={page===1} onClick={()=>chPg(page-1)}>‹</button>
         {ps.map(p=><button key={p} className={'pgb'+(p===page?' on':'')} onClick={()=>chPg(p)}>{p}</button>)}
         <button className="pgb" disabled={page===totalPg} onClick={()=>chPg(page+1)}>›</button>
       </div>
-
       <footer>
         <div className="ft-logo">just<em>stream</em>anime</div>
         <div className="ft-links">
