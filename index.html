@@ -70,18 +70,20 @@
     .btn-info{display:inline-flex;align-items:center;gap:7px;padding:clamp(9px,2.5vw,12px) clamp(14px,3vw,20px);border-radius:10px;font-size:clamp(12px,2.5vw,13px);font-weight:700;color:var(--txt);background:rgba(255,255,255,.08);border:1px solid var(--border2);-webkit-tap-highlight-color:transparent;transition:background .15s}
     .btn-info:hover{background:rgba(255,255,255,.14)}
     .btn-info:active{background:rgba(255,255,255,.16)}
-    .harr{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:42px;height:42px;border-radius:50%;background:rgba(7,7,14,.65);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:all .2s;backdrop-filter:blur(8px)}
-    .harr:hover{background:var(--red);border-color:var(--red);transform:translateY(-50%) scale(1.06)}
-    .harr:active{transform:translateY(-50%) scale(.94)}
-    @media(max-width:768px){.harr{display:none!important}}
-    @media(pointer:coarse){.harr{display:none!important}}
-    @media(hover:none){.harr{display:none!important}}
+    .harr{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:42px;height:42px;border-radius:50%;background:rgba(7,7,14,.7);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:background .2s,border-color .2s,transform .15s,box-shadow .2s;backdrop-filter:blur(10px);box-shadow:0 2px 14px rgba(0,0,0,.5)}
+    .harr:hover{background:var(--red);border-color:var(--red);box-shadow:0 4px 20px var(--glow)}
+    .harr:active{transform:translateY(-50%) scale(.91)}
+    /* Mobile: show arrows but move them UP into the image zone so they never overlap the text block */
+    @media(max-width:768px){
+      .harr{top:28%;width:34px;height:34px;font-size:17px;background:rgba(7,7,14,.72);border-color:rgba(255,255,255,.18)}
+    }
+    @media(max-width:400px){
+      .harr{top:26%;width:30px;height:30px;font-size:15px}
+    }
     .hdots{position:absolute;bottom:1.1rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;z-index:10;background:rgba(0,0,0,.3);backdrop-filter:blur(8px);padding:5px 9px;border-radius:20px}
     .hdot{height:4px;border-radius:3px;background:rgba(255,255,255,.28);border:none;cursor:pointer;transition:width .35s cubic-bezier(.4,0,.2,1),background .3s;flex-shrink:0}
     .hdot.on{background:var(--red);width:20px!important}
-    .swipe-hint{display:none;position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;pointer-events:none}
-    @media(max-width:768px){.swipe-hint{display:block}}
-    @media(pointer:coarse){.swipe-hint{display:block}}
+
     .tabs-bar{display:flex;gap:5px;overflow-x:auto;padding:clamp(.6rem,2vw,1rem) clamp(.75rem,3.5vw,2.5rem);scrollbar-width:none;-webkit-overflow-scrolling:touch}
     .tabs-bar::-webkit-scrollbar{display:none}
     .tbtn{font-family:var(--mono);font-size:clamp(11px,2vw,12px);font-weight:700;padding:clamp(6px,1.8vw,8px) clamp(13px,2.5vw,17px);border-radius:8px;flex-shrink:0;border:1px solid;transition:all .15s;-webkit-tap-highlight-color:transparent}
@@ -428,14 +430,13 @@ function Hero({items, onPlay}) {
         <div className="hero-tags">{a.genres.slice(0,5).map(g=><span key={g} className="htag">{g}</span>)}</div>
         <p className="hero-desc">{a.desc}</p>
         <div className="hero-btns">
-          <button className="btn-play" onClick={()=>onPlay(a,'watch')}><PIco s={13}/>Watch Now</button>
+          <button className="btn-play" onClick={()=>onPlay(a,'watch')}><PIco s={13}/>Play</button>
           {a.trailerUrl && <button className="btn-info" onClick={()=>onPlay(a,'trailer')}><FilmIco/> Trailer</button>}
         </div>
       </div>
       <button className="harr" style={{left:16}} onClick={prev}>&#8249;</button>
       <button className="harr" style={{right:16}} onClick={next}>&#8250;</button>
       <div className="hdots">{Array.from({length:h}).map((_,i)=>(<button key={i} className={'hdot'+(i===idx?' on':'')} style={{width:i===idx?20:5}} onClick={()=>go(i)}/>))}</div>
-      <p className="swipe-hint">← swipe to browse →</p>
     </div>
   );
 }
@@ -627,7 +628,7 @@ function WatchPage({anime, startTab, onBack}) {
   return (
     <div className="wp">
       <div className="wp-wrap">
-        <button className="wp-back" onClick={onBack}><BackIco/> Back to Browse</button>
+        <button className="wp-back" onClick={onBack}><BackIco/> Back</button>
         <div className="wp-layout">
           <div>
             <div className="vtabs">
