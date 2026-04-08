@@ -73,15 +73,15 @@
     .btn-info{display:inline-flex;align-items:center;gap:7px;padding:clamp(9px,2.5vw,12px) clamp(14px,3vw,20px);border-radius:10px;font-size:clamp(12px,2.5vw,13px);font-weight:700;color:var(--txt);background:rgba(255,255,255,.08);border:1px solid var(--border2);-webkit-tap-highlight-color:transparent;transition:background .15s}
     .btn-info:hover{background:rgba(255,255,255,.14)}
     .btn-info:active{background:rgba(255,255,255,.16)}
-    .harr{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:42px;height:42px;border-radius:50%;background:rgba(7,7,14,.7);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:background .2s,border-color .2s,transform .15s,box-shadow .2s;backdrop-filter:blur(10px);box-shadow:0 2px 14px rgba(0,0,0,.5)}
+    .harr{position:absolute;top:35%;transform:translateY(-50%);z-index:10;width:42px;height:42px;border-radius:50%;background:rgba(7,7,14,.7);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:background .2s,border-color .2s,transform .15s,box-shadow .2s;backdrop-filter:blur(10px);box-shadow:0 2px 14px rgba(0,0,0,.5)}
     .harr:hover{background:var(--red);border-color:var(--red);box-shadow:0 4px 20px var(--glow)}
     .harr:active{transform:translateY(-50%) scale(.91)}
-    /* Mobile: show arrows but move them UP into the image zone so they never overlap the text block */
+    /* Mobile: slightly higher since content takes more vertical space proportionally */
     @media(max-width:768px){
-      .harr{top:28%;width:34px;height:34px;font-size:17px;background:rgba(7,7,14,.72);border-color:rgba(255,255,255,.18)}
+      .harr{top:30%;width:34px;height:34px;font-size:17px;background:rgba(7,7,14,.72);border-color:rgba(255,255,255,.18)}
     }
     @media(max-width:400px){
-      .harr{top:26%;width:30px;height:30px;font-size:15px}
+      .harr{top:27%;width:30px;height:30px;font-size:15px}
     }
     .hdots{position:absolute;bottom:1.1rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;z-index:10;background:rgba(0,0,0,.3);backdrop-filter:blur(8px);padding:5px 9px;border-radius:20px}
     .hdot{height:4px;border-radius:3px;background:rgba(255,255,255,.28);border:none;cursor:pointer;transition:width .35s cubic-bezier(.4,0,.2,1),background .3s;flex-shrink:0}
