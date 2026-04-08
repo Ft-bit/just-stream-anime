@@ -73,15 +73,13 @@
     .btn-info{display:inline-flex;align-items:center;gap:7px;padding:clamp(9px,2.5vw,12px) clamp(14px,3vw,20px);border-radius:10px;font-size:clamp(12px,2.5vw,13px);font-weight:700;color:var(--txt);background:rgba(255,255,255,.08);border:1px solid var(--border2);-webkit-tap-highlight-color:transparent;transition:background .15s}
     .btn-info:hover{background:rgba(255,255,255,.14)}
     .btn-info:active{background:rgba(255,255,255,.16)}
-    .harr{position:absolute;top:35%;transform:translateY(-50%);z-index:10;width:42px;height:42px;border-radius:50%;background:rgba(7,7,14,.7);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:background .2s,border-color .2s,transform .15s,box-shadow .2s;backdrop-filter:blur(10px);box-shadow:0 2px 14px rgba(0,0,0,.5)}
-    .harr:hover{background:var(--red);border-color:var(--red);box-shadow:0 4px 20px var(--glow)}
-    .harr:active{transform:translateY(-50%) scale(.91)}
-    /* Mobile: slightly higher since content takes more vertical space proportionally */
+    /* Arrows anchored just below the navbar — always in the clear image zone,
+       never affected by viewport height or content length */
+    .harr{position:absolute;top:calc(var(--nav) + 22px);transform:none;z-index:10;width:34px;height:34px;border-radius:50%;background:rgba(7,7,14,.72);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:background .2s,border-color .2s,transform .15s,box-shadow .2s;backdrop-filter:blur(10px);box-shadow:0 2px 12px rgba(0,0,0,.5)}
+    .harr:hover{background:var(--red);border-color:var(--red);box-shadow:0 4px 18px var(--glow);transform:scale(1.06)}
+    .harr:active{transform:scale(.91)}
     @media(max-width:768px){
-      .harr{top:30%;width:34px;height:34px;font-size:17px;background:rgba(7,7,14,.72);border-color:rgba(255,255,255,.18)}
-    }
-    @media(max-width:400px){
-      .harr{top:27%;width:30px;height:30px;font-size:15px}
+      .harr{top:calc(var(--nav) + 16px);width:30px;height:30px;font-size:16px}
     }
     .hdots{position:absolute;bottom:1.1rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;z-index:10;background:rgba(0,0,0,.3);backdrop-filter:blur(8px);padding:5px 9px;border-radius:20px}
     .hdot{height:4px;border-radius:3px;background:rgba(255,255,255,.28);border:none;cursor:pointer;transition:width .35s cubic-bezier(.4,0,.2,1),background .3s;flex-shrink:0}
@@ -276,13 +274,19 @@ function mapA(a) {
       ? `https://www.dailymotion.com/embed/video/${a.trailer.id}` : null;
   }
 
+  const rawDesc = (a.description||'').replace(/<[^>]+>/g,'').trim();
+  // Detect stub descriptions: very short OR the common "The Nth season of X" pattern
+  const stubPattern = /^the\s+(first|second|third|fourth|fifth|\d+(st|nd|rd|th))\s+season\s+of/i;
+  const descIsStub  = rawDesc.length < 120 || stubPattern.test(rawDesc);
+
   return {
     id: a.id, malId: a.idMal, siteUrl: a.siteUrl||null,
     title: a.title?.english||a.title?.romaji||'Unknown',
     romaji: a.title?.romaji||'',
     image: a.coverImage?.extraLarge||a.coverImage?.large,
     banner: a.bannerImage,
-    desc: (a.description||'').replace(/<[^>]+>/g,''),
+    desc: rawDesc,
+    descIsStub,
     rating: a.averageScore, year: a.seasonYear,
     eps: a.episodes, airedEps,
     genres: a.genres||[],
@@ -369,6 +373,9 @@ function Hero({items, onPlay}) {
   const [idx,setIdx]     = useState(0);
   const [loaded,setLoad] = useState(false);
   const [prog,setProg]   = useState(0);
+  // Cache of malId → fetched description
+  const descCache = useRef({});
+  const [extraDesc, setExtraDesc] = useState('');
   const pv = useRef(null), pr = useRef(0), tx = useRef(null), ty = useRef(null), fi = useRef(true);
   const hMax = useCallback(() => Math.min(items.length, 8), [items.length]);
   const go   = i => setIdx(i);
@@ -382,7 +389,31 @@ function Hero({items, onPlay}) {
     }, 50);
   };
   useEffect(() => { if (items.length) start(); return () => clearInterval(pv.current); }, [items]);
-  useEffect(() => { setLoad(false); if (fi.current) { fi.current = false; return; } start(); }, [idx]);
+  useEffect(() => {
+    setLoad(false);
+    setExtraDesc('');
+    if (fi.current) { fi.current = false; return; }
+    start();
+  }, [idx]);
+
+  // When current slide has a stub description, fetch a better one from Jikan
+  useEffect(() => {
+    if (!items.length) return;
+    const a = items[idx];
+    if (!a?.descIsStub || !a?.malId) return;
+    const key = String(a.malId);
+    if (descCache.current[key]) { setExtraDesc(descCache.current[key]); return; }
+    (async () => {
+      try {
+        const r = await fetch(`https://api.jikan.moe/v4/anime/${a.malId}`);
+        const d = await r.json();
+        const synopsis = d.data?.synopsis || '';
+        descCache.current[key] = synopsis;
+        // Only apply if still on same slide
+        setExtraDesc(synopsis);
+      } catch(e) {}
+    })();
+  }, [idx, items]);
   const onTS = e => { tx.current = e.touches[0].clientX; ty.current = e.touches[0].clientY; };
   const onTE = e => {
     if (tx.current === null) return;
@@ -409,14 +440,14 @@ function Hero({items, onPlay}) {
           {a.airedEps && <span>{a.airedEps} Episodes</span>}
         </div>
         <div className="hero-tags">{a.genres.slice(0,5).map(g=><span key={g} className="htag">{g}</span>)}</div>
-        <p className="hero-desc">{a.desc}</p>
+        <p className="hero-desc">{(a.descIsStub && extraDesc) ? extraDesc : a.desc}</p>
         <div className="hero-btns">
           <button className="btn-play" onClick={()=>onPlay(a,'watch')}><PIco s={13}/>Play</button>
           {a.trailerUrl && <button className="btn-info" onClick={()=>onPlay(a,'trailer')}><FilmIco/> Trailer</button>}
         </div>
       </div>
-      <button className="harr" style={{left:16}} onClick={prev}>&#8249;</button>
-      <button className="harr" style={{right:16}} onClick={next}>&#8250;</button>
+      <button className="harr" style={{left:6}} onClick={prev}>&#8249;</button>
+      <button className="harr" style={{right:6}} onClick={next}>&#8250;</button>
       <div className="hdots">{Array.from({length:h}).map((_,i)=>(<button key={i} className={'hdot'+(i===idx?' on':'')} style={{width:i===idx?20:5}} onClick={()=>go(i)}/>))}</div>
     </div>
   );
@@ -473,6 +504,20 @@ function WatchPage({anime, startTab, onBack}) {
   // Jikan episode titles
   const [jikanEps,  setJikanEps]  = useState({});
   const [jikanDone, setJikanDone] = useState(false);
+  // Jikan synopsis fallback for stub descriptions
+  const [jikanDesc, setJikanDesc] = useState('');
+
+  // Fetch Jikan synopsis if AniList description is a stub
+  useEffect(() => {
+    if (!anime.descIsStub || !anime.malId) return;
+    (async () => {
+      try {
+        const r = await fetch(`https://api.jikan.moe/v4/anime/${anime.malId}`);
+        const d = await r.json();
+        if (d.data?.synopsis) setJikanDesc(d.data.synopsis);
+      } catch(e) {}
+    })();
+  }, [anime.malId, anime.descIsStub]);
 
   // Fetch Jikan (MAL) episode data for titles on non-Crunchyroll anime.
   // Jikan v4 /episodes endpoint gives episode titles and filler info (no thumbnails).
@@ -578,7 +623,7 @@ function WatchPage({anime, startTab, onBack}) {
                 {tab==='watch' && <span className="ep-pill">EP {curEp}</span>}
               </div>
               <div className="winfo-tags">{anime.genres.slice(0,6).map(g=><span key={g} className="atag">{g}</span>)}</div>
-              <p className="winfo-desc">{anime.desc}</p>
+              <p className="winfo-desc">{(anime.descIsStub && jikanDesc) ? jikanDesc : anime.desc}</p>
               <div className="ext-links">
                 {anime.siteUrl && (
                   <a href={anime.siteUrl} target="_blank" rel="noopener noreferrer" className="ext-link">
