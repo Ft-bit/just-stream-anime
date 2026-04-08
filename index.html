@@ -47,12 +47,12 @@
        the .hero itself is free — hero-body content is NEVER clipped */
     .hero-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
     .hero-progress{position:absolute;top:0;left:0;height:2px;background:linear-gradient(to right,var(--red),#ff6b8a);z-index:10;border-radius:0 2px 2px 0}
-    .hero-img-desk{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(.42) saturate(1.15);transition:opacity .9s ease}
-    .hero-img-mob{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 15%;filter:brightness(.44) saturate(1.1);transition:opacity .9s ease;display:none}
+    .hero-img-desk{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(.58) saturate(1.1);transition:opacity .9s ease}
+    .hero-img-mob{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 15%;filter:brightness(.6) saturate(1.05);transition:opacity .9s ease;display:none}
     @media(max-width:600px){.hero-img-desk{display:none}.hero-img-mob{display:block}.hero{min-height:clamp(420px,78vh,600px)}}
-    .hero-nav-fade{position:absolute;top:0;left:0;right:0;height:calc(var(--nav)+50px);background:linear-gradient(to bottom,rgba(7,7,14,.9),transparent);pointer-events:none;z-index:1}
-    .hero-grad{position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,rgba(7,7,14,.8) 32%,rgba(7,7,14,.15) 62%,transparent 100%),linear-gradient(to right,rgba(7,7,14,.9) 0%,rgba(7,7,14,.2) 55%,transparent 100%)}
-    @media(max-width:600px){.hero-grad{background:linear-gradient(to top,var(--bg) 0%,rgba(7,7,14,.88) 38%,rgba(7,7,14,.45) 68%,rgba(7,7,14,.1) 100%),linear-gradient(to right,rgba(7,7,14,.75) 0%,transparent 100%)}}
+    .hero-nav-fade{position:absolute;top:0;left:0;right:0;height:calc(var(--nav)+50px);background:linear-gradient(to bottom,rgba(7,7,14,.85),transparent);pointer-events:none;z-index:1}
+    .hero-grad{position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,rgba(7,7,14,.72) 28%,rgba(7,7,14,.1) 58%,transparent 100%),linear-gradient(to right,rgba(7,7,14,.82) 0%,rgba(7,7,14,.08) 48%,transparent 100%)}
+    @media(max-width:600px){.hero-grad{background:linear-gradient(to top,var(--bg) 0%,rgba(7,7,14,.88) 38%,rgba(7,7,14,.4) 65%,rgba(7,7,14,.05) 100%),linear-gradient(to right,rgba(7,7,14,.7) 0%,transparent 100%)}}
     .hero-body{position:relative;z-index:2;padding:clamp(1rem,4vw,3rem) clamp(1rem,4vw,3.5rem) clamp(3.5rem,7vw,5rem);max-width:620px;width:100%}
     @media(max-width:600px){.hero-body{padding:calc(var(--nav) + .75rem) clamp(.85rem,4vw,1.25rem) 4.5rem}.hero-tags{display:none}}
     .hero-badge{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:clamp(9px,1.8vw,10px);font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--red);margin-bottom:10px}
@@ -171,40 +171,21 @@
     @media(min-width:960px){.ep-panel{position:sticky;top:calc(var(--nav) + 10px);max-height:calc(100vh - var(--nav) - 22px)}}
     .ep-panel-hdr{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
     .ep-panel-title{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.12em}
-    .ep-view-toggle{display:flex;gap:4px}
-    .ep-toggle-btn{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--txt3);transition:all .15s;-webkit-tap-highlight-color:transparent}
-    .ep-toggle-btn:hover{background:rgba(255,255,255,.09);color:var(--txt)}
-    .ep-toggle-btn.on{background:rgba(225,29,72,.14);border-color:rgba(225,29,72,.4);color:#fb7185}
-    .ep-filter{font-family:var(--mono);font-size:clamp(10px,2vw,11px);background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--txt);padding:7px 10px;border-radius:7px;width:100%;outline:none;flex-shrink:0;transition:border-color .15s}
-    .ep-filter:focus{border-color:rgba(225,29,72,.38)}
+    .ep-filter{font-family:var(--mono);font-size:clamp(10px,2vw,11px);background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--txt);padding:7px 10px;border-radius:7px;width:100%;outline:none;flex-shrink:0;transition:border-color .2s}
+    .ep-filter:focus{border-color:rgba(225,29,72,.45)}
     .ep-scroll{overflow-y:auto;flex:1;max-height:clamp(280px,42vh,520px)}
     @media(min-width:960px){.ep-scroll{max-height:none}}
     .ep-scroll::-webkit-scrollbar{width:3px}
     .ep-scroll::-webkit-scrollbar-thumb{background:rgba(225,29,72,.2);border-radius:2px}
-    /* THUMBNAIL GRID */
-    .ep-thumb-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:2px}
-    @media(max-width:959px){.ep-thumb-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
-    .ep-tc{cursor:pointer;border-radius:9px;overflow:hidden;background:var(--bg3);border:1.5px solid transparent;transition:border-color .18s,box-shadow .18s,transform .18s cubic-bezier(.4,0,.2,1);-webkit-tap-highlight-color:transparent}
-    .ep-tc:hover{border-color:rgba(255,255,255,.16);transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.5)}
-    .ep-tc.on{border-color:var(--red);box-shadow:0 0 0 1px var(--red)}
-    .ep-tc-img{position:relative;padding-top:56.25%;background:#0d0d1a;overflow:hidden}
-    .ep-tc-img .ep-thumb-real{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .3s ease}
-    .ep-tc:hover .ep-thumb-real{transform:scale(1.05)}
-    .ep-tc-skel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#131328,#1c1c38)}
-    .ep-tc-skel-n{font-family:var(--mono);font-size:clamp(18px,3vw,26px);font-weight:900;color:rgba(225,29,72,.18)}
-    .ep-tc-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .18s;background:rgba(0,0,0,.38)}
-    .ep-tc:hover .ep-tc-ov,.ep-tc.on .ep-tc-ov{opacity:1}
-    .ep-tc-pc{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;box-shadow:0 3px 14px var(--glow)}
-    .ep-tc-badge{position:absolute;bottom:5px;right:6px;font-family:var(--mono);font-size:9px;font-weight:700;color:#fff;background:rgba(0,0,0,.75);padding:2px 5px;border-radius:4px;backdrop-filter:blur(4px)}
-    .ep-tc-body{padding:7px 8px 9px}
-    .ep-tc-title{font-size:clamp(10px,1.9vw,11px);font-weight:600;color:var(--txt);line-height:1.32;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     /* LIST VIEW */
-    .ep-list{display:flex;flex-direction:column;gap:4px;padding:2px}
-    .epbtn{display:flex;align-items:center;gap:9px;padding:clamp(8px,2vw,9px) clamp(9px,2vw,11px);border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.04);cursor:pointer;text-align:left;width:100%;transition:all .15s;-webkit-tap-highlight-color:transparent}
-    .epbtn:hover{background:rgba(255,255,255,.06);border-color:var(--border)}
-    .epbtn.on{background:rgba(225,29,72,.1);border-color:rgba(225,29,72,.25)}
-    .ep-num{font-family:var(--mono);font-size:clamp(9px,2vw,10px);font-weight:700;color:var(--red);min-width:clamp(26px,5vw,32px);flex-shrink:0}
-    .ep-name{font-size:clamp(11px,2vw,12px);color:var(--txt);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ep-list{display:flex;flex-direction:column;gap:5px;padding:2px}
+    .epbtn{display:flex;align-items:center;gap:11px;padding:clamp(9px,2vw,11px) clamp(10px,2vw,13px);border-radius:9px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);cursor:pointer;text-align:left;width:100%;transition:background .2s,border-color .2s,transform .18s,box-shadow .2s;-webkit-tap-highlight-color:transparent}
+    .epbtn:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);transform:translateX(3px);box-shadow:0 3px 14px rgba(0,0,0,.35)}
+    .epbtn:active{transform:scale(.98)}
+    .epbtn.on{background:rgba(225,29,72,.12);border-color:rgba(225,29,72,.3);box-shadow:0 0 0 1px rgba(225,29,72,.15) inset}
+    .epbtn.on:hover{background:rgba(225,29,72,.18);border-color:rgba(225,29,72,.45)}
+    .ep-num{font-family:var(--mono);font-size:clamp(9px,2vw,10px);font-weight:800;color:var(--red);min-width:clamp(30px,5vw,36px);flex-shrink:0;letter-spacing:.04em}
+    .ep-name{font-size:clamp(11px,2vw,12.5px);color:var(--txt);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
     /* POLICY */
     .policy-wrap{min-height:100vh;background:var(--bg);padding-top:var(--nav)}
     .policy-inner{max-width:740px;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem) 4rem}
@@ -295,7 +276,6 @@ function mapA(a) {
       ? `https://www.dailymotion.com/embed/video/${a.trailer.id}` : null;
   }
 
-  const streamEps = a.streamingEpisodes ? [...a.streamingEpisodes].reverse() : [];
   return {
     id: a.id, malId: a.idMal, siteUrl: a.siteUrl||null,
     title: a.title?.english||a.title?.romaji||'Unknown',
@@ -308,7 +288,7 @@ function mapA(a) {
     genres: a.genres||[],
     color: a.coverImage?.color||'#e11d48',
     format: (a.format||'TV').replace(/_/g,' '),
-    season: seasonName, trailerUrl, status: a.status, streamEps,
+    season: seasonName, trailerUrl, status: a.status,
   };
 }
 
@@ -351,8 +331,6 @@ function buildServers(aniId, ep, lang, malId) {
 const PIco = ({s=16}) => (<svg viewBox="0 0 20 20" fill="currentColor" style={{width:s,height:s}}><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>);
 const FilmIco = () => (<svg viewBox="0 0 20 20" fill="currentColor" style={{width:13,height:13}}><path fillRule="evenodd" d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm2 0h2v2H4V6zm0 4h2v2H4v-2zm0 4h2v2H4v-2zm12-8h-2v2h2V6zm0 4h-2v2h2v-2zm0 4h-2v2h2v-2zM8 6h4v8H8V6z" clipRule="evenodd"/></svg>);
 const BackIco = () => (<svg viewBox="0 0 20 20" fill="currentColor" style={{width:13,height:13}}><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"/></svg>);
-const GridIco = () => (<svg viewBox="0 0 16 16" fill="currentColor" style={{width:13,height:13}}><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>);
-const ListIco = () => (<svg viewBox="0 0 16 16" fill="currentColor" style={{width:13,height:13}}><rect x="1" y="2.5" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="11.5" width="14" height="2" rx="1"/></svg>);
 const ExtLinkIco = () => (<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" style={{width:10,height:10}}><path d="M6.5 3.5H3a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V9m-3-5.5H13.5m0 0v5.5m0-5.5L7 9" strokeLinecap="round" strokeLinejoin="round"/></svg>);
 const EmailIco = () => (<svg className="contact-icon" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="3" stroke="currentColor" strokeWidth="1.75"/><path d="M2 7l10 7 10-7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/></svg>);
 const WhatsAppIco = () => (<svg className="contact-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>);
@@ -481,32 +459,6 @@ function SearchBar({onSel}) {
   );
 }
 
-/**
- * Episode thumbnail card.
- * Shows real Crunchyroll/HiDive screenshot if available, otherwise clean skeleton.
- */
-function EpCard({n, thumb, title, active, onClick}) {
-  const [thumbErr, setThumbErr] = useState(false);
-  const showRealThumb = !thumbErr && !!thumb;
-
-  return (
-    <div className={'ep-tc'+(active?' on':'')} onClick={onClick}>
-      <div className="ep-tc-img">
-        {showRealThumb && (
-          <img className="ep-thumb-real" src={thumb} alt={title||`Episode ${n}`}
-            loading="lazy" onError={()=>setThumbErr(true)}/>
-        )}
-        {!showRealThumb && (
-          <div className="ep-tc-skel"><span className="ep-tc-skel-n">{n}</span></div>
-        )}
-        <div className="ep-tc-ov"><div className="ep-tc-pc"><PIco s={12}/></div></div>
-        <div className="ep-tc-badge">{n}</div>
-      </div>
-      {title && <div className="ep-tc-body"><div className="ep-tc-title">{title}</div></div>}
-    </div>
-  );
-}
-
 function WatchPage({anime, startTab, onBack}) {
   const totalEps = anime.airedEps || anime.eps || 12;
   const [tab,    setTab]    = useState(startTab||'watch');
@@ -517,29 +469,10 @@ function WatchPage({anime, startTab, onBack}) {
   const [key,    setKey]    = useState(0);
   const [spin,   setSpin]   = useState(true);
   const [fil,    setFil]    = useState('');
-  const [vm,     setVm]     = useState('thumb');
 
-  // AniList streaming episode data (episode-specific thumbnails from Crunchyroll/HiDive)
-  const [streamEps,  setStreamEps]  = useState(anime.streamEps||[]);
-  const [epsLoad,    setEpsLoad]    = useState(false);
-
-  // Jikan episode titles (episode names for anime not on Crunchyroll)
-  const [jikanEps,   setJikanEps]   = useState({}); // { [epNum]: { title } }
-  const [jikanDone,  setJikanDone]  = useState(false);
-
-  // Fetch AniList streaming episodes (episode thumbnails + titles from Crunchyroll)
-  useEffect(() => {
-    if (streamEps.length > 0) return;
-    setEpsLoad(true);
-    (async () => {
-      try {
-        const d = await gql(Qs.detail, {id: Number(anime.id)});
-        const m = d.data?.Media;
-        if (m?.streamingEpisodes?.length) setStreamEps([...m.streamingEpisodes].reverse());
-      } catch(e) {}
-      setEpsLoad(false);
-    })();
-  }, [anime.id]);
+  // Jikan episode titles
+  const [jikanEps,  setJikanEps]  = useState({});
+  const [jikanDone, setJikanDone] = useState(false);
 
   // Fetch Jikan (MAL) episode data for titles on non-Crunchyroll anime.
   // Jikan v4 /episodes endpoint gives episode titles and filler info (no thumbnails).
@@ -584,31 +517,13 @@ function WatchPage({anime, startTab, onBack}) {
 
   const epNums = Array.from({length:totalEps}, (_,i) => i+1);
 
-  /**
-   * getEp(n) – returns { thumb, title } for episode n.
-   *
-   * Thumbnail priority:
-   *   1. AniList streamingEpisodes thumbnail  → actual episode screenshot (Crunchyroll)
-   *   2. null → EpCard falls back to poster image
-   *
-   * Title priority:
-   *   1. AniList streamingEpisodes title
-   *   2. Jikan episode title
-   *   3. null → EpCard/list shows "Episode N"
-   */
-  const getEp = n => {
-    const anilistEp = streamEps[n - 1];   // position-based mapping
-    const jikanEp   = jikanEps[n];        // episode-number-based mapping
-    return {
-      thumb: anilistEp?.thumbnail || null,
-      title: anilistEp?.title    || jikanEp?.title || null,
-    };
-  };
+  // Returns episode title from Jikan (or null)
+  const getEpTitle = n => jikanEps[n]?.title || null;
 
   const filtered = fil.trim()
     ? epNums.filter(n => {
-        const {title} = getEp(n);
-        return String(n).includes(fil.trim()) || (title&&title.toLowerCase().includes(fil.toLowerCase()));
+        const t = getEpTitle(n);
+        return String(n).includes(fil.trim()) || (t && t.toLowerCase().includes(fil.toLowerCase()));
       })
     : epNums;
 
@@ -682,32 +597,15 @@ function WatchPage({anime, startTab, onBack}) {
           <div className="ep-panel">
             <div className="ep-panel-hdr">
               <span className="ep-panel-title">Episodes ({totalEps})</span>
-              <div className="ep-view-toggle">
-                <button className={'ep-toggle-btn'+(vm==='thumb'?' on':'')} onClick={()=>setVm('thumb')} title="Thumbnail view"><GridIco/></button>
-                <button className={'ep-toggle-btn'+(vm==='list' ?' on':'')} onClick={()=>setVm('list')}  title="List view"><ListIco/></button>
-              </div>
             </div>
             <input className="ep-filter"
-              placeholder={vm==='thumb'?"Search episodes…":"Jump to episode…"}
+              placeholder="Jump to episode…"
               value={fil} onChange={e=>setFil(e.target.value)}/>
             <div className="ep-scroll">
-              {epsLoad
-                ? <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:9,height:80}}>
-                    <div className="spin-ring" style={{width:22,height:22,borderWidth:2}}/>
-                    <span style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>Fetching episode data…</span>
-                  </div>
-                : vm==='thumb'
-                ? <div className="ep-thumb-grid">
+              {jikanDone || Object.keys(jikanEps).length > 0
+                ? <div className="ep-list">
                     {filtered.map(n => {
-                      const {thumb, title} = getEp(n);
-                      return <EpCard key={n} n={n} thumb={thumb} title={title}
-                        active={curEp===n&&tab==='watch'}
-                        onClick={()=>{ setTab('watch'); loadEp(n, lang); }}/>;
-                    })}
-                  </div>
-                : <div className="ep-list">
-                    {filtered.map(n => {
-                      const {title} = getEp(n);
+                      const title = getEpTitle(n);
                       return (
                         <button key={n} className={'epbtn'+(curEp===n&&tab==='watch'?' on':'')}
                           onClick={()=>{ setTab('watch'); loadEp(n, lang); }}>
@@ -716,6 +614,15 @@ function WatchPage({anime, startTab, onBack}) {
                         </button>
                       );
                     })}
+                  </div>
+                : <div className="ep-list">
+                    {filtered.map(n => (
+                      <button key={n} className={'epbtn'+(curEp===n&&tab==='watch'?' on':'')}
+                        onClick={()=>{ setTab('watch'); loadEp(n, lang); }}>
+                        <span className="ep-num">EP {n}</span>
+                        <span className="ep-name">Episode {n}</span>
+                      </button>
+                    ))}
                   </div>
               }
             </div>
