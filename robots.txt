@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jsanime.site
+Sitemap: https://jsanime.site/sitemap.xml
