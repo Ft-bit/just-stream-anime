@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
-  <title>JustStreamAnime</title>
+  <title>JustStreamAnime – Watch Anime Free Online</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZTExZDQ4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzlmMTIzOSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0idXJsKCNnKSIvPgogIDxwYXRoIGQ9Ik0xMS41IDkuMiBMMjMgMTYgTDExLjUgMjIuOCBaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4="/>
+  <link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZTExZDQ4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzlmMTIzOSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0idXJsKCNnKSIvPgogIDxwYXRoIGQ9Ik0xMS41IDkuMiBMMjMgMTYgTDExLjUgMjIuOCBaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4="/>
+  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZTExZDQ4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzlmMTIzOSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0idXJsKCNnKSIvPgogIDxwYXRoIGQ9Ik0xMS41IDkuMiBMMjMgMTYgTDExLjUgMjIuOCBaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4="/>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -61,7 +64,7 @@
     @media(max-width:768px){.hero-grad{display:none}}
 
     /* ── Desktop hero body (left-side text) ── */
-    .hero-body{position:relative;z-index:5;padding:clamp(1rem,4vw,3rem) clamp(1rem,4vw,3.5rem) clamp(3.5rem,7vw,5.5rem);max-width:640px;width:100%}
+    .hero-body{position:relative;z-index:5;padding:clamp(1rem,4vw,3rem) clamp(1rem,4vw,3.5rem) clamp(3.5rem,7vw,5.5rem);max-width:640px;width:100%;padding-left:clamp(80px,9vw,110px)}
     @media(max-width:768px){.hero-body{display:none}}
     .hero-badge{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--red);margin-bottom:12px}
     .hero-badge::before{content:'';display:block;width:14px;height:2px;background:var(--red);border-radius:1px}
@@ -81,11 +84,11 @@
     .btn-info:active{background:rgba(255,255,255,.18)}
 
     /* ── Desktop arrows — vertically centered, far edges ── */
-    .harr{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:48px;height:48px;border-radius:50%;background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(14px) saturate(160%);box-shadow:0 4px 24px rgba(0,0,0,.55);transition:background .2s,border-color .2s,box-shadow .2s,transform .18s}
-    .harr:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.35);box-shadow:0 6px 32px rgba(0,0,0,.7);transform:translateY(-50%) scale(1.09)}
-    .harr:active{transform:translateY(-50%) scale(.92)}
-    .harr-l{left:22px}
-    .harr-r{right:22px}
+    .harr{position:absolute;top:50%;transform:translateY(-50%);z-index:30;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(14px) saturate(160%);box-shadow:0 4px 24px rgba(0,0,0,.6);transition:background .2s,border-color .2s,box-shadow .2s,transform .18s;cursor:pointer;pointer-events:all;user-select:none}
+    .harr:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4);box-shadow:0 6px 32px rgba(0,0,0,.75);transform:translateY(-50%) scale(1.1)}
+    .harr:active{transform:translateY(-50%) scale(.9);background:rgba(255,255,255,.22)}
+    .harr-l{left:16px}
+    .harr-r{right:16px}
     @media(max-width:768px){.harr{display:none}}
 
     /* ── Dots — desktop only ── */
@@ -112,8 +115,8 @@
     .hmob-genre{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.45)}
 
     /* Green play button */
-    .hmob-play{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:22px;background:#16a34a;color:#fff;font-size:12px;font-weight:800;border:none;cursor:pointer;flex-shrink:0;align-self:flex-end;transition:background .15s,transform .15s,box-shadow .15s;box-shadow:0 3px 14px rgba(22,163,74,.4);-webkit-tap-highlight-color:transparent;letter-spacing:.01em}
-    .hmob-play:hover{background:#15803d;box-shadow:0 4px 20px rgba(22,163,74,.55)}
+    .hmob-play{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:22px;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;font-size:12px;font-weight:800;border:none;cursor:pointer;flex-shrink:0;align-self:flex-end;transition:filter .15s,transform .15s,box-shadow .15s;box-shadow:0 3px 14px var(--glow);-webkit-tap-highlight-color:transparent;letter-spacing:.01em}
+    .hmob-play:hover{filter:brightness(1.12);box-shadow:0 4px 22px var(--glow)}
     .hmob-play:active{transform:scale(.94)}
 
     /* Next slide preview card */
