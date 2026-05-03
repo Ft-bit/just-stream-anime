@@ -385,6 +385,25 @@ function AnimeCard({a, onPlay}) {
   );
 }
 
+// ── Hero nav SVGs — defined at MODULE level so React never remounts them ──
+const HeroChevL = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+    strokeLinecap="round" strokeLinejoin="round" style={{width:22,height:22}}>
+    <polyline points="15 18 9 12 15 6"/>
+  </svg>
+);
+const HeroChevR = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+    strokeLinecap="round" strokeLinejoin="round" style={{width:22,height:22}}>
+    <polyline points="9 18 15 12 9 6"/>
+  </svg>
+);
+const HeroPlayTri = ({s=11}) => (
+  <svg viewBox="0 0 20 20" fill="currentColor" style={{width:s,height:s}}>
+    <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+  </svg>
+);
+
 function Hero({items, onPlay}) {
   const IV = 10000;
   const [idx,setIdx]     = useState(0);
@@ -393,15 +412,26 @@ function Hero({items, onPlay}) {
   const descCache = useRef({});
   const [extraDesc, setExtraDesc] = useState('');
   const pv = useRef(null), pr = useRef(0), tx = useRef(null), ty = useRef(null), fi = useRef(true);
-  const hMax = useCallback(() => Math.min(items.length, 8), [items.length]);
-  const go   = i => { setIdx(i); setLoad(false); };
-  const prev = () => go((idx - 1 + hMax()) % hMax());
-  const next = () => go((idx + 1) % hMax());
+  const CAP = Math.min(items.length, 8);
+  // Functional updates — never reads stale idx from closure
+  const prev = useCallback(() => {
+    const h = Math.min(items.length, 8);
+    setIdx(i => (i - 1 + h) % h);
+  }, [items.length]);
+  const next = useCallback(() => {
+    const h = Math.min(items.length, 8);
+    setIdx(i => (i + 1) % h);
+  }, [items.length]);
+  const go = useCallback(i => setIdx(i), []);
   const start = () => {
     clearInterval(pv.current); pr.current = 0; setProg(0);
     pv.current = setInterval(() => {
       pr.current += 50; setProg(pr.current);
-      if (pr.current >= IV) { pr.current = 0; setProg(0); setIdx(i => (i+1) % hMax()); setLoad(false); }
+      if (pr.current >= IV) {
+        pr.current = 0; setProg(0);
+        setIdx(i => (i + 1) % Math.min(items.length, 8));
+        setLoad(false);
+      }
     }, 50);
   };
   useEffect(() => { if (items.length) start(); return () => clearInterval(pv.current); }, [items]);
@@ -436,27 +466,10 @@ function Hero({items, onPlay}) {
   };
 
   if (!items.length) return <div style={{minHeight:'100vh',background:'var(--bg)'}}/>;
-  const h = hMax();
+  const h = CAP;
   const a        = items[idx];
   const prevItem = items[(idx - 1 + h) % h];
   const nextItem = items[(idx + 1) % h];
-
-  /* ── Chevron SVGs ── */
-  const ChevL = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{width:22,height:22}}>
-      <polyline points="15 18 9 12 15 6"/>
-    </svg>
-  );
-  const ChevR = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{width:22,height:22}}>
-      <polyline points="9 18 15 12 9 6"/>
-    </svg>
-  );
-  const PlayTriangle = ({s=11}) => (
-    <svg viewBox="0 0 20 20" fill="currentColor" style={{width:s,height:s}}>
-      <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
-    </svg>
-  );
 
   return (
     <div className="hero" onTouchStart={onTS} onTouchEnd={onTE}>
@@ -490,8 +503,8 @@ function Hero({items, onPlay}) {
       </div>
 
       {/* ── Desktop: vertically-centered chevron arrows ── */}
-      <button className="harr harr-l" onClick={prev} aria-label="Previous"><ChevL/></button>
-      <button className="harr harr-r" onClick={next} aria-label="Next"><ChevR/></button>
+      <button className="harr harr-l" onClick={prev} aria-label="Previous"><HeroChevL/></button>
+      <button className="harr harr-r" onClick={next} aria-label="Next"><HeroChevR/></button>
 
       {/* ── Desktop: progress dots ── */}
       <div className="hdots">
@@ -517,7 +530,7 @@ function Hero({items, onPlay}) {
           </div>
         </div>
         <button className="hmob-play" onClick={()=>onPlay(a,'watch')}>
-          <PlayTriangle s={10}/> Play
+          <HeroPlayTri s={10}/> Play
         </button>
 
         {/* Next slide preview card — bottom-right, acts as next button */}
