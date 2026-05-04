@@ -103,7 +103,7 @@
     .s-title{font-weight:700;font-size:13px;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .s-meta{font-family:var(--mono);font-size:10px;color:var(--txt3);margin-top:2px}
     /* ═══ HERO ═══════════════════════════════════════════════════════════════ */
-    .hero{position:relative;min-height:clamp(480px,90vh,800px);display:flex;align-items:flex-end;overflow:hidden}
+    .hero{position:relative;min-height:clamp(480px,85vh,780px);display:flex;align-items:flex-end;overflow:hidden}
     .hero-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:var(--bg)}
     .hero-progress{position:absolute;top:0;left:0;height:2px;background:linear-gradient(to right,var(--red),#ff6b8a);z-index:20;border-radius:0 2px 2px 0}
 
@@ -113,7 +113,7 @@
     @media(max-width:768px){
       .hero-img-desk{display:none}
       .hero-img-mob{display:block}
-      .hero{min-height:100svh;min-height:100vh}
+      .hero{min-height:clamp(320px,62vh,520px)}
     }
 
     /* ── Gradients ── */
@@ -966,8 +966,8 @@ function App() {
         </div>
         <SearchBar onSel={a=>openWatch(a,'watch')}/>
       </nav>
-      {tab==='trending'&&page===1&&<Hero items={hero} onPlay={openWatch}/>}
-      <div style={{paddingTop:tab==='trending'&&page===1?'0':'calc(var(--nav) + 0.5rem)'}}>
+      {page===1&&<Hero items={hero} onPlay={openWatch}/>}
+      <div style={{paddingTop:page===1?'0':'calc(var(--nav) + 0.5rem)'}}>
         <div className="tabs-bar">
           {TABS.map(t=>(
             <button key={t.id} className={'tbtn '+(tab===t.id?'on':'off')} onClick={()=>setTab(t.id)}>{t.label}</button>
