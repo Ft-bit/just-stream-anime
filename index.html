@@ -606,7 +606,7 @@ function Hero({items, onPlay}) {
   );
 }
 
-function SearchBar({onSel}) {
+function SearchBar({onSel, onSearch}) {
   const [q,setQ] = useState(''), [res,setRes] = useState([]), [open,setO] = useState(false);
   const tmr = useRef(null), ref = useRef(null);
   useEffect(() => {
@@ -620,12 +620,17 @@ function SearchBar({onSel}) {
     setRes((d.data?.Page?.media||[]).map(mapA)); setO(true);
   }, []);
   const oc = e => { setQ(e.target.value); clearTimeout(tmr.current); tmr.current = setTimeout(()=>run(e.target.value), 360); };
+  const onKey = e => {
+    if (e.key==='Enter' && q.trim()) { setO(false); onSearch(q.trim(), res); }
+  };
   return (
     <div className="nav-search" ref={ref}>
       <svg className="nav-ico" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       </svg>
-      <input className="nav-inp" value={q} onChange={oc} placeholder="Search anime…" onFocus={()=>res.length&&setO(true)}/>
+      <input className="nav-inp" value={q} onChange={oc} onKeyDown={onKey}
+        placeholder="Search anime… (Enter for full results)"
+        onFocus={()=>res.length&&setO(true)}/>
       {open && res.length > 0 && (
         <div className="search-drop">
           {res.map(a=>(
@@ -637,6 +642,10 @@ function SearchBar({onSel}) {
               </div>
             </div>
           ))}
+          <div className="s-row" style={{justifyContent:'center',color:'var(--txt3)',fontSize:11,fontFamily:'var(--mono)'}}
+            onClick={()=>{setO(false); onSearch(q.trim(), res);}}>
+            Press Enter or tap here to see all results →
+          </div>
         </div>
       )}
     </div>
@@ -644,6 +653,7 @@ function SearchBar({onSel}) {
 }
 
 function WatchPage({anime, startTab, onBack}) {
+  const toast = useToast();
   const totalEps = anime.airedEps || anime.eps || 12;
   const [tab,    setTab]    = useState(startTab||'watch');
   const [curEp,  setCurEp]  = useState(1);
@@ -698,8 +708,26 @@ function WatchPage({anime, startTab, onBack}) {
 
   useEffect(() => { loadEp(1, 'sub'); }, []);
 
-  const switchSrv  = i => { setSi(i); setKey(k=>k+1); setSpin(true); };
-  const switchLang = l => { setLang(l); loadEp(curEp, l); };
+  // Record to Continue Watching whenever episode changes
+  useEffect(() => { recordCW(anime, curEp); }, [curEp]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const onKey = e => {
+      if (e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+      if (e.key==='ArrowRight'&&curEp<totalEps) { loadEp(curEp+1,lang); toast('▶ Next episode'); }
+      if (e.key==='ArrowLeft'&&curEp>1)         { loadEp(curEp-1,lang); toast('◀ Previous episode'); }
+      if (e.key==='f'||e.key==='F') {
+        const iframe = document.querySelector('.player-iframe');
+        if (iframe) { if(iframe.requestFullscreen) iframe.requestFullscreen(); toast('⛶ Fullscreen'); }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [curEp, totalEps, lang]);
+
+  const switchSrv  = i => { setSi(i); setKey(k=>k+1); setSpin(true); toast(`📡 Switched to Server ${srvs[i]?.n||i+1}`); };
+  const switchLang = l => { setLang(l); loadEp(curEp, l); toast(l==='dub'?'🔊 Switched to DUB':'💬 Switched to SUB'); };
   const switchTab  = t => { setTab(t); setKey(k=>k+1); setSpin(true); };
 
   const isYT = tab==='trailer' && anime.trailerUrl?.includes('youtube.com');
@@ -775,6 +803,24 @@ function WatchPage({anime, startTab, onBack}) {
                     <ExtLinkIco/> MAL
                   </a>
                 )}
+              </div>
+              {/* Share + keyboard hints */}
+              <div style={{display:'flex',alignItems:'center',gap:'8px',marginTop:'10px',flexWrap:'wrap'}}>
+                <button className="share-btn" onClick={()=>{
+                  navigator.clipboard?.writeText(window.location.href)
+                    .then(()=>toast('🔗 Link copied!'))
+                    .catch(()=>toast('⚠ Copy not supported'));
+                }}>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" style={{width:10,height:10}}>
+                    <circle cx="13" cy="2.5" r="1.5"/><circle cx="13" cy="13.5" r="1.5"/><circle cx="3" cy="8" r="1.5"/>
+                    <path d="M4.5 7.1L11.5 3.4M4.5 8.9L11.5 12.6" strokeLinecap="round"/>
+                  </svg>
+                  Share
+                </button>
+              </div>
+              <div className="kb-hint">
+                <span className="kb-key"><kbd>←</kbd><kbd>→</kbd> Prev/Next ep</span>
+                <span className="kb-key"><kbd>F</kbd> Fullscreen</span>
               </div>
             </div>
           </div>
@@ -883,6 +929,149 @@ const TABS = [
   {id:'airing',  label:'📡 Airing Now'},
 ];
 
+
+// ── TOAST SYSTEM ──────────────────────────────────────────────────────────────
+const ToastCtx = React.createContext(null);
+function ToastProvider({children}) {
+  const [toasts, setToasts] = useState([]);
+  const show = useCallback((msg, duration=2800) => {
+    const id = Date.now() + Math.random();
+    setToasts(t => [...t, {id, msg, out:false}]);
+    setTimeout(() => setToasts(t => t.map(x => x.id===id ? {...x,out:true} : x)), duration);
+    setTimeout(() => setToasts(t => t.filter(x => x.id!==id)), duration+350);
+  }, []);
+  return (
+    <ToastCtx.Provider value={show}>
+      {children}
+      <div className="toast-wrap">
+        {toasts.map(t => <div key={t.id} className={'toast'+(t.out?' out':'')}>{t.msg}</div>)}
+      </div>
+    </ToastCtx.Provider>
+  );
+}
+const useToast = () => React.useContext(ToastCtx);
+
+// ── BACK TO TOP ────────────────────────────────────────────────────────────────
+function BackToTop() {
+  const [vis, setVis] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setVis(window.scrollY > 320);
+    window.addEventListener('scroll', onScroll, {passive:true});
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return (
+    <button className={'btt'+(vis?' vis':'')}
+      onClick={() => window.scrollTo({top:0,behavior:'smooth'})}
+      aria-label="Back to top">↑</button>
+  );
+}
+
+// ── GENRE FILTER BAR ──────────────────────────────────────────────────────────
+const ALL_GENRES = ['All','Action','Adventure','Comedy','Drama','Fantasy','Horror',
+  'Mecha','Mystery','Romance','Sci-Fi','Slice of Life','Sports','Supernatural','Thriller'];
+function GenreBar({genre, setGenre}) {
+  return (
+    <div className="genre-bar">
+      {ALL_GENRES.map(g => (
+        <button key={g} className={'gpill'+(genre===g?' on':'')} onClick={()=>setGenre(g)}>{g}</button>
+      ))}
+    </div>
+  );
+}
+
+// ── EMPTY STATE ────────────────────────────────────────────────────────────────
+function EmptyState({query, onClear}) {
+  return (
+    <div className="empty">
+      <div className="empty-ico">🔍</div>
+      <div className="empty-title">{query ? 'No results found' : 'Nothing here yet'}</div>
+      <div className="empty-sub">
+        {query ? `We couldn't find anything for "${query}". Try a different search or genre.`
+                : 'Try switching tabs or removing the genre filter.'}
+      </div>
+      {onClear && <button className="empty-btn" onClick={onClear}>Clear filter</button>}
+    </div>
+  );
+}
+
+// ── CONTINUE WATCHING ─────────────────────────────────────────────────────────
+const CW_KEY = 'jsa_continue_watching';
+function loadCW() {
+  try { return JSON.parse(localStorage.getItem(CW_KEY)||'[]'); } catch { return []; }
+}
+function saveCW(list) {
+  try { localStorage.setItem(CW_KEY, JSON.stringify(list.slice(0,12))); } catch {}
+}
+function recordCW(anime, ep) {
+  const list = loadCW().filter(x => x.id !== anime.id);
+  list.unshift({ id:anime.id, title:anime.title, image:anime.image,
+    ep, totalEps: anime.airedEps||anime.eps||12, ts: Date.now() });
+  saveCW(list);
+}
+function removeCW(id) {
+  saveCW(loadCW().filter(x => x.id !== id));
+}
+
+function ContinueWatching({onPlay, cwList, setCwList}) {
+  if (!cwList.length) return null;
+  const remove = (e, id) => {
+    e.stopPropagation();
+    removeCW(id); setCwList(loadCW());
+  };
+  return (
+    <div className="cw-section">
+      <div className="sec-hdr" style={{marginBottom:'10px'}}>
+        <div className="sec-bar"/>
+        <h2 className="sec-title">▶ Continue Watching</h2>
+      </div>
+      <div className="cw-scroll">
+        {cwList.map(item => {
+          const prog = Math.round((item.ep / item.totalEps) * 100);
+          return (
+            <div key={item.id} className="cw-card" onClick={()=>onPlay(item)}>
+              <div className="cw-img-wrap">
+                <img className="cw-img" src={item.image} alt={item.title}
+                  onError={e=>e.target.style.display='none'}/>
+                <div className="cw-grad"/>
+                <div className="cw-ep">EP {item.ep}</div>
+                <div className="cw-prog-wrap"><div className="cw-prog" style={{width:prog+'%'}}/></div>
+                <button className="cw-remove" onClick={e=>remove(e,item.id)} title="Remove">✕</button>
+              </div>
+              <div className="cw-body">
+                <div className="cw-title">{item.title}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── SEARCH RESULTS PAGE ────────────────────────────────────────────────────────
+function SearchResultsPage({query, results, loading, onPlay, onBack}) {
+  return (
+    <div className="srp">
+      <div className="srp-hdr">
+        <div className="sec-bar"/>
+        <div>
+          <span className="srp-q">Results for <em>"{query}"</em></span>
+          {!loading && <span className="srp-count"> — {results.length} found</span>}
+        </div>
+        <button className="empty-btn" style={{marginLeft:'auto'}} onClick={onBack}>← Back</button>
+      </div>
+      <div className="section" style={{paddingTop:'0'}}>
+        {loading
+          ? <div className="agrid">{Array(8).fill(0).map((_,i)=><div key={i} className="sk"/>)}</div>
+          : results.length
+            ? <div className="agrid">{results.map(a=><AnimeCard key={a.id} a={a} onPlay={onPlay}/>)}</div>
+            : <EmptyState query={query} onClear={onBack}/>
+        }
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const init = readHash();
   const [view,    setView]  = useState(init.view);
@@ -894,6 +1083,9 @@ function App() {
   const [items,   setItems] = useState([]);
   const [hero,    setHero]  = useState([]);
   const [loading, setLoad]  = useState(true);
+  const [genre,   setGenre] = useState('All');
+  const [cwList,  setCwList] = useState(() => loadCW());
+  const [srView,  setSrView] = useState(null); // {query, results}
   const cache = useRef({});
 
   const load = useCallback(async (t, p) => {
@@ -926,16 +1118,17 @@ function App() {
   const prevTab = useRef(init.tab);
   useEffect(() => {
     if (prevTab.current===tab) return;
-    prevTab.current = tab; setPage(1); load(tab,1); writeHash('home',{tab,page:1});
+    prevTab.current = tab; setPage(1); setGenre('All'); load(tab,1); writeHash('home',{tab,page:1});
   }, [tab]);
   useEffect(() => { if (page>1) load(tab,page); }, [page]);
 
   const openWatch = (a, t='watch') => {
-    cache.current[String(a.id)] = a;
-    setWatch(a); setWTab(t); setView('watch');
-    writeHash('watch',{id:a.id,wTab:t}); window.scrollTo({top:0});
+    // ContinueWatching items have partial data — merge with cache if available
+    const full = cache.current[String(a.id)] || a;
+    setWatch(full); setWTab(t); setView('watch'); setSrView(null);
+    writeHash('watch',{id:full.id,wTab:t}); window.scrollTo({top:0});
   };
-  const goHome = () => { setView('home'); setWatch(null); writeHash('home',{tab,page}); window.scrollTo({top:0}); };
+  const goHome = () => { setView('home'); setWatch(null); setSrView(null); setCwList(loadCW()); writeHash('home',{tab,page}); window.scrollTo({top:0}); };
   const chPg   = p  => { setPage(p); writeHash('home',{tab,page:p}); window.scrollTo({top:0,behavior:'smooth'}); };
 
   useEffect(() => {
@@ -952,43 +1145,81 @@ function App() {
 
   const ps=[], s=Math.max(1,page-2), e2=Math.min(totalPg,s+4);
   for (let i=s; i<=e2; i++) ps.push(i);
+  const filteredItems = genre==='All' ? items : items.filter(a=>a.genres.includes(genre));
 
-  if (view==='watch'&&watching) return <WatchPage anime={watching} startTab={wTab} onBack={goHome}/>;
+  if (view==='watch'&&watching) return (
+    <ToastProvider>
+      <WatchPage anime={watching} startTab={wTab} onBack={goHome}/>
+      <BackToTop/>
+    </ToastProvider>
+  );
   if (view==='dmca')    return <PolicyPage type="dmca"    onBack={()=>{setView('home');writeHash('home',{tab,page});}}/>;
   if (view==='privacy') return <PolicyPage type="privacy" onBack={()=>{setView('home');writeHash('home',{tab,page});}}/>;
 
+  const handleSearch = (q, preloaded) => setSrView({query:q, results:preloaded||[]});
+
   return (
-    <>
+    <ToastProvider>
       <nav className="nav">
         <div className="logo" onClick={goHome}>
           <div className="logo-mark"><PIco s={13}/></div>
           <div className="logo-name">just<em>stream</em>anime</div>
         </div>
-        <SearchBar onSel={a=>openWatch(a,'watch')}/>
+        <SearchBar onSel={a=>openWatch(a,'watch')} onSearch={handleSearch}/>
       </nav>
-      {page===1&&<Hero items={hero} onPlay={openWatch}/>}
-      <div style={{paddingTop:page===1?'0':'calc(var(--nav) + 0.5rem)'}}>
-        <div className="tabs-bar">
-          {TABS.map(t=>(
-            <button key={t.id} className={'tbtn '+(tab===t.id?'on':'off')} onClick={()=>setTab(t.id)}>{t.label}</button>
-          ))}
-        </div>
-      </div>
-      <div className="section">
-        <div className="sec-hdr">
-          <div className="sec-bar"/>
-          <h2 className="sec-title">{TABS.find(t=>t.id===tab)?.label}{page>1?` — Page ${page}`:''}</h2>
-        </div>
-        {loading
-          ? <div className="agrid">{Array(12).fill(0).map((_,i)=><div key={i} className="sk"/>)}</div>
-          : <div className="agrid">{items.map(a=><AnimeCard key={a.id} a={a} onPlay={openWatch}/>)}</div>
-        }
-      </div>
-      <div className="pag">
-        <button className="pgb" disabled={page===1} onClick={()=>chPg(page-1)}>‹</button>
-        {ps.map(p=><button key={p} className={'pgb'+(p===page?' on':'')} onClick={()=>chPg(p)}>{p}</button>)}
-        <button className="pgb" disabled={page===totalPg} onClick={()=>chPg(page+1)}>›</button>
-      </div>
+
+      {/* ── Search results overlay ── */}
+      {srView ? (
+        <SearchResultsPage query={srView.query} results={srView.results}
+          loading={false} onPlay={openWatch} onBack={()=>setSrView(null)}/>
+      ) : (
+        <>
+          {page===1&&<Hero items={hero} onPlay={openWatch}/>}
+
+          {/* Continue Watching row */}
+          {page===1&&cwList.length>0&&(
+            <div style={{paddingTop:'clamp(.6rem,2vw,1rem)'}}>
+              <ContinueWatching onPlay={openWatch} cwList={cwList} setCwList={setCwList}/>
+            </div>
+          )}
+
+          <div style={{paddingTop:page===1?'0':'calc(var(--nav) + 0.5rem)'}}>
+            <div className="tabs-bar">
+              {TABS.map(t=>(
+                <button key={t.id} className={'tbtn '+(tab===t.id?'on':'off')} onClick={()=>setTab(t.id)}>{t.label}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Genre filter pills */}
+          <GenreBar genre={genre} setGenre={setGenre}/>
+
+          <div className="section">
+            <div className="sec-hdr">
+              <div className="sec-bar"/>
+              <h2 className="sec-title">
+                {TABS.find(t=>t.id===tab)?.label}
+                {genre!=='All'&&<span style={{color:'var(--red)',marginLeft:6}}>· {genre}</span>}
+                {page>1&&` — Page ${page}`}
+              </h2>
+            </div>
+            {loading
+              ? <div className="agrid">{Array(12).fill(0).map((_,i)=><div key={i} className="sk"/>)}</div>
+              : filteredItems.length
+                ? <div className="agrid">{filteredItems.map(a=><AnimeCard key={a.id} a={a} onPlay={openWatch}/>)}</div>
+                : <EmptyState query={genre!=='All'?genre:null} onClear={()=>setGenre('All')}/>
+            }
+          </div>
+          {filteredItems.length>0&&(
+            <div className="pag">
+              <button className="pgb" disabled={page===1} onClick={()=>chPg(page-1)}>‹</button>
+              {ps.map(p=><button key={p} className={'pgb'+(p===page?' on':'')} onClick={()=>chPg(p)}>{p}</button>)}
+              <button className="pgb" disabled={page===totalPg} onClick={()=>chPg(page+1)}>›</button>
+            </div>
+          )}
+        </>
+      )}
+
       <footer>
         <div className="ft-logo">just<em>stream</em>anime</div>
         <div className="ft-links">
@@ -997,7 +1228,8 @@ function App() {
           <button className="ft-link" onClick={()=>setView('privacy')}>Privacy</button>
         </div>
       </footer>
-    </>
+      <BackToTop/>
+    </ToastProvider>
   );
 }
 
