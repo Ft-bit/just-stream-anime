@@ -2,9 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
-  <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
-  <link rel="apple-touch-icon" href="/favicon.svg"/>
   <link rel="preconnect" href="https://s4.anilist.co"/>
   <link rel="preconnect" href="https://img.anili.st"/>
   <link rel="preconnect" href="https://graphql.anilist.co"/>
@@ -13,6 +10,10 @@
   <!-- NOTE: Upload a favicon.ico or favicon.png to your server root (jsanime.site/favicon.ico)
        so Google Search can display your icon. The data URI works in browser tabs only. -->
   <meta name="theme-color" content="#e11d48"/>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CjxkZWZzPgogIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2UxMWQ0OCIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjOWYxMjM5Ii8+CiAgPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxNCIgZmlsbD0idXJsKCNiZykiLz4KPHBvbHlnb24gcG9pbnRzPSIyNCwxOCA0OCwzMiAyNCw0NiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+"/>
+  <link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CjxkZWZzPgogIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2UxMWQ0OCIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjOWYxMjM5Ii8+CiAgPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxNCIgZmlsbD0idXJsKCNiZykiLz4KPHBvbHlnb24gcG9pbnRzPSIyNCwxOCA0OCwzMiAyNCw0NiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+"/>
+  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CjxkZWZzPgogIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2UxMWQ0OCIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjOWYxMjM5Ii8+CiAgPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxNCIgZmlsbD0idXJsKCNiZykiLz4KPHBvbHlnb24gcG9pbnRzPSIyNCwxOCA0OCwzMiAyNCw0NiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+"/>
+
   <!-- ✅ SEO: Primary Meta Tags -->
   <meta name="description" content="Stream anime free online on JustStreamAnime. Watch trending, popular and top-rated anime with subtitles or dub. No account needed — just click and play."/>
   <meta name="keywords" content="stream anime free, watch anime online, anime streaming, watch anime without account, free anime sub dub, trending anime 2026"/>
@@ -21,12 +22,12 @@
 
   <!-- ✅ SEO: Open Graph (WhatsApp, Telegram, Facebook, Discord previews) -->
   <meta property="og:type" content="website"/>
-  <meta property="og:url" content="https://jsanime.site/"/>
-  <meta property="og:title" content="JustStreamAnime – Watch & Stream Anime Free Online"/>
-  <meta property="og:description" content="Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed — just click and play."/>
-  <meta property="og:image" content="https://jsanime.site/og-image.jpg"/>
-  <meta property="og:image:width" content="1200"/>
-  <meta property="og:image:height" content="630"/>
+  <meta id="og-url" property="og:url" content="https://jsanime.site/"/>
+  <meta id="og-title" property="og:title" content="JustStreamAnime – Watch &amp; Stream Anime Free Online"/>
+  <meta id="og-desc" property="og:description" content="Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed — just click and play."/>
+  <meta id="og-image" property="og:image" content="https://jsanime.site/og-image.jpg"/>
+  <meta id="og-image-w" property="og:image:width" content="1200"/>
+  <meta id="og-image-h" property="og:image:height" content="630"/>
   <meta property="og:site_name" content="JustStreamAnime"/>
 
   <!-- ✅ SEO: Twitter Card -->
@@ -34,7 +35,7 @@
   <meta name="twitter:url" content="https://jsanime.site/"/>
   <meta name="twitter:title" content="JustStreamAnime – Watch & Stream Anime Free Online"/>
   <meta name="twitter:description" content="Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed."/>
-  <meta name="twitter:image" content="https://jsanime.site/og-image.jpg"/>
+  <meta id="tw-image" name="twitter:image" content="https://jsanime.site/og-image.jpg"/>
 
   <!-- ✅ SEO: JSON-LD Structured Data -->
   <script type="application/ld+json">
@@ -1312,6 +1313,38 @@ function ShareModal({url, title, onClose, toast}) {
   );
 }
 
+
+// ── Dynamic OG meta tag updater ───────────────────────────────────────────────
+// Updates meta tags so sharing an anime episode shows its cover image.
+// Works immediately in Telegram previews. WhatsApp/Facebook require server-side
+// rendering — for those, the anime title still appears in the share text.
+function updateOGTags({title, image, desc, url}) {
+  const set = (id, attr, val) => {
+    const el = document.getElementById(id);
+    if (el && val) el.setAttribute(attr, val);
+  };
+  const siteTitle = title ? `${title} – JustStreamAnime` : 'JustStreamAnime – Watch Anime Free Online';
+  const siteDesc  = desc  ? desc.slice(0, 200) : 'Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub.';
+  const imgUrl    = image || 'https://jsanime.site/og-image.jpg';
+  const pageUrl   = url   || 'https://jsanime.site/';
+
+  set('og-title',   'content', siteTitle);
+  set('og-desc',    'content', siteDesc);
+  set('og-image',   'content', imgUrl);
+  set('og-image-w', 'content', '460');
+  set('og-image-h', 'content', '650');
+  set('og-url',     'content', pageUrl);
+  set('tw-title',   'content', siteTitle);
+  set('tw-image',   'content', imgUrl);
+  // Also update document title
+  document.title = siteTitle;
+}
+
+function resetOGTags() {
+  updateOGTags({});
+  document.title = 'JustStreamAnime – Watch Anime Free Online';
+}
+
 function App() {
   const init = readHash();
   const [view,    setView]  = useState(init.view);
@@ -1358,7 +1391,15 @@ function App() {
         list.forEach(a => { cache.current[String(a.id)] = a; });
         setHero(list); setItems(list); setTPg(d.data?.Page?.pageInfo?.lastPage||1); setLoad(false);
         const cached = cache.current[String(init.animeId)];
-        if (cached) { setWatch(cached); setWTab(init.wTab||'watch'); setView('watch'); }
+        if (cached) {
+          updateOGTags({
+            title: cached.title,
+            image: cached.banner || cached.image,
+            desc:  cached.desc,
+            url:   `https://jsanime.site/#watch/${cached.id}/watch`,
+          });
+          setWatch(cached); setWTab(init.wTab||'watch'); setView('watch');
+        }
         else { setView('home'); writeHash('home',{tab:'trending',page:1}); }
       })();
     } else {
@@ -1385,10 +1426,17 @@ function App() {
   const openWatch = (a, t='watch') => {
     // ContinueWatching items have partial data — merge with cache if available
     const full = cache.current[String(a.id)] || a;
+    // Update OG meta tags so sharing this page shows the anime's cover image
+    updateOGTags({
+      title: full.title,
+      image: full.banner || full.image,
+      desc:  full.desc,
+      url:   `https://jsanime.site/#watch/${full.id}/watch`,
+    });
     setWatch(full); setWTab(t); setView('watch'); setSrView(null);
     writeHash('watch',{id:full.id,wTab:t}); window.scrollTo({top:0});
   };
-  const goHome = () => { setView('home'); setWatch(null); setSrView(null); setCwList(loadCW()); writeHash('home',{tab,page}); window.scrollTo({top:0}); };
+  const goHome = () => { setView('home'); setWatch(null); setSrView(null); setCwList(loadCW()); resetOGTags(); writeHash('home',{tab,page}); window.scrollTo({top:0}); };
   const chPg   = p  => { setPage(p); writeHash('home',{tab,page:p}); window.scrollTo({top:0,behavior:'smooth'}); };
 
   useEffect(() => {
