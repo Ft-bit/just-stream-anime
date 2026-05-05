@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="preconnect" href="https://s4.anilist.co"/>
+  <link rel="preconnect" href="https://img.anili.st"/>
+  <link rel="preconnect" href="https://graphql.anilist.co"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
   <title>JustStreamAnime – Watch Anime Free Online</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZTExZDQ4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzlmMTIzOSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0idXJsKCNnKSIvPgogIDxwYXRoIGQ9Ik0xMS41IDkuMiBMMjMgMTYgTDExLjUgMjIuOCBaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4="/>
@@ -332,15 +335,14 @@
     .btt:hover{box-shadow:0 6px 28px var(--glow);filter:brightness(1.15);transform:translateY(-2px) scale(1.08)!important}
     .btt:active{transform:scale(.92)!important}
 
-    /* Genre pills — premium collapsed */
-    .genre-wrap{padding:0 clamp(.75rem,3.5vw,2.5rem) clamp(.5rem,1.5vw,.9rem)}
-    .genre-bar{display:flex;gap:7px;overflow:hidden;max-height:38px;flex-wrap:wrap;transition:max-height .42s cubic-bezier(.4,0,.2,1)}
-    .genre-bar.expanded{max-height:250px}
-    .gpill{font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 15px;border-radius:20px;flex-shrink:0;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--txt2);cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent;letter-spacing:.02em;user-select:none}
-    .gpill:hover{background:rgba(255,255,255,.1);color:var(--txt);border-color:rgba(255,255,255,.2);transform:translateY(-1px)}
+    /* Genre pills — scrollable single row, premium */
+    .genre-wrap{padding:0 clamp(.75rem,3.5vw,2.5rem) clamp(.5rem,1.5vw,.9rem);position:relative}
+    .genre-wrap::after{content:'';position:absolute;right:0;top:0;bottom:0;width:40px;background:linear-gradient(to right,transparent,var(--bg));pointer-events:none}
+    .genre-bar{display:flex;gap:7px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .genre-bar::-webkit-scrollbar{display:none}
+    .gpill{font-family:var(--mono);font-size:11px;font-weight:700;padding:6px 16px;border-radius:20px;flex-shrink:0;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--txt2);cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;letter-spacing:.02em;user-select:none;white-space:nowrap}
+    .gpill:hover{background:rgba(255,255,255,.1);color:var(--txt);border-color:rgba(255,255,255,.22);transform:translateY(-1px)}
     .gpill.on{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;color:#fff;box-shadow:0 3px 14px var(--glow);transform:translateY(-1px)}
-    .genre-toggle{font-family:var(--mono);font-size:10px;font-weight:700;padding:5px 12px;border-radius:20px;flex-shrink:0;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:var(--txt2);cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:3px;user-select:none}
-    .genre-toggle:hover{background:rgba(255,255,255,.1);color:var(--txt)}
 
     /* Empty state */
     .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 1rem;gap:14px;text-align:center}
@@ -375,9 +377,6 @@
     .cw-ep{position:absolute;bottom:5px;left:6px;font-family:var(--mono);font-size:8px;font-weight:800;color:#fff;background:rgba(225,29,72,.9);padding:2px 5px;border-radius:3px;z-index:1}
     .cw-prog-wrap{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.12)}
     .cw-prog{height:100%;background:linear-gradient(to right,var(--red),#ff6b8a);transition:width .3s}
-    .cw-remove{position:absolute;top:5px;right:5px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.72);border:none;color:rgba(255,255,255,.85);font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .15s,background .15s;line-height:1;padding:0;z-index:2}
-    .cw-card:hover .cw-remove{opacity:1}
-    .cw-remove:hover{background:var(--red2)}
     .cw-body{padding:5px 6px 7px}
     .cw-title{font-size:9.5px;font-weight:700;color:var(--txt);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
@@ -466,8 +465,8 @@ function mapA(a) {
       ? `https://www.dailymotion.com/embed/video/${a.trailer.id}` : null;
   }
   const rawDesc = (a.description||'').replace(/<[^>]+>/g,'').trim();
-  const stubPattern = /^the\s+(first|second|third|fourth|fifth|\d+(st|nd|rd|th))\s+season\s+of/i;
-  const descIsStub  = rawDesc.length < 120 || stubPattern.test(rawDesc);
+  const stubPattern = /^(the\s+)?(first|second|third|fourth|fifth|\d+(st|nd|rd|th))\s+(season|cour|part)\s+of/i;
+  const descIsStub  = rawDesc.length < 80 || stubPattern.test(rawDesc);
   return {
     id: a.id, malId: a.idMal, siteUrl: a.siteUrl||null,
     title: a.title?.english||a.title?.romaji||'Unknown',
@@ -632,9 +631,11 @@ function Hero({items, onPlay}) {
         <div className="hero-progress" style={{width:Math.min((prog/IV)*100,100)+'%'}}/>
         {/* Desktop banner image */}
         <img className="hero-img-desk" key={'d-'+a.id} src={a.banner||a.image} alt=""
+          fetchpriority="high" loading="eager"
           style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
         {/* Mobile portrait image */}
         <img className="hero-img-mob" key={'m-'+a.id} src={a.image} alt=""
+          fetchpriority="high" loading="eager"
           style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
         <div className="hero-grad"/>
         <div className="hero-nav-fade"/>
@@ -919,17 +920,7 @@ function WatchPage({anime, startTab, onBack}) {
                 </svg>
                 Share Episode
               </button>
-              {/* Premium keyboard shortcuts bar */}
-              <div className="kb-bar">
-                <div className="kb-item">
-                  <div className="kb-keys"><kbd>←</kbd><kbd>→</kbd></div>
-                  <span className="kb-desc">Prev / Next episode</span>
-                </div>
-                <div className="kb-item">
-                  <div className="kb-keys"><kbd>F</kbd></div>
-                  <span className="kb-desc">Fullscreen</span>
-                </div>
-              </div>
+              {/* Keyboard shortcuts work silently — ← → for episodes, F for fullscreen */}
             </div>
           </div>
           <div className="ep-panel">
@@ -1078,33 +1069,13 @@ function BackToTop() {
 const ALL_GENRES = ['All','Action','Adventure','Comedy','Drama','Fantasy','Horror',
   'Mecha','Mystery','Romance','Sci-Fi','Slice of Life','Sports','Supernatural','Thriller'];
 function GenreBar({genre, setGenre}) {
-  const [expanded, setExpanded] = useState(false);
-  const VISIBLE = 6; // show first 6, rest hidden behind toggle
-  const visible = ALL_GENRES.slice(0, VISIBLE);
-  const hidden  = ALL_GENRES.slice(VISIBLE);
-  const remaining = hidden.length;
   return (
     <div className="genre-wrap">
-      <div className={'genre-bar'+(expanded?' expanded':'')}>
-        {visible.map(g => (
+      <div className="genre-bar">
+        {ALL_GENRES.map(g => (
           <button key={g} className={'gpill'+(genre===g?' on':'')}
             onClick={()=>setGenre(g)}>{g}</button>
         ))}
-        {/* Always show toggle pill last in first row */}
-        {!expanded && (
-          <button className="genre-toggle" onClick={()=>setExpanded(true)}>
-            +{remaining} more ▾
-          </button>
-        )}
-        {expanded && hidden.map(g => (
-          <button key={g} className={'gpill'+(genre===g?' on':'')}
-            onClick={()=>setGenre(g)}>{g}</button>
-        ))}
-        {expanded && (
-          <button className="genre-toggle" onClick={()=>setExpanded(false)}>
-            Show less ▴
-          </button>
-        )}
       </div>
     </div>
   );
@@ -1145,26 +1116,35 @@ function removeCW(id) {
 
 function ContinueWatching({onPlay, cwList, setCwList}) {
   if (!cwList.length) return null;
-  const remove = (e, id) => {
-    e.stopPropagation();
-    removeCW(id); setCwList(loadCW());
+  const clearAll = () => {
+    localStorage.removeItem('jsa_continue_watching');
+    setCwList([]);
   };
   return (
     <div className="cw-section">
       <div className="sec-hdr" style={{marginBottom:'10px'}}>
         <div className="sec-bar"/>
         <h2 className="sec-title">▶ Continue Watching</h2>
+        <button onClick={clearAll} style={{marginLeft:'auto',fontFamily:'var(--mono)',fontSize:10,
+          color:'var(--txt3)',background:'none',border:'1px solid var(--border)',borderRadius:6,
+          padding:'3px 10px',cursor:'pointer',transition:'color .15s,border-color .15s'}}
+          onMouseOver={e=>{e.target.style.color='var(--red)';e.target.style.borderColor='var(--red)'}}
+          onMouseOut={e=>{e.target.style.color='var(--txt3)';e.target.style.borderColor='var(--border)'}}>
+          Clear all
+        </button>
       </div>
       <div className="cw-scroll">
         {cwList.map(item => {
           const prog = Math.min(100, Math.round((item.ep / item.totalEps) * 100));
           return (
-            <div key={item.id} className="cw-card" onClick={()=>onPlay(item)}>
+            <div key={item.id} className="cw-card"
+              role="button" tabIndex={0}
+              onClick={()=>onPlay(item)}
+              onKeyDown={e=>e.key==='Enter'&&onPlay(item)}>
               <div className="cw-img-wrap">
                 <img className="cw-img" src={item.image} alt={item.title}
                   onError={e=>e.target.style.display='none'}/>
                 <div className="cw-grad"/>
-                {/* Zoom+play overlay on hover */}
                 <div className="cw-play-overlay">
                   <div className="cw-play-circle">
                     <svg viewBox="0 0 20 20" fill="#fff" style={{width:13,height:13,marginLeft:2}}>
@@ -1174,7 +1154,6 @@ function ContinueWatching({onPlay, cwList, setCwList}) {
                 </div>
                 <div className="cw-ep">EP {item.ep}</div>
                 <div className="cw-prog-wrap"><div className="cw-prog" style={{width:prog+'%'}}/></div>
-                <button className="cw-remove" onClick={e=>remove(e,item.id)} title="Remove">✕</button>
               </div>
               <div className="cw-body">
                 <div className="cw-title">{item.title}</div>
@@ -1212,37 +1191,78 @@ function SearchResultsPage({query, results, loading, onPlay, onBack}) {
 }
 
 
-// ── SHARE MODAL ───────────────────────────────────────────────────────────────
+// ── SHARE MODAL — official brand SVG icons ────────────────────────────────────
+const ShareIcons = {
+  WhatsApp: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="#25D366"/>
+      <path fill="#fff" d="M16 7C11.03 7 7 11.03 7 16c0 1.6.42 3.1 1.14 4.4L7 25l4.72-1.1A9 9 0 0016 25c4.97 0 9-4.03 9-9s-4.03-9-9-9zm4.45 12.3c-.19.53-1.1 1.02-1.52 1.08-.4.06-.9.08-1.45-.09-.33-.11-.77-.25-1.32-.49-2.32-1-3.83-3.34-3.95-3.5-.12-.15-.96-1.28-.96-2.44 0-1.16.6-1.72.82-1.96.21-.23.46-.29.62-.29h.44c.14 0 .34-.06.52.4l.75 1.88c.06.16.03.34-.05.48l-.42.6-.2.24c.13.21.64.9 1.38 1.52.95.8 1.75 1.05 2 1.16.2.09.45.07.6-.1l.44-.52c.16-.19.4-.23.62-.14l1.9.9c.22.1.22.3.02.82z"/>
+    </svg>
+  ),
+  Telegram: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="#2CA5E0"/>
+      <path fill="#fff" d="M23.5 9.3L6.8 15.6c-1.1.44-.1 1.07.7 1.22l4.3 1.35L20 12.4c.4-.25.78-.1.48.18l-7.13 6.43-.27 4.47c.4 0 .57-.18.78-.4l1.87-1.81 3.87 2.85c.7.4 1.2.19 1.38-.65l2.5-11.8c.27-1.05-.4-1.53-1.08-1.22z"/>
+    </svg>
+  ),
+  Twitter: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="#000"/>
+      <path fill="#fff" d="M17.75 14.77L23.5 8h-1.37l-5 5.88L13.5 8H9l6.05 8.8L9 25h1.37l5.3-6.2 4.22 6.2H25l-7.25-10.23zm-1.87 2.19l-.62-.88L10.4 9.1h2.12l3.97 5.68.61.88 5.15 7.37h-2.12l-4.25-6.07z"/>
+    </svg>
+  ),
+  Facebook: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="#1877F2"/>
+      <path fill="#fff" d="M17.6 25v-8.05h2.7l.4-3.13H17.6V11.9c0-.9.25-1.52 1.56-1.52H21V7.12A21 21 0 0018.57 7c-2.38 0-4 1.46-4 4.13v2.7H12v3.12h2.57V25H17.6z"/>
+    </svg>
+  ),
+  Reddit: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="#FF4500"/>
+      <path fill="#fff" d="M27 16.07a2.38 2.38 0 00-2.38-2.37c-.6 0-1.16.22-1.57.59A11.7 11.7 0 0017 12.4l1.1-5.12 3.5.74a1.67 1.67 0 101.68-1.77c-.64 0-1.2.37-1.5.9l-3.9-.82a.4.4 0 00-.47.3l-1.24 5.7a11.73 11.73 0 00-6.14 1.9A2.38 2.38 0 105.1 17.4c0 .13.01.25.04.37-.03.2-.04.4-.04.6C5.1 21.9 10.15 25 16.3 25c6.14 0 11.2-3.1 11.2-6.63 0-.2-.01-.4-.04-.6.42-.44.54-.93.54-.7zm-16.5 2.68a1.5 1.5 0 111.5 1.5 1.5 1.5 0 01-1.5-1.5zm8.35 3.97c-1.1.73-2.5.86-3.55.86-1.06 0-2.46-.13-3.55-.86a.26.26 0 01.3-.42c.94.63 2.23.76 3.25.76s2.31-.13 3.25-.76a.26.26 0 01.3.42zm-.1-2.47a1.5 1.5 0 111.5-1.5 1.5 1.5 0 01-1.5 1.5z"/>
+    </svg>
+  ),
+  Email: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="#EA4335"/>
+      <path fill="#fff" d="M7 10.5h18a1 1 0 011 1v9a1 1 0 01-1 1H7a1 1 0 01-1-1v-9a1 1 0 011-1zm9 6.25l8-5.75H8l8 5.75z"/>
+    </svg>
+  ),
+  Discord: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="#5865F2"/>
+      <path fill="#fff" d="M22.7 10.2A17.7 17.7 0 0018.4 9c-.2.35-.4.82-.54 1.2a16.4 16.4 0 00-3.72 0A13.3 13.3 0 0013.6 9a17.8 17.8 0 00-4.32 1.22A18.8 18.8 0 007 20.66c1.84 1.34 3.62 2.15 5.38 2.69.43-.6.82-1.23 1.15-1.9a11.5 11.5 0 01-1.8-.88l.43-.34a12.65 12.65 0 0010.83 0l.44.34c-.57.34-1.17.63-1.8.88.33.67.71 1.3 1.14 1.9 1.76-.54 3.55-1.35 5.4-2.7a19 19 0 00-3.47-10.43zM12.7 18.8c-.8 0-1.47-.74-1.47-1.66 0-.91.65-1.66 1.47-1.66.82 0 1.48.75 1.47 1.66 0 .92-.65 1.66-1.47 1.66zm5.6 0c-.82 0-1.47-.74-1.47-1.66 0-.91.64-1.66 1.47-1.66.82 0 1.47.75 1.47 1.66 0 .92-.65 1.66-1.47 1.66z"/>
+    </svg>
+  ),
+  CopyLink: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.2)" strokeWidth="1"/>
+      <path stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M13 16a4 4 0 005.66 0l2.83-2.83a4 4 0 10-5.66-5.66l-1.41 1.41M19 16a4 4 0 00-5.66 0l-2.83 2.83a4 4 0 105.66 5.66l1.41-1.41"/>
+    </svg>
+  ),
+};
+
 function ShareModal({url, title, onClose, toast}) {
-  const apps = [
-    { label:'WhatsApp', emoji:'💬', bg:'#25D366',
-      href: `https://wa.me/?text=${encodeURIComponent(title+' — '+url)}` },
-    { label:'Telegram', emoji:'✈️', bg:'#2CA5E0',
-      href: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}` },
-    { label:'Twitter', emoji:'🐦', bg:'#1DA1F2',
-      href: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent('Watching '+title+' on JustStreamAnime!')}` },
-    { label:'Facebook', emoji:'📘', bg:'#1877F2',
-      href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}` },
-    { label:'Reddit', emoji:'🔴', bg:'#FF4500',
-      href: `https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}` },
-    { label:'Email', emoji:'📧', bg:'#EA4335',
-      href: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent('Watch '+title+' on JustStreamAnime: '+url)}` },
-    { label:'Discord', emoji:'🎮', bg:'#5865F2',
-      href: `https://discord.com/channels/@me` },
-    { label:'Copy Link', emoji:'🔗', bg:'rgba(255,255,255,.1)',
-      action: () => { navigator.clipboard?.writeText(url).then(()=>toast('🔗 Link copied!')); onClose(); } },
-  ];
-
-  // Close on overlay click
   const onOverlay = e => { if (e.target===e.currentTarget) onClose(); };
-
-  // Native share if available
-  useEffect(() => {
-    if (navigator.share) {
-      navigator.share({title, url}).then(onClose).catch(()=>{});
-    }
-  }, []);
-
+  const apps = [
+    { label:'WhatsApp', Icon:ShareIcons.WhatsApp,
+      href:`https://wa.me/?text=${encodeURIComponent(title+' — '+url)}` },
+    { label:'Telegram', Icon:ShareIcons.Telegram,
+      href:`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}` },
+    { label:'Twitter', Icon:ShareIcons.Twitter,
+      href:`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent('Watching '+title+' on JustStreamAnime!')}` },
+    { label:'Facebook', Icon:ShareIcons.Facebook,
+      href:`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}` },
+    { label:'Reddit', Icon:ShareIcons.Reddit,
+      href:`https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}` },
+    { label:'Email', Icon:ShareIcons.Email,
+      href:`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent('Watch '+title+' on JustStreamAnime: '+url)}` },
+    { label:'Discord', Icon:ShareIcons.Discord,
+      href:`https://discord.com/channels/@me` },
+    { label:'Copy Link', Icon:ShareIcons.CopyLink,
+      action:()=>{ navigator.clipboard?.writeText(url).then(()=>toast('🔗 Copied!')); onClose(); } },
+  ];
   return (
     <div className="share-overlay" onClick={onOverlay}>
       <div className="share-sheet" onClick={e=>e.stopPropagation()}>
@@ -1251,24 +1271,22 @@ function ShareModal({url, title, onClose, toast}) {
           <button className="share-sheet-close" onClick={onClose}>✕</button>
         </div>
         <div className="share-apps">
-          {apps.map(app => (
-            <button key={app.label} className="share-app-btn"
-              onClick={() => {
-                if (app.action) { app.action(); }
-                else { window.open(app.href,'_blank','noopener'); onClose(); }
-              }}>
-              <div className="share-app-ico" style={{background:app.bg}}>
-                {app.emoji}
+          {apps.map(({label,Icon,href,action})=>(
+            <button key={label} className="share-app-btn"
+              onClick={()=>{ if(action) action(); else { window.open(href,'_blank','noopener'); onClose(); } }}>
+              <div className="share-app-ico" style={{background:'transparent',padding:0}}>
+                <Icon/>
               </div>
-              <span className="share-app-lbl">{app.label}</span>
+              <span className="share-app-lbl">{label}</span>
             </button>
           ))}
         </div>
         <div className="share-url-row">
           <span className="share-url-txt">{url}</span>
-          <button className="share-copy-btn" onClick={()=>{
-            navigator.clipboard?.writeText(url).then(()=>{ toast('🔗 Copied!'); onClose(); });
-          }}>Copy</button>
+          <button className="share-copy-btn"
+            onClick={()=>navigator.clipboard?.writeText(url).then(()=>{ toast('🔗 Copied!'); onClose(); })}>
+            Copy
+          </button>
         </div>
       </div>
     </div>
@@ -1297,7 +1315,8 @@ function App() {
     const list = (d.data?.Page?.media||[]).map(mapA);
     list.forEach(a => { cache.current[String(a.id)] = a; });
     setItems(list); setTPg(d.data?.Page?.pageInfo?.lastPage||1);
-    if (t==='trending'&&p===1) setHero(list);
+    // Always populate hero from first page of ANY tab if hero is still empty
+    if (p===1) setHero(prev => prev.length ? prev : list);
     setLoad(false);
   }, []);
 
