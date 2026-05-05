@@ -316,6 +316,103 @@
     .ft-sep{font-family:var(--mono);font-size:10px;color:var(--txt3)}
     @media(max-width:480px){footer{padding:1rem .75rem;flex-direction:column;gap:.5rem}.ft-links{justify-content:flex-start}.nav{gap:8px;padding:0 .85rem}.pag{gap:4px;padding:.7rem .75rem 2rem}.pgb{min-width:28px;height:28px;font-size:10px}.wp-wrap{padding:0 .75rem 3rem}}
     @media(max-width:380px){.logo-name{font-size:12px}.logo-mark{width:26px;height:26px}}
+
+    /* ════ FEATURE CSS ════════════════════════════════════════════════════ */
+
+    /* Toast */
+    .toast-wrap{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+    .toast{background:rgba(14,14,27,.97);border:1px solid rgba(255,255,255,.12);color:#fff;font-family:var(--mono);font-size:12px;font-weight:600;padding:10px 20px;border-radius:22px;backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,.6);white-space:nowrap;animation:toastIn .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
+    .toast.out{animation:toastOut .3s ease forwards}
+    @keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.88)}to{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes toastOut{to{opacity:0;transform:translateY(6px) scale(.93)}}
+
+    /* Back to top */
+    .btt{position:fixed;bottom:32px;right:22px;z-index:800;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red2));border:none;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px var(--glow),0 2px 8px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s,box-shadow .2s;transform:translateY(16px) scale(.85)}
+    .btt.vis{opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
+    .btt:hover{box-shadow:0 6px 28px var(--glow);filter:brightness(1.15);transform:translateY(-2px) scale(1.08)!important}
+    .btt:active{transform:scale(.92)!important}
+
+    /* Genre pills — premium collapsed */
+    .genre-wrap{padding:0 clamp(.75rem,3.5vw,2.5rem) clamp(.5rem,1.5vw,.9rem)}
+    .genre-bar{display:flex;gap:7px;overflow:hidden;max-height:38px;flex-wrap:wrap;transition:max-height .42s cubic-bezier(.4,0,.2,1)}
+    .genre-bar.expanded{max-height:250px}
+    .gpill{font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 15px;border-radius:20px;flex-shrink:0;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--txt2);cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent;letter-spacing:.02em;user-select:none}
+    .gpill:hover{background:rgba(255,255,255,.1);color:var(--txt);border-color:rgba(255,255,255,.2);transform:translateY(-1px)}
+    .gpill.on{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;color:#fff;box-shadow:0 3px 14px var(--glow);transform:translateY(-1px)}
+    .genre-toggle{font-family:var(--mono);font-size:10px;font-weight:700;padding:5px 12px;border-radius:20px;flex-shrink:0;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:var(--txt2);cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:3px;user-select:none}
+    .genre-toggle:hover{background:rgba(255,255,255,.1);color:var(--txt)}
+
+    /* Empty state */
+    .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 1rem;gap:14px;text-align:center}
+    .empty-ico{font-size:3rem;opacity:.35}
+    .empty-title{font-size:1.1rem;font-weight:800;color:var(--txt);letter-spacing:-.02em}
+    .empty-sub{font-size:13px;color:var(--txt2);max-width:280px;line-height:1.6}
+    .empty-btn{margin-top:4px;padding:9px 22px;border-radius:9px;background:rgba(255,255,255,.07);border:1px solid var(--border2);color:var(--txt2);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--mono);transition:all .15s}
+    .empty-btn:hover{background:rgba(255,255,255,.12);color:var(--txt)}
+
+    /* Search results */
+    .srp{padding-top:calc(var(--nav) + .75rem)}
+    .srp-hdr{display:flex;align-items:center;gap:10px;padding:0 clamp(.75rem,3.5vw,2.5rem) clamp(.7rem,2vw,1.1rem)}
+    .srp-q{font-size:clamp(.95rem,3vw,1.1rem);font-weight:800;color:#fff;letter-spacing:-.02em}
+    .srp-q em{color:var(--red);font-style:normal}
+    .srp-count{font-family:var(--mono);font-size:11px;color:var(--txt3);margin-left:4px}
+
+    /* Continue Watching — compact, zoom+play hover */
+    .cw-section{padding:0 clamp(.75rem,3.5vw,2.5rem) clamp(.6rem,1.5vw,.9rem)}
+    .cw-scroll{display:flex;gap:9px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .cw-scroll::-webkit-scrollbar{display:none}
+    .cw-card{flex-shrink:0;width:clamp(88px,19vw,112px);cursor:pointer;border-radius:9px;overflow:hidden;background:var(--bg2);border:1px solid var(--border);position:relative;transition:transform .28s cubic-bezier(.34,1.4,.64,1),box-shadow .28s,border-color .25s;-webkit-tap-highlight-color:transparent}
+    .cw-card:hover{transform:translateY(-7px) scale(1.05);box-shadow:0 18px 40px rgba(0,0,0,.65);border-color:rgba(255,255,255,.2)}
+    .cw-card:active{transform:scale(.96)}
+    .cw-img-wrap{position:relative;padding-top:142%;background:#131328;overflow:hidden}
+    .cw-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .38s cubic-bezier(.4,0,.2,1)}
+    .cw-card:hover .cw-img{transform:scale(1.12)}
+    .cw-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.15) 55%,transparent 100%)}
+    .cw-play-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .22s;background:rgba(0,0,0,.18)}
+    .cw-card:hover .cw-play-overlay{opacity:1}
+    .cw-play-circle{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px var(--glow);transform:scale(.75) translateY(6px);transition:transform .26s cubic-bezier(.34,1.56,.64,1)}
+    .cw-card:hover .cw-play-circle{transform:scale(1) translateY(0)}
+    .cw-ep{position:absolute;bottom:5px;left:6px;font-family:var(--mono);font-size:8px;font-weight:800;color:#fff;background:rgba(225,29,72,.9);padding:2px 5px;border-radius:3px;z-index:1}
+    .cw-prog-wrap{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.12)}
+    .cw-prog{height:100%;background:linear-gradient(to right,var(--red),#ff6b8a);transition:width .3s}
+    .cw-remove{position:absolute;top:5px;right:5px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.72);border:none;color:rgba(255,255,255,.85);font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .15s,background .15s;line-height:1;padding:0;z-index:2}
+    .cw-card:hover .cw-remove{opacity:1}
+    .cw-remove:hover{background:var(--red2)}
+    .cw-body{padding:5px 6px 7px}
+    .cw-title{font-size:9.5px;font-weight:700;color:var(--txt);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+    /* Share modal */
+    .share-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.65);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;animation:ovIn .2s ease}
+    @media(min-width:600px){.share-overlay{align-items:center}}
+    @keyframes ovIn{from{opacity:0}to{opacity:1}}
+    .share-sheet{background:var(--bg2);border:1px solid var(--border2);border-radius:20px 20px 0 0;padding:18px 18px 30px;width:100%;max-width:420px;animation:sheetUp .3s cubic-bezier(.34,1.4,.64,1)}
+    @media(min-width:600px){.share-sheet{border-radius:18px;margin:16px}}
+    @keyframes sheetUp{from{transform:translateY(55px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .share-sheet-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+    .share-sheet-title{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.02em}
+    .share-sheet-close{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:var(--txt2);font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;line-height:1}
+    .share-sheet-close:hover{background:rgba(255,255,255,.14);color:#fff}
+    .share-apps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+    .share-app-btn{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .2s;background:none;border:none}
+    .share-app-btn:hover{transform:translateY(-4px)}
+    .share-app-btn:active{transform:scale(.9)}
+    .share-app-ico{width:54px;height:54px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:28px}
+    .share-app-lbl{font-family:var(--mono);font-size:10px;color:var(--txt2);font-weight:600}
+    .share-url-row{display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+    .share-url-txt{flex:1;font-family:var(--mono);font-size:11px;color:var(--txt3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .share-copy-btn{font-family:var(--mono);font-size:11px;font-weight:700;padding:6px 14px;border-radius:7px;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;border:none;cursor:pointer;flex-shrink:0;transition:filter .15s,transform .15s;box-shadow:0 2px 10px var(--glow)}
+    .share-copy-btn:hover{filter:brightness(1.12)}
+    .share-copy-btn:active{transform:scale(.94)}
+    .share-trigger{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.13);color:var(--txt2);background:rgba(255,255,255,.05);transition:all .15s;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .share-trigger:hover{background:rgba(255,255,255,.1);color:var(--txt);border-color:rgba(255,255,255,.22)}
+
+    /* Keyboard bar */
+    .kb-bar{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding:11px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;align-items:center}
+    .kb-item{display:flex;align-items:center;gap:6px}
+    .kb-keys{display:flex;gap:3px;align-items:center}
+    kbd{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);border-bottom:2px solid rgba(255,255,255,.08);border-radius:5px;padding:3px 9px;font-size:10px;font-family:var(--mono);color:var(--txt);display:inline-block;box-shadow:0 1px 3px rgba(0,0,0,.3);line-height:1.4}
+    .kb-desc{font-family:var(--mono);font-size:10px;color:var(--txt3);letter-spacing:.02em}
+
   </style>
 </head>
 <body>
@@ -663,6 +760,7 @@ function WatchPage({anime, startTab, onBack}) {
   const [key,    setKey]    = useState(0);
   const [spin,   setSpin]   = useState(true);
   const [fil,    setFil]    = useState('');
+  const [shareOpen, setShareOpen] = useState(false);
   const [jikanEps,  setJikanEps]  = useState({});
   const [jikanDone, setJikanDone] = useState(false);
   const [jikanDesc, setJikanDesc] = useState('');
@@ -804,23 +902,33 @@ function WatchPage({anime, startTab, onBack}) {
                   </a>
                 )}
               </div>
-              {/* Share + keyboard hints */}
-              <div style={{display:'flex',alignItems:'center',gap:'8px',marginTop:'10px',flexWrap:'wrap'}}>
-                <button className="share-btn" onClick={()=>{
-                  navigator.clipboard?.writeText(window.location.href)
-                    .then(()=>toast('🔗 Link copied!'))
-                    .catch(()=>toast('⚠ Copy not supported'));
-                }}>
-                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" style={{width:10,height:10}}>
-                    <circle cx="13" cy="2.5" r="1.5"/><circle cx="13" cy="13.5" r="1.5"/><circle cx="3" cy="8" r="1.5"/>
-                    <path d="M4.5 7.1L11.5 3.4M4.5 8.9L11.5 12.6" strokeLinecap="round"/>
-                  </svg>
-                  Share
-                </button>
-              </div>
-              <div className="kb-hint">
-                <span className="kb-key"><kbd>←</kbd><kbd>→</kbd> Prev/Next ep</span>
-                <span className="kb-key"><kbd>F</kbd> Fullscreen</span>
+              {/* Share modal trigger */}
+              {shareOpen && (
+                <ShareModal
+                  url={window.location.href}
+                  title={anime.title}
+                  onClose={()=>setShareOpen(false)}
+                  toast={toast}
+                />
+              )}
+              <button className="share-trigger" style={{marginTop:'10px'}}
+                onClick={()=>setShareOpen(true)}>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" style={{width:11,height:11}}>
+                  <circle cx="13" cy="2.5" r="1.5"/><circle cx="13" cy="13.5" r="1.5"/><circle cx="3" cy="8" r="1.5"/>
+                  <path d="M4.5 7.1L11.5 3.4M4.5 8.9L11.5 12.6" strokeLinecap="round"/>
+                </svg>
+                Share Episode
+              </button>
+              {/* Premium keyboard shortcuts bar */}
+              <div className="kb-bar">
+                <div className="kb-item">
+                  <div className="kb-keys"><kbd>←</kbd><kbd>→</kbd></div>
+                  <span className="kb-desc">Prev / Next episode</span>
+                </div>
+                <div className="kb-item">
+                  <div className="kb-keys"><kbd>F</kbd></div>
+                  <span className="kb-desc">Fullscreen</span>
+                </div>
               </div>
             </div>
           </div>
@@ -970,11 +1078,34 @@ function BackToTop() {
 const ALL_GENRES = ['All','Action','Adventure','Comedy','Drama','Fantasy','Horror',
   'Mecha','Mystery','Romance','Sci-Fi','Slice of Life','Sports','Supernatural','Thriller'];
 function GenreBar({genre, setGenre}) {
+  const [expanded, setExpanded] = useState(false);
+  const VISIBLE = 6; // show first 6, rest hidden behind toggle
+  const visible = ALL_GENRES.slice(0, VISIBLE);
+  const hidden  = ALL_GENRES.slice(VISIBLE);
+  const remaining = hidden.length;
   return (
-    <div className="genre-bar">
-      {ALL_GENRES.map(g => (
-        <button key={g} className={'gpill'+(genre===g?' on':'')} onClick={()=>setGenre(g)}>{g}</button>
-      ))}
+    <div className="genre-wrap">
+      <div className={'genre-bar'+(expanded?' expanded':'')}>
+        {visible.map(g => (
+          <button key={g} className={'gpill'+(genre===g?' on':'')}
+            onClick={()=>setGenre(g)}>{g}</button>
+        ))}
+        {/* Always show toggle pill last in first row */}
+        {!expanded && (
+          <button className="genre-toggle" onClick={()=>setExpanded(true)}>
+            +{remaining} more ▾
+          </button>
+        )}
+        {expanded && hidden.map(g => (
+          <button key={g} className={'gpill'+(genre===g?' on':'')}
+            onClick={()=>setGenre(g)}>{g}</button>
+        ))}
+        {expanded && (
+          <button className="genre-toggle" onClick={()=>setExpanded(false)}>
+            Show less ▴
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -1026,13 +1157,21 @@ function ContinueWatching({onPlay, cwList, setCwList}) {
       </div>
       <div className="cw-scroll">
         {cwList.map(item => {
-          const prog = Math.round((item.ep / item.totalEps) * 100);
+          const prog = Math.min(100, Math.round((item.ep / item.totalEps) * 100));
           return (
             <div key={item.id} className="cw-card" onClick={()=>onPlay(item)}>
               <div className="cw-img-wrap">
                 <img className="cw-img" src={item.image} alt={item.title}
                   onError={e=>e.target.style.display='none'}/>
                 <div className="cw-grad"/>
+                {/* Zoom+play overlay on hover */}
+                <div className="cw-play-overlay">
+                  <div className="cw-play-circle">
+                    <svg viewBox="0 0 20 20" fill="#fff" style={{width:13,height:13,marginLeft:2}}>
+                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                    </svg>
+                  </div>
+                </div>
                 <div className="cw-ep">EP {item.ep}</div>
                 <div className="cw-prog-wrap"><div className="cw-prog" style={{width:prog+'%'}}/></div>
                 <button className="cw-remove" onClick={e=>remove(e,item.id)} title="Remove">✕</button>
@@ -1067,6 +1206,70 @@ function SearchResultsPage({query, results, loading, onPlay, onBack}) {
             ? <div className="agrid">{results.map(a=><AnimeCard key={a.id} a={a} onPlay={onPlay}/>)}</div>
             : <EmptyState query={query} onClear={onBack}/>
         }
+      </div>
+    </div>
+  );
+}
+
+
+// ── SHARE MODAL ───────────────────────────────────────────────────────────────
+function ShareModal({url, title, onClose, toast}) {
+  const apps = [
+    { label:'WhatsApp', emoji:'💬', bg:'#25D366',
+      href: `https://wa.me/?text=${encodeURIComponent(title+' — '+url)}` },
+    { label:'Telegram', emoji:'✈️', bg:'#2CA5E0',
+      href: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}` },
+    { label:'Twitter', emoji:'🐦', bg:'#1DA1F2',
+      href: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent('Watching '+title+' on JustStreamAnime!')}` },
+    { label:'Facebook', emoji:'📘', bg:'#1877F2',
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}` },
+    { label:'Reddit', emoji:'🔴', bg:'#FF4500',
+      href: `https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}` },
+    { label:'Email', emoji:'📧', bg:'#EA4335',
+      href: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent('Watch '+title+' on JustStreamAnime: '+url)}` },
+    { label:'Discord', emoji:'🎮', bg:'#5865F2',
+      href: `https://discord.com/channels/@me` },
+    { label:'Copy Link', emoji:'🔗', bg:'rgba(255,255,255,.1)',
+      action: () => { navigator.clipboard?.writeText(url).then(()=>toast('🔗 Link copied!')); onClose(); } },
+  ];
+
+  // Close on overlay click
+  const onOverlay = e => { if (e.target===e.currentTarget) onClose(); };
+
+  // Native share if available
+  useEffect(() => {
+    if (navigator.share) {
+      navigator.share({title, url}).then(onClose).catch(()=>{});
+    }
+  }, []);
+
+  return (
+    <div className="share-overlay" onClick={onOverlay}>
+      <div className="share-sheet" onClick={e=>e.stopPropagation()}>
+        <div className="share-sheet-hdr">
+          <span className="share-sheet-title">Share this Anime</span>
+          <button className="share-sheet-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="share-apps">
+          {apps.map(app => (
+            <button key={app.label} className="share-app-btn"
+              onClick={() => {
+                if (app.action) { app.action(); }
+                else { window.open(app.href,'_blank','noopener'); onClose(); }
+              }}>
+              <div className="share-app-ico" style={{background:app.bg}}>
+                {app.emoji}
+              </div>
+              <span className="share-app-lbl">{app.label}</span>
+            </button>
+          ))}
+        </div>
+        <div className="share-url-row">
+          <span className="share-url-txt">{url}</span>
+          <button className="share-copy-btn" onClick={()=>{
+            navigator.clipboard?.writeText(url).then(()=>{ toast('🔗 Copied!'); onClose(); });
+          }}>Copy</button>
+        </div>
       </div>
     </div>
   );
@@ -1191,7 +1394,7 @@ function App() {
             </div>
           </div>
 
-          {/* Genre filter pills */}
+          {/* Genre filter — collapsible premium pills */}
           <GenreBar genre={genre} setGenre={setGenre}/>
 
           <div className="section">
