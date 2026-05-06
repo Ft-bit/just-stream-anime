@@ -449,6 +449,137 @@
     .sched-badge.aired{background:rgba(255,255,255,.05);color:var(--txt3);border:1px solid var(--border)}
     .sched-sk{background:linear-gradient(90deg,#1a1a2e 25%,#20203a 50%,#1a1a2e 75%);background-size:200% 100%;animation:shimmer 1.7s infinite;border-radius:11px;height:74px}
     .sched-empty{display:flex;flex-direction:column;align-items:center;padding:4rem 1rem;gap:10px;color:var(--txt3);font-family:var(--mono);font-size:12px;text-align:center}
+
+    /* ── SIDEBAR ──────────────────────────────────────────────────────────── */
+    :root{ --sb:64px; }
+    @media(min-width:769px){ body{ padding-left:var(--sb); } .nav{ left:var(--sb); } }
+
+    /* Desktop sidebar */
+    .sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sb);z-index:600;
+      background:rgba(7,7,14,.97);border-right:1px solid var(--border);
+      display:flex;flex-direction:column;align-items:center;padding:0 0 16px;
+      backdrop-filter:blur(20px)}
+    @media(max-width:768px){.sidebar{display:none}}
+
+    .sb-logo{width:var(--sb);height:var(--nav);display:flex;align-items:center;
+      justify-content:center;flex-shrink:0;cursor:pointer;
+      border-bottom:1px solid var(--border);margin-bottom:8px}
+    .sb-logo-mark{width:28px;height:28px;border-radius:7px;
+      background:linear-gradient(135deg,var(--red),var(--red2));
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 3px 12px var(--glow)}
+
+    .sb-nav{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+      padding:4px 0;width:100%}
+    .sb-btn{width:48px;height:48px;border-radius:12px;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;
+      background:none;color:var(--txt3);transition:all .18s;position:relative;
+      -webkit-tap-highlight-color:transparent}
+    .sb-btn:hover{background:rgba(255,255,255,.07);color:var(--txt)}
+    .sb-btn.on{background:rgba(225,29,72,.12);color:var(--red)}
+    .sb-btn svg{flex-shrink:0}
+    .sb-label{font-family:var(--mono);font-size:8px;font-weight:700;
+      letter-spacing:.04em;text-transform:uppercase;line-height:1}
+
+    /* Mobile bottom nav */
+    .mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:600;
+      height:58px;background:rgba(7,7,14,.97);border-top:1px solid var(--border);
+      backdrop-filter:blur(20px);align-items:center;justify-content:space-around}
+    @media(max-width:768px){
+      .mob-nav{display:flex}
+      body{padding-bottom:58px}
+      .toast-wrap{bottom:70px}
+      .btt{bottom:68px}
+    }
+    .mob-btn{display:flex;flex-direction:column;align-items:center;gap:3px;
+      padding:6px 16px;cursor:pointer;border:none;background:none;
+      color:var(--txt3);transition:color .15s;-webkit-tap-highlight-color:transparent;
+      flex:1;justify-content:center}
+    .mob-btn.on{color:var(--red)}
+    .mob-btn svg{flex-shrink:0}
+    .mob-btn-label{font-family:var(--mono);font-size:8.5px;font-weight:700;
+      letter-spacing:.03em}
+
+    /* History page */
+    .hist-wrap{padding:calc(var(--nav) + .75rem) clamp(.75rem,3.5vw,2.5rem) 2rem}
+    .hist-empty{display:flex;flex-direction:column;align-items:center;
+      justify-content:center;padding:5rem 1rem;gap:14px;text-align:center}
+    .hist-empty-ico{font-size:3rem;opacity:.25}
+    .hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(88px,18vw,112px),1fr));gap:10px}
+
+    /* ── SIDEBAR ──────────────────────────────────────────────────────────── */
+    :root{--sidebar:60px}
+    @media(min-width:769px){
+      body{padding-left:var(--sidebar)}
+      .nav{left:var(--sidebar)}
+    }
+    .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar);z-index:600;
+      background:rgba(7,7,14,.97);border-right:1px solid var(--border);
+      display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px}
+    @media(max-width:768px){.sidebar{display:none}}
+    .sb-logo{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--red),var(--red2));
+      display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px var(--glow);
+      cursor:pointer;margin-bottom:10px;flex-shrink:0;transition:transform .18s}
+    .sb-logo:hover{transform:scale(1.08)}
+    .sb-btn{width:44px;height:44px;border-radius:10px;border:none;background:none;color:var(--txt3);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+      cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent;position:relative;flex-shrink:0}
+    .sb-btn:hover{background:rgba(255,255,255,.07);color:var(--txt2)}
+    .sb-btn.on{background:rgba(225,29,72,.12);color:var(--red)}
+    .sb-btn svg{width:20px;height:20px;flex-shrink:0}
+    .sb-btn span{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.03em;line-height:1}
+    .sb-divider{width:28px;height:1px;background:var(--border);margin:4px 0;flex-shrink:0}
+
+    /* Mobile bottom nav */
+    .mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:600;
+      background:rgba(7,7,14,.97);border-top:1px solid var(--border);
+      padding:6px 0 max(6px,env(safe-area-inset-bottom));
+      backdrop-filter:blur(20px)}
+    @media(max-width:768px){
+      .mob-nav{display:flex}
+      body{padding-bottom:calc(56px + max(6px,env(safe-area-inset-bottom)))}
+    }
+    .mob-nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+      border:none;background:none;color:var(--txt3);cursor:pointer;padding:4px 0;
+      transition:color .15s;-webkit-tap-highlight-color:transparent}
+    .mob-nav-btn.on{color:var(--red)}
+    .mob-nav-btn svg{width:20px;height:20px}
+    .mob-nav-btn span{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.02em}
+
+    /* ── WATCH HISTORY PAGE ───────────────────────────────────────────────── */
+    .hist-wrap{padding:calc(var(--nav) + 1rem) clamp(.75rem,3.5vw,2.5rem) 4rem}
+    .hist-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem}
+    .hist-title{font-size:clamp(1.1rem,3vw,1.4rem);font-weight:900;color:#fff;letter-spacing:-.03em;display:flex;align-items:center;gap:10px}
+    .hist-count{font-family:var(--mono);font-size:11px;color:var(--txt3);background:rgba(255,255,255,.07);padding:2px 9px;border-radius:10px}
+    .hist-clear{font-family:var(--mono);font-size:11px;font-weight:700;padding:7px 14px;border-radius:8px;border:1px solid rgba(225,29,72,.25);color:#fb7185;background:rgba(225,29,72,.06);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px}
+    .hist-clear:hover{background:rgba(225,29,72,.14);border-color:rgba(225,29,72,.45)}
+    .hist-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    @media(min-width:480px){.hist-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(min-width:680px){.hist-grid{grid-template-columns:repeat(4,1fr)}}
+    @media(min-width:900px){.hist-grid{grid-template-columns:repeat(5,1fr)}}
+    @media(min-width:1200px){.hist-grid{grid-template-columns:repeat(6,1fr)}}
+    .hist-card{cursor:pointer;border-radius:10px;overflow:hidden;background:var(--bg2);border:1px solid var(--border);position:relative;transition:transform .25s cubic-bezier(.34,1.4,.64,1),box-shadow .25s,border-color .25s;-webkit-tap-highlight-color:transparent}
+    .hist-card:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 16px 36px rgba(0,0,0,.6);border-color:rgba(255,255,255,.18)}
+    .hist-card:active{transform:scale(.97)}
+    .hist-card-top{position:relative;padding-top:140%;background:#131328;overflow:hidden}
+    .hist-card-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s}
+    .hist-card:hover .hist-card-img{transform:scale(1.08)}
+    .hist-card-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,transparent 55%)}
+    .hist-card-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;background:rgba(0,0,0,.2)}
+    .hist-card:hover .hist-card-play{opacity:1}
+    .hist-play-circle{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px var(--glow)}
+    .hist-ep{position:absolute;bottom:6px;left:8px;font-family:var(--mono);font-size:9px;font-weight:800;color:#fff;background:rgba(225,29,72,.9);padding:2px 6px;border-radius:3px}
+    .hist-prog-wrap{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.12)}
+    .hist-prog{height:100%;background:linear-gradient(to right,var(--red),#ff6b8a)}
+    .hist-remove{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;transition:background .15s;-webkit-tap-highlight-color:transparent}
+    .hist-remove:hover{background:var(--red2)}
+    .hist-card-body{padding:8px 9px 10px}
+    .hist-card-title{font-size:11px;font-weight:700;color:var(--txt);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .hist-card-ep{font-family:var(--mono);font-size:9px;color:var(--txt3);margin-top:2px}
+    .hist-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5rem 1rem;gap:14px;text-align:center;color:var(--txt3)}
+    .hist-empty-ico{font-size:3rem;opacity:.25}
+    .hist-empty-txt{font-size:13px;color:var(--txt2)}
+    .hist-empty-sub{font-family:var(--mono);font-size:11px;color:var(--txt3)}
   </style>
 </head>
 <body>
@@ -948,7 +1079,7 @@ function WatchPage({anime, startTab, onBack}) {
               {/* Share modal trigger */}
               {shareOpen && (
                 <ShareModal
-                  url={`https://jsanime.site/?a=${anime.id}`}
+                  url={`https://jsanime.site/share?a=${anime.id}`}
                   hashUrl={window.location.href}
                   title={anime.title}
                   image={anime.banner||anime.image||''}
@@ -1513,6 +1644,251 @@ function resetOGTags() {
   document.title = 'JustStreamAnime – Watch Anime Free Online';
 }
 
+
+// ── SIDEBAR ICONS ─────────────────────────────────────────────────────────────
+function IcoHome({size=20}){return(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>);}
+function IcoExplore({size=20}){return(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>);}
+function IcoSchedule({size=20}){return(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>);}
+function IcoHistory({size=20}){return(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/><polyline points="12 7 12 12 16 14"/></svg>);}
+
+// ── SIDEBAR COMPONENT ─────────────────────────────────────────────────────────
+function Sidebar({activeTab, onNav}) {
+  return (
+    <aside className="sidebar">
+      <div className="sb-logo" onClick={()=>onNav('home')}>
+        <div className="sb-logo-mark">
+          <PIco s={13}/>
+        </div>
+      </div>
+      <nav className="sb-nav">
+        <button className={'sb-btn'+(activeTab==='home'?' on':'')} onClick={()=>onNav('home')}>
+          <IcoHome size={19}/><span className="sb-label">Home</span>
+        </button>
+        <button className={'sb-btn'+(activeTab==='explore'?' on':'')} onClick={()=>onNav('explore')}>
+          <IcoExplore size={19}/><span className="sb-label">Explore</span>
+        </button>
+        <button className={'sb-btn'+(activeTab==='schedule'?' on':'')} onClick={()=>onNav('schedule')}>
+          <IcoSchedule size={19}/><span className="sb-label">Schedule</span>
+        </button>
+        <button className={'sb-btn'+(activeTab==='history'?' on':'')} onClick={()=>onNav('history')}>
+          <IcoHistory size={19}/><span className="sb-label">History</span>
+        </button>
+      </nav>
+    </aside>
+  );
+}
+
+// ── MOBILE BOTTOM NAV ─────────────────────────────────────────────────────────
+function MobileNav({activeTab, onNav}) {
+  return (
+    <nav className="mob-nav">
+      <button className={'mob-btn'+(activeTab==='home'?' on':'')} onClick={()=>onNav('home')}>
+        <IcoHome size={20}/><span className="mob-btn-label">Home</span>
+      </button>
+      <button className={'mob-btn'+(activeTab==='explore'?' on':'')} onClick={()=>onNav('explore')}>
+        <IcoExplore size={20}/><span className="mob-btn-label">Explore</span>
+      </button>
+      <button className={'mob-btn'+(activeTab==='schedule'?' on':'')} onClick={()=>onNav('schedule')}>
+        <IcoSchedule size={20}/><span className="mob-btn-label">Schedule</span>
+      </button>
+      <button className={'mob-btn'+(activeTab==='history'?' on':'')} onClick={()=>onNav('history')}>
+        <IcoHistory size={20}/><span className="mob-btn-label">History</span>
+      </button>
+    </nav>
+  );
+}
+
+// ── HISTORY PAGE ──────────────────────────────────────────────────────────────
+function HistoryPage({cwList, setCwList, onPlay}) {
+  const clearAll = () => {
+    localStorage.removeItem('jsa_continue_watching');
+    setCwList([]);
+  };
+  const removeOne = (id) => { removeCW(id); setCwList(loadCW()); };
+
+  return (
+    <div className="hist-wrap">
+      <div className="sec-hdr" style={{marginBottom:'1rem'}}>
+        <div className="sec-bar"/>
+        <h2 className="sec-title">Watch History</h2>
+        {cwList.length>0 && (
+          <button onClick={clearAll}
+            style={{marginLeft:'auto',fontFamily:'var(--mono)',fontSize:10,
+              color:'var(--txt3)',background:'none',border:'1px solid var(--border)',
+              borderRadius:6,padding:'4px 12px',cursor:'pointer',transition:'all .15s'}}
+            onMouseOver={e=>{e.currentTarget.style.color='var(--red)';e.currentTarget.style.borderColor='var(--red)'}}
+            onMouseOut={e=>{e.currentTarget.style.color='var(--txt3)';e.currentTarget.style.borderColor='var(--border)'}}>
+            Clear History
+          </button>
+        )}
+      </div>
+      {cwList.length===0 ? (
+        <div className="hist-empty">
+          <div className="hist-empty-ico">🎬</div>
+          <div style={{fontWeight:800,color:'var(--txt)',fontSize:'1.1rem'}}>No watch history yet</div>
+          <div style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--txt3)'}}>
+            Anime you watch will appear here
+          </div>
+        </div>
+      ) : (
+        <div className="hist-grid">
+          {cwList.map(item=>{
+            const prog = Math.min(100,Math.round((item.ep/item.totalEps)*100));
+            return (
+              <div key={item.id} className="cw-card"
+                role="button" tabIndex={0}
+                onClick={()=>onPlay(item)}
+                onKeyDown={e=>e.key==='Enter'&&onPlay(item)}>
+                <div className="cw-img-wrap">
+                  <img className="cw-img" src={item.image} alt={item.title}
+                    onError={e=>e.target.style.display='none'}/>
+                  <div className="cw-grad"/>
+                  <div className="cw-play-overlay">
+                    <div className="cw-play-circle">
+                      <svg viewBox="0 0 20 20" fill="#fff" style={{width:13,height:13,marginLeft:2}}>
+                        <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="cw-ep">EP {item.ep}</div>
+                  <div className="cw-prog-wrap"><div className="cw-prog" style={{width:prog+'%'}}/></div>
+                  <button className="cw-remove"
+                    onPointerDown={e=>{e.stopPropagation();e.preventDefault();removeOne(item.id);}}
+                    aria-label="Remove">✕</button>
+                </div>
+                <div className="cw-body"><div className="cw-title">{item.title}</div></div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ── SIDEBAR ICONS ─────────────────────────────────────────────────────────────
+function HomeIco()     { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>; }
+function ExploreIco()  { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>; }
+function ScheduleIco() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>; }
+function HistoryIco()  { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>; }
+
+// ── SIDEBAR COMPONENT ─────────────────────────────────────────────────────────
+function Sidebar({page, setPage, goHome}) {
+  return (
+    <div className="sidebar">
+      {/* Logo mark */}
+      <div className="sb-logo" onClick={goHome} title="JustStreamAnime">
+        <PIco s={16}/>
+      </div>
+      <div className="sb-divider"/>
+      <button className={'sb-btn'+(page==='home'?' on':'')}
+        onClick={()=>setPage('home')} title="Home">
+        <HomeIco/><span>Home</span>
+      </button>
+      <button className={'sb-btn'+(page==='explore'?' on':'')}
+        onClick={()=>setPage('explore')} title="Explore">
+        <ExploreIco/><span>Explore</span>
+      </button>
+      <button className={'sb-btn'+(page==='schedule'?' on':'')}
+        onClick={()=>setPage('schedule')} title="Schedule">
+        <ScheduleIco/><span>Schedule</span>
+      </button>
+      <div className="sb-divider"/>
+      <button className={'sb-btn'+(page==='history'?' on':'')}
+        onClick={()=>setPage('history')} title="Watch History">
+        <HistoryIco/><span>History</span>
+      </button>
+    </div>
+  );
+}
+
+// ── MOBILE BOTTOM NAV ─────────────────────────────────────────────────────────
+function MobileNav({page, setPage}) {
+  return (
+    <div className="mob-nav">
+      <button className={'mob-nav-btn'+(page==='home'?' on':'')} onClick={()=>setPage('home')}>
+        <HomeIco/><span>Home</span>
+      </button>
+      <button className={'mob-nav-btn'+(page==='explore'?' on':'')} onClick={()=>setPage('explore')}>
+        <ExploreIco/><span>Explore</span>
+      </button>
+      <button className={'mob-nav-btn'+(page==='schedule'?' on':'')} onClick={()=>setPage('schedule')}>
+        <ScheduleIco/><span>Schedule</span>
+      </button>
+      <button className={'mob-nav-btn'+(page==='history'?' on':'')} onClick={()=>setPage('history')}>
+        <HistoryIco/><span>History</span>
+      </button>
+    </div>
+  );
+}
+
+// ── WATCH HISTORY PAGE ────────────────────────────────────────────────────────
+function HistoryPage({cwList, setCwList, onPlay}) {
+  const clearAll = () => {
+    localStorage.removeItem('jsa_continue_watching');
+    setCwList([]);
+  };
+  const removeOne = (id) => { removeCW(id); setCwList(loadCW()); };
+
+  return (
+    <div className="hist-wrap">
+      <div className="hist-hdr">
+        <div className="hist-title">
+          <HistoryIco/>
+          Watch History
+          {cwList.length > 0 && <span className="hist-count">{cwList.length} items</span>}
+        </div>
+        {cwList.length > 0 && (
+          <button className="hist-clear" onClick={clearAll}>
+            <svg viewBox="0 0 20 20" fill="currentColor" style={{width:12,height:12}}>
+              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+            </svg>
+            Clear History
+          </button>
+        )}
+      </div>
+
+      {cwList.length === 0 ? (
+        <div className="hist-empty">
+          <div className="hist-empty-ico">📺</div>
+          <div className="hist-empty-txt">No watch history yet</div>
+          <div className="hist-empty-sub">Anime you watch will appear here</div>
+        </div>
+      ) : (
+        <div className="hist-grid">
+          {cwList.map(item => {
+            const prog = Math.min(100, Math.round((item.ep / item.totalEps) * 100));
+            return (
+              <div key={item.id} className="hist-card" onClick={()=>onPlay(item)}>
+                <div className="hist-card-top">
+                  <img className="hist-card-img" src={item.image} alt={item.title}
+                    onError={e=>e.target.style.display='none'}/>
+                  <div className="hist-card-grad"/>
+                  <div className="hist-card-play">
+                    <div className="hist-play-circle"><PIco s={14}/></div>
+                  </div>
+                  <div className="hist-ep">EP {item.ep}</div>
+                  <div className="hist-prog-wrap">
+                    <div className="hist-prog" style={{width:prog+'%'}}/>
+                  </div>
+                  <button className="hist-remove"
+                    onPointerDown={e=>{e.stopPropagation();e.preventDefault();removeOne(item.id);}}
+                    aria-label="Remove">✕</button>
+                </div>
+                <div className="hist-card-body">
+                  <div className="hist-card-title">{item.title}</div>
+                  <div className="hist-card-ep">Episode {item.ep} · {prog}% watched</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function App() {
   const init = readHash();
   const [view,    setView]  = useState(init.view);
@@ -1527,6 +1903,7 @@ function App() {
   const [genre,   setGenre] = useState('All');
   const [cwList,  setCwList] = useState(() => loadCW());
   const [srView,  setSrView] = useState(null); // {query, results}
+  const [navPage, setNavPage] = useState('home'); // home|explore|schedule|history
   const cache = useRef({});
 
   const heroLoaded = useRef(false);
@@ -1564,7 +1941,7 @@ function App() {
             title: cached.title,
             image: cached.banner || cached.image,
             desc:  cached.desc,
-            url:   `https://jsanime.site/?a=${cached.id}`,
+            url:   `https://jsanime.site/share?a=${cached.id}`,
           });
           setWatch(cached); setWTab(init.wTab||'watch'); setView('watch');
         } else {
@@ -1574,7 +1951,7 @@ function App() {
             if (a) {
               const anime = mapA(a);
               cache.current[String(anime.id)] = anime;
-              updateOGTags({title:anime.title, image:anime.banner||anime.image, desc:anime.desc, url:`https://jsanime.site/?a=${anime.id}`});
+              updateOGTags({title:anime.title, image:anime.banner||anime.image, desc:anime.desc, url:`https://jsanime.site/share?a=${anime.id}`});
               setWatch(anime); setWTab(init.wTab||'watch'); setView('watch');
             } else { setView('home'); writeHash('home',{tab:'trending',page:1}); }
           }).catch(()=>{ setView('home'); writeHash('home',{tab:'trending',page:1}); });
@@ -1614,7 +1991,11 @@ function App() {
     setWatch(full); setWTab(t); setView('watch'); setSrView(null);
     writeHash('watch',{id:full.id,wTab:t}); window.scrollTo({top:0});
   };
-  const goHome = () => { setView('home'); setWatch(null); setSrView(null); setCwList(loadCW()); resetOGTags(); writeHash('home',{tab,page}); window.scrollTo({top:0}); };
+  const goHome = () => {
+    setView('home'); setWatch(null); setSrView(null);
+    setCwList(loadCW()); resetOGTags(); setNavPage('home');
+    writeHash('home',{tab,page}); window.scrollTo({top:0});
+  };
   const chPg   = p  => { setPage(p); writeHash('home',{tab,page:p}); window.scrollTo({top:0,behavior:'smooth'}); };
 
   useEffect(() => {
@@ -1642,10 +2023,23 @@ function App() {
   if (view==='dmca')    return <PolicyPage type="dmca"    onBack={()=>{setView('home');writeHash('home',{tab,page});}}/>;
   if (view==='privacy') return <PolicyPage type="privacy" onBack={()=>{setView('home');writeHash('home',{tab,page});}}/>;
 
-  const handleSearch = (q, preloaded) => setSrView({query:q, results:preloaded||[]});
+  const handleSearch = (q, preloaded) => { setSrView({query:q, results:preloaded||[]}); setNavPage('explore'); };
+
+  const gotoNav = (p) => {
+    setNavPage(p);
+    if (p === 'schedule') setTab('schedule');
+    else if (p === 'home') setTab('trending');
+    setSrView(null);
+    window.scrollTo({top:0});
+  };
+
 
   return (
     <ToastProvider>
+      {/* ── Sidebar (desktop) + Mobile bottom nav ── */}
+      <Sidebar page={navPage} setPage={gotoNav} goHome={goHome}/>
+      <MobileNav page={navPage} setPage={gotoNav}/>
+
       <nav className="nav">
         <div className="logo" onClick={goHome}>
           <div className="logo-mark"><PIco s={13}/></div>
@@ -1654,7 +2048,15 @@ function App() {
         <SearchBar onSel={a=>openWatch(a,'watch')} onSearch={handleSearch}/>
       </nav>
 
-      {/* ── Search results overlay ── */}
+      {/* ── History Page ── */}
+      {navPage==='history' && (
+        <HistoryPage cwList={cwList} setCwList={setCwList} onPlay={openWatch}/>
+      )}
+      {navPage==='history' && <BackToTop/>}
+
+      {/* ── Main content (hidden on history page) ── */}
+      {navPage!=='history' && (
+      <>{/* ── Search results overlay ── */}
       {srView ? (
         <SearchResultsPage query={srView.query} results={srView.results}
           loading={false} onPlay={openWatch} onBack={()=>setSrView(null)}/>
@@ -1718,6 +2120,8 @@ function App() {
           )}
         </>
       )}
+
+      </> )}{/* end main content */}
 
       <footer>
         <div className="ft-logo">just<em>stream</em>anime</div>
