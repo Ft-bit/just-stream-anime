@@ -116,8 +116,8 @@
     @media(max-width:768px){.hero-grad{display:none}}
     .hero-body{position:relative;z-index:5;padding:clamp(1rem,4vw,2rem) clamp(1rem,4vw,3.5rem) clamp(3rem,6vw,4.5rem);max-width:580px;padding-left:clamp(80px,9vw,110px)}
     @media(max-width:768px){.hero-body{display:none}}
-    .hero-countdown{position:absolute;top:calc(var(--nav) + 18px);left:clamp(80px,9vw,110px);z-index:10;display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.58);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(12px);color:rgba(255,255,255,.9);font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;letter-spacing:.03em}
-    @media(max-width:768px){.hero-countdown{display:none}}
+    .hero-countdown{position:absolute;top:calc(var(--nav) + 18px);left:clamp(14px,4vw,110px);z-index:10;display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.58);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(12px);color:rgba(255,255,255,.9);font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;letter-spacing:.03em}
+    @media(min-width:769px){.hero-countdown{left:clamp(80px,9vw,110px)}}
     .hero-topline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.6);margin-bottom:10px;font-weight:600;letter-spacing:.02em}
     .hero-topdot{color:rgba(255,255,255,.3);font-size:10px}
     .hero-badge{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--red);margin-bottom:8px}
@@ -152,12 +152,11 @@
     .hmob-prev{width:34px;height:52px;border-radius:7px;overflow:hidden;flex-shrink:0;opacity:.45;border:1px solid rgba(255,255,255,.14);cursor:pointer;transition:opacity .22s,transform .22s;align-self:flex-end;margin-bottom:2px}
     .hmob-prev:active{opacity:.75;transform:scale(.94)}
     .hmob-prev img{width:100%;height:100%;object-fit:cover;display:block}
-    .hmob-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;align-self:flex-end}
-    .hmob-title{font-size:15px;font-weight:900;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em;text-shadow:0 1px 8px rgba(0,0,0,.6)}
-    .hmob-row{display:flex;align-items:center;gap:8px}
-    .hmob-year{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.55);font-weight:600;letter-spacing:.04em}
-    .hmob-dot-sep{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.3);flex-shrink:0}
-    .hmob-genre{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.45)}
+    .hmob-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;align-self:flex-end}
+    .hmob-topline{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.5);font-weight:600;letter-spacing:.02em;white-space:nowrap;text-overflow:ellipsis}
+    .hmob-sep{color:rgba(255,255,255,.25);font-size:8px;flex-shrink:0}
+    .hmob-title{font-size:14px;font-weight:900;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em;text-shadow:0 1px 8px rgba(0,0,0,.6)}
+    .hmob-rating{font-family:var(--mono);font-size:9px;color:#fbbf24;font-weight:700;letter-spacing:.03em}
     .hmob-play{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:22px;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;font-size:12px;font-weight:800;border:none;cursor:pointer;flex-shrink:0;align-self:flex-end;transition:filter .15s,transform .15s,box-shadow .15s;box-shadow:0 3px 14px var(--glow);-webkit-tap-highlight-color:transparent;letter-spacing:.01em}
     .hmob-play:hover{filter:brightness(1.12);box-shadow:0 4px 22px var(--glow)}
     .hmob-play:active{transform:scale(.94)}
@@ -795,11 +794,16 @@ function Hero({items, onPlay}) {
             onError={e=>{ e.target.style.display='none'; }}/>
         </div>
         <div className="hmob-info">
-          <div className="hmob-title">{a.title}</div>
-          <div className="hmob-row">
-            {(a.year||a.seasonYear) && <span className="hmob-year">{a.year||a.seasonYear}</span>}
-            {a.genres[0] && <><span className="hmob-dot-sep"/><span className="hmob-genre">{a.genres[0]}</span></>}
+          {/* Metadata topline on mobile */}
+          <div className="hmob-topline">
+            {a.format && <span>{a.format}</span>}
+            {a.season && <><span className="hmob-sep">•</span><span>{a.season}</span></>}
+            {a.status && <><span className="hmob-sep">•</span><span>{a.status==='RELEASING'?'RELEASING':a.status==='FINISHED'?'FINISHED':a.status}</span></>}
+            {(a.airedEps||a.eps) && <><span className="hmob-sep">•</span><span>{a.airedEps||a.eps} EP{(a.airedEps||a.eps)>1?'s':''}</span></>}
+            {a.duration && <><span className="hmob-sep">•</span><span>{a.duration}</span></>}
           </div>
+          <div className="hmob-title">{a.title}</div>
+          {a.rating && <div className="hmob-rating">★ {a.rating}%</div>}
         </div>
         <button className="hmob-play" onClick={()=>onPlay(a,'watch')}>
           <HeroPlayTri s={10}/> Play
