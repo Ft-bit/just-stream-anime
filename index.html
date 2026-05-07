@@ -104,17 +104,18 @@
     .hero{position:relative;min-height:clamp(480px,85vh,780px);display:flex;align-items:flex-end;overflow:hidden}
     .hero-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:var(--bg)}
     .hero-progress{position:absolute;top:0;left:0;height:2px;background:linear-gradient(to right,var(--red),#ff6b8a);z-index:20;border-radius:0 2px 2px 0}
-    .hero-img-desk{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;filter:brightness(.65) saturate(1.2);transition:opacity .75s ease;image-rendering:high-quality}
-    .hero-img-mob{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(.7) saturate(1.1);transition:opacity .75s ease;display:none}
+    .hero-img-desk{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;filter:brightness(.78) saturate(1.05);transition:opacity .75s ease}
+    .hero-img-mob{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(.82) saturate(1.05);transition:opacity .75s ease;display:none}
     @media(max-width:768px){
       .hero-img-desk{display:none}
       .hero-img-mob{display:block}
       .hero{min-height:clamp(320px,62vh,520px)}
     }
     .hero-nav-fade{position:absolute;top:0;left:0;right:0;height:140px;background:linear-gradient(to bottom,rgba(7,7,14,.9) 0%,transparent 100%);pointer-events:none;z-index:2}
-    .hero-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(7,7,14,.97) 0%,rgba(7,7,14,.6) 22%,rgba(7,7,14,.05) 55%,transparent 100%),linear-gradient(to right,rgba(7,7,14,.85) 0%,rgba(7,7,14,.05) 50%,transparent 100%);z-index:1}
+    .hero-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(7,7,14,1) 0%,rgba(7,7,14,.82) 18%,rgba(7,7,14,.35) 42%,rgba(7,7,14,.05) 65%,transparent 100%),linear-gradient(to right,rgba(7,7,14,.95) 0%,rgba(7,7,14,.7) 25%,rgba(7,7,14,.2) 50%,transparent 72%);z-index:1}
     @media(max-width:768px){.hero-grad{display:none}}
-    .hero-body{position:relative;z-index:5;padding:clamp(1rem,4vw,3rem) clamp(1rem,4vw,3.5rem) clamp(3.5rem,7vw,5.5rem);max-width:640px;width:100%;padding-left:clamp(80px,9vw,110px)}
+    .hero-body{position:relative;z-index:5;padding:clamp(1rem,4vw,3rem) clamp(1rem,4vw,3.5rem) clamp(3.5rem,7vw,5.5rem);max-width:520px;width:50%;padding-left:clamp(80px,9vw,110px)}
+    @media(max-width:1100px){.hero-body{width:60%;max-width:560px}}
     @media(max-width:768px){.hero-body{display:none}}
     .hero-badge{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--red);margin-bottom:12px}
     .hero-badge::before{content:'';display:block;width:14px;height:2px;background:var(--red);border-radius:1px}
@@ -516,8 +517,10 @@ function mapA(a) {
       ? `https://www.dailymotion.com/embed/video/${a.trailer.id}` : null;
   }
   const rawDesc = (a.description||'').replace(/<[^>]+>/g,'').trim();
-  const stubPattern = /^(the\s+)?(first|second|third|fourth|fifth|\d+(st|nd|rd|th))\s+(season|cour|part)\s+of/i;
-  const descIsStub  = rawDesc.length < 80 || stubPattern.test(rawDesc);
+  const stubPattern = /^(the\s+)?(first|second|third|fourth|fifth|sixth|seventh|eighth|\d+(st|nd|rd|th))\s+(season|cour|part|cours)\s+of/i;
+  const shortStub   = rawDesc.length < 120;
+  const isSequel    = /^(sequel|continuation|second|third|fourth|part\s*\d|season\s*\d|cour\s*\d)/i.test(rawDesc);
+  const descIsStub  = shortStub || stubPattern.test(rawDesc) || isSequel;
   return {
     id: a.id, malId: a.idMal, siteUrl: a.siteUrl||null,
     title: a.title?.english||a.title?.romaji||'Unknown',
@@ -643,21 +646,47 @@ function Hero({items, onPlay}) {
     if (fi.current) { fi.current = false; return; }
     start();
   }, [idx]);
+
+  // Pre-fetch ALL stub descriptions for hero slides with rate limiting
+  useEffect(() => {
+    if (!items.length) return;
+    const cap = Math.min(items.length, 8);
+    const stubs = items.slice(0, cap).filter(a => a.descIsStub && a.malId);
+    if (!stubs.length) return;
+    let cancelled = false;
+    (async () => {
+      for (const a of stubs) {
+        if (cancelled) break;
+        const key = String(a.malId);
+        if (descCache.current[key]) continue;
+        try {
+          await new Promise(r => setTimeout(r, 450));
+          if (cancelled) break;
+          const r = await fetch(`https://api.jikan.moe/v4/anime/${a.malId}`);
+          const d = await r.json();
+          const synopsis = d.data?.synopsis || '';
+          if (synopsis) {
+            descCache.current[key] = synopsis;
+            // Update display if this is the currently shown slide
+            setIdx(cur => {
+              if (items[cur]?.malId === a.malId) setExtraDesc(synopsis);
+              return cur;
+            });
+          }
+        } catch(e) {}
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [items]);
+
+  // Update extraDesc when slide changes (uses cache if already fetched)
   useEffect(() => {
     if (!items.length) return;
     const a = items[idx];
-    if (!a?.descIsStub || !a?.malId) return;
+    if (!a?.descIsStub || !a?.malId) { setExtraDesc(''); return; }
     const key = String(a.malId);
     if (descCache.current[key]) { setExtraDesc(descCache.current[key]); return; }
-    (async () => {
-      try {
-        const r = await fetch(`https://api.jikan.moe/v4/anime/${a.malId}`);
-        const d = await r.json();
-        const synopsis = d.data?.synopsis || '';
-        descCache.current[key] = synopsis;
-        setExtraDesc(synopsis);
-      } catch(e) {}
-    })();
+    setExtraDesc('');
   }, [idx, items]);
 
   const onTS = e => { tx.current = e.touches[0].clientX; ty.current = e.touches[0].clientY; };
