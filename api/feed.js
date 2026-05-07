@@ -22,7 +22,7 @@ const QUERIES = {
         bannerImage
         description(asHtml:false)
         averageScore episodes status
-        nextAiringEpisode{episode timeUntilAiring}
+        nextAiringEpisode{episode airingAt timeUntilAiring}
         seasonYear season format genres
         siteUrl
       }
@@ -36,7 +36,7 @@ const QUERIES = {
         bannerImage
         description(asHtml:false)
         averageScore episodes status
-        nextAiringEpisode{episode timeUntilAiring}
+        nextAiringEpisode{episode airingAt timeUntilAiring}
         seasonYear season format genres
         siteUrl
       }
@@ -50,7 +50,7 @@ const QUERIES = {
         bannerImage
         description(asHtml:false)
         averageScore episodes status
-        nextAiringEpisode{episode timeUntilAiring}
+        nextAiringEpisode{episode airingAt timeUntilAiring}
         seasonYear season format genres
         siteUrl
       }
@@ -64,7 +64,7 @@ const QUERIES = {
         bannerImage
         description(asHtml:false)
         averageScore episodes status
-        nextAiringEpisode{episode timeUntilAiring}
+        nextAiringEpisode{episode airingAt timeUntilAiring}
         seasonYear season format genres
         siteUrl
       }
@@ -132,8 +132,27 @@ function buildItem(a) {
   if (desc) descParts.push(`<p style="margin:8px 0;">${escapeXml(desc)}${desc.length >= 400 ? '...' : ''}</p>`);
   descParts.push(`<p><a href="${escapeXml(url)}" style="color:#e11d48;font-weight:bold;">▶ Watch on JustStreamAnime</a></p>`);
 
-  // pubDate: use now as fallback (RSS requires a date)
-  const pubDate = new Date().toUTCString();
+  // pubDate strategy (in priority order):
+  // 1. The PREVIOUS episode's air date (nextAiringEpisode.airingAt minus one episode's worth)
+  //    — this is the actual date the latest episode dropped
+  // 2. Season year + season start month → a fixed calendar date
+  // 3. Deterministic fallback using the anime's AniList ID so it never changes
+  let pubDate;
+  if (a.nextAiringEpisode?.airingAt) {
+    // airingAt is the NEXT episode's air time — subtract one week to get the last aired date
+    const lastAiredTs = a.nextAiringEpisode.airingAt - 7 * 24 * 60 * 60;
+    pubDate = new Date(lastAiredTs * 1000).toUTCString();
+  } else if (a.seasonYear) {
+    // Map AniList season names to approximate start months
+    const monthMap = { WINTER: 0, SPRING: 3, SUMMER: 6, FALL: 9 };
+    const month = a.season ? (monthMap[a.season] ?? 0) : 0;
+    pubDate = new Date(Date.UTC(a.seasonYear, month, 1)).toUTCString();
+  } else {
+    // Last resort: derive a stable date from the anime ID so it never changes
+    // Uses Jan 1 2010 + (id mod 5000) days — fully deterministic, never "now"
+    const stableMs = Date.UTC(2010, 0, 1) + (a.id % 5000) * 86400 * 1000;
+    pubDate = new Date(stableMs).toUTCString();
+  }
 
   return `
     <item>
