@@ -114,18 +114,22 @@
     .hero-nav-fade{position:absolute;top:0;left:0;right:0;height:140px;background:linear-gradient(to bottom,rgba(7,7,14,.9) 0%,transparent 100%);pointer-events:none;z-index:2}
     .hero-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(7,7,14,1) 0%,rgba(7,7,14,.82) 18%,rgba(7,7,14,.35) 42%,rgba(7,7,14,.05) 65%,transparent 100%),linear-gradient(to right,rgba(7,7,14,.95) 0%,rgba(7,7,14,.7) 25%,rgba(7,7,14,.2) 50%,transparent 72%);z-index:1}
     @media(max-width:768px){.hero-grad{display:none}}
-    .hero-body{position:relative;z-index:5;padding:clamp(1rem,4vw,3rem) clamp(1rem,4vw,3.5rem) clamp(3.5rem,7vw,5.5rem);max-width:520px;width:50%;padding-left:clamp(80px,9vw,110px)}
-    @media(max-width:1100px){.hero-body{width:60%;max-width:560px}}
+    .hero-body{position:relative;z-index:5;padding:clamp(1rem,4vw,2rem) clamp(1rem,4vw,3.5rem) clamp(3rem,6vw,4.5rem);max-width:580px;padding-left:clamp(80px,9vw,110px)}
     @media(max-width:768px){.hero-body{display:none}}
-    .hero-badge{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--red);margin-bottom:12px}
+    .hero-countdown{position:absolute;top:calc(var(--nav) + 18px);left:clamp(80px,9vw,110px);z-index:10;display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.58);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(12px);color:rgba(255,255,255,.9);font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;letter-spacing:.03em}
+    @media(max-width:768px){.hero-countdown{display:none}}
+    .hero-topline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.6);margin-bottom:10px;font-weight:600;letter-spacing:.02em}
+    .hero-topdot{color:rgba(255,255,255,.3);font-size:10px}
+    .hero-badge{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--red);margin-bottom:8px}
     .hero-badge::before{content:'';display:block;width:14px;height:2px;background:var(--red);border-radius:1px}
-    .hero-title{font-size:clamp(1.4rem,3.8vw,2.8rem);font-weight:900;line-height:1.08;letter-spacing:-.03em;color:#fff;margin-bottom:10px;text-shadow:0 2px 24px rgba(0,0,0,.5)}
-    .hero-season-banner{display:inline-flex;align-items:center;gap:6px;background:rgba(225,29,72,.1);border:1px solid rgba(225,29,72,.22);color:#fb7185;padding:3px 9px;border-radius:5px;font-family:var(--mono);font-size:10px;font-weight:700;margin-bottom:10px}
-    .hero-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--txt2);margin-bottom:11px}
-    .hero-score{color:#fbbf24;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.18);padding:2px 7px;border-radius:4px;font-weight:700}
-    .hero-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:13px}
-    .htag{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.07em;padding:2px 7px;border-radius:4px;border:1px solid rgba(225,29,72,.25);color:#fb7185;background:rgba(225,29,72,.06)}
-    .hero-desc{font-size:13px;line-height:1.75;color:rgba(228,228,240,.72);margin-bottom:20px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .hero-title{font-size:clamp(1.6rem,3.6vw,2.6rem);font-weight:900;line-height:1.07;letter-spacing:-.03em;color:#fff;margin-bottom:8px;text-shadow:0 2px 24px rgba(0,0,0,.6)}
+    .hero-score-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+    .hero-score{color:#fbbf24;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.22);padding:3px 9px;border-radius:5px;font-weight:700;font-family:var(--mono);font-size:11px}
+    .hero-season-banner{display:none}
+    .hero-meta{display:none}
+    .hero-tags{display:none}
+    .htag{display:none}
+    .hero-desc{font-size:13px;line-height:1.7;color:rgba(228,228,240,.75);margin-bottom:18px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .hero-btns{display:flex;gap:9px;flex-wrap:wrap}
     .btn-play{display:inline-flex;align-items:center;gap:7px;padding:12px 24px;border-radius:10px;font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--red),var(--red2));box-shadow:0 4px 20px var(--glow);border:none;transition:transform .15s,box-shadow .2s,filter .15s;-webkit-tap-highlight-color:transparent}
     .btn-play:hover{filter:brightness(1.12);box-shadow:0 6px 30px var(--glow)}
@@ -487,8 +491,8 @@ async function gql(query, vars={}) {
 }
 
 const FL = `id idMal siteUrl title{romaji english}coverImage{extraLarge large color}bannerImage
-  description(asHtml:false)averageScore episodes status nextAiringEpisode{episode}
-  seasonYear season format genres trailer{id site}`;
+  description(asHtml:false)averageScore episodes status nextAiringEpisode{episode timeUntilAiring}
+  seasonYear season format genres trailer{id site} duration`;
 const FD = `${FL} streamingEpisodes{title thumbnail url site}`;
 
 const Qs = {
@@ -506,6 +510,9 @@ function mapA(a) {
     ? a.season.charAt(0) + a.season.slice(1).toLowerCase() + ' ' + a.seasonYear
     : (a.seasonYear||'');
   const airedEps = a.nextAiringEpisode ? a.nextAiringEpisode.episode - 1 : (a.episodes||null);
+  const nextEp   = a.nextAiringEpisode ? a.nextAiringEpisode.episode : null;
+  const timeUntilAiring = a.nextAiringEpisode ? a.nextAiringEpisode.timeUntilAiring : null;
+  const duration = a.duration ? `${a.duration}m` : null;
   let trailerUrl = null;
   const overrideYtId = TRAILER_OVERRIDE[a.id];
   if (overrideYtId) {
@@ -530,7 +537,7 @@ function mapA(a) {
     desc: rawDesc,
     descIsStub,
     rating: a.averageScore, year: a.seasonYear,
-    eps: a.episodes, airedEps,
+    eps: a.episodes, airedEps, nextEp, timeUntilAiring, duration,
     genres: a.genres||[],
     color: a.coverImage?.color||'#e11d48',
     format: (a.format||'TV').replace(/_/g,' '),
@@ -702,6 +709,20 @@ function Hero({items, onPlay}) {
   const a        = items[idx];
   const prevItem = items[(idx - 1 + h) % h];
   const nextItem = items[(idx + 1) % h];
+  const displayDesc = (a.descIsStub && extraDesc) ? extraDesc : a.desc;
+
+  function fmtCountdown(s) {
+    if (!s || s <= 0) return null;
+    const d = Math.floor(s / 86400);
+    const hr = Math.floor((s % 86400) / 3600);
+    const mn = Math.floor((s % 3600) / 60);
+    if (d > 0) return `${d}d ${hr}h ${mn}m`;
+    if (hr > 0) return `${hr}h ${mn}m`;
+    return `${mn}m`;
+  }
+
+  const countdown = a.timeUntilAiring ? fmtCountdown(a.timeUntilAiring) : null;
+  const statusLabel = a.status === 'RELEASING' ? 'RELEASING' : a.status === 'FINISHED' ? 'FINISHED' : a.status;
 
   return (
     <div className="hero" onTouchStart={onTS} onTouchEnd={onTE}>
@@ -717,31 +738,57 @@ function Hero({items, onPlay}) {
         <div className="hero-nav-fade"/>
       </div>
 
+      {/* ── Countdown badge — top-left of image ── */}
+      {countdown && a.nextEp && (
+        <div className="hero-countdown">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{width:12,height:12,flexShrink:0}}>
+            <circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/>
+          </svg>
+          EP {a.nextEp} IN {countdown}
+        </div>
+      )}
+
+      {/* ── Desktop: premium layout ── */}
       <div className="hero-body">
         <div className="hero-badge">Trending Now</div>
-        <h1 className="hero-title">{a.title}</h1>
-        {a.season && <div className="hero-season-banner">📅 {a.season} · {a.format}</div>}
-        <div className="hero-meta">
-          {a.rating && <span className="hero-score">★ {a.rating}%</span>}
-          {a.airedEps && <span>{a.airedEps} Episodes</span>}
+
+        {/* Metadata line: TV • 📅 Spring 2026 • RELEASING • 19 Episodes • 24m */}
+        <div className="hero-topline">
+          {a.format && <span>{a.format}</span>}
+          {a.season && <><span className="hero-topdot">•</span><span>📅 {a.season}</span></>}
+          {statusLabel && <><span className="hero-topdot">•</span><span>{statusLabel}</span></>}
+          {(a.airedEps||a.eps) && <><span className="hero-topdot">•</span><span>{a.airedEps||a.eps} Episodes</span></>}
+          {a.duration && <><span className="hero-topdot">•</span><span>{a.duration}</span></>}
         </div>
-        <div className="hero-tags">{a.genres.slice(0,5).map(g=><span key={g} className="htag">{g}</span>)}</div>
-        <p className="hero-desc">{(a.descIsStub && extraDesc) ? extraDesc : a.desc}</p>
+
+        <h1 className="hero-title">{a.title}</h1>
+
+        {a.rating && (
+          <div className="hero-score-row">
+            <span className="hero-score">★ {a.rating}%</span>
+          </div>
+        )}
+
+        <p className="hero-desc">{displayDesc}</p>
+
         <div className="hero-btns">
           <button className="btn-play" onClick={()=>onPlay(a,'watch')}><PIco s={13}/>Play</button>
           {a.trailerUrl && <button className="btn-info" onClick={()=>onPlay(a,'trailer')}><FilmIco/> Trailer</button>}
         </div>
       </div>
 
+      {/* ── Desktop: vertically-centered chevron arrows ── */}
       <button className="harr harr-l" onClick={prev} aria-label="Previous"><HeroChevL/></button>
       <button className="harr harr-r" onClick={next} aria-label="Next"><HeroChevR/></button>
 
+      {/* ── Desktop: progress dots ── */}
       <div className="hdots">
         {Array.from({length:h}).map((_,i)=>(
           <button key={i} className={'hdot'+(i===idx?' on':'')} style={{width:i===idx?20:5}} onClick={()=>go(i)}/>
         ))}
       </div>
 
+      {/* ══ MOBILE BOTTOM BAR ═════════════════════════════════════════════════ */}
       <div className="hmob">
         <div className="hmob-prev" onClick={prev} title="Previous">
           <img src={prevItem?.image} alt={prevItem?.title||''}
