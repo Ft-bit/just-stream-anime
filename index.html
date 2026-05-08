@@ -1972,7 +1972,7 @@ function RecentlyAired({onPlay}) {
 const EXPLORE_YEARS = [];
 { const _sy = new Date().getFullYear()+1; for (let _y=_sy; _y>=1960; _y--) EXPLORE_YEARS.push(_y); }
 
-const BROWSE_Q = 'query($p:Int,$genre:String,$format:MediaFormat,$status:MediaStatus,$year:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,isAdult:false,genre:$genre,format:$format,status:$status,seasonYear:$year,sort:POPULARITY_DESC){' + FL + '}}}';
+const BROWSE_Q = 'query($p:Int,$genre:String,$format:MediaFormat,$status:MediaStatus,$year:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,isAdult:false,genre:$genre,format:$format,status:$status,seasonYear:$year,sort:POPULARITY_DESC){id idMal siteUrl title{romaji english}coverImage{extraLarge large color}bannerImage description(asHtml:false)averageScore episodes status nextAiringEpisode{episode}seasonYear season format genres trailer{id site}}}}';
 
 function ExplorePage({onPlay}) {
   const [fmt,    setFmt]    = useState('');
