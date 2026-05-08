@@ -1929,8 +1929,8 @@ function HistoryIco()  { return <svg viewBox="0 0 24 24" fill="none" stroke="cur
 
 // ── RECENTLY AIRED ROW ────────────────────────────────────────────────────────
 function RecentlyAired({onPlay}) {
-  const [items, setItems] = React.useState([]);
-  React.useEffect(() => {
+  const [items, setItems] = useState([]);
+  useEffect(() => {
     const now   = Math.floor(Date.now()/1000);
     const from  = now - (60 * 60 * 40); // last 40 hours
     gql(Qs.schedule, {from, to: now}).then(d => {
@@ -1970,34 +1970,23 @@ function RecentlyAired({onPlay}) {
 
 // ── EXPLORE PAGE ──────────────────────────────────────────────────────────────
 const EXPLORE_YEARS = [];
-(function() {
-  for (var y = new Date().getFullYear()+1; y >= 1960; y--) EXPLORE_YEARS.push(y);
-})();
+{ const _sy = new Date().getFullYear()+1; for (let _y=_sy; _y>=1960; _y--) EXPLORE_YEARS.push(_y); }
 
-const BROWSE_Q = `query($p:Int,$genre:String,$format:MediaFormat,$status:MediaStatus,$year:Int){
-  Page(page:$p,perPage:30){
-    pageInfo{lastPage}
-    media(type:ANIME,isAdult:false,genre:$genre,format:$format,status:$status,seasonYear:$year,sort:POPULARITY_DESC){
-      id idMal siteUrl title{romaji english}coverImage{extraLarge large color}bannerImage
-      description(asHtml:false)averageScore episodes status nextAiringEpisode{episode}
-      seasonYear season format genres trailer{id site}
-    }
-  }
-}`;
+const BROWSE_Q = 'query($p:Int,$genre:String,$format:MediaFormat,$status:MediaStatus,$year:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,isAdult:false,genre:$genre,format:$format,status:$status,seasonYear:$year,sort:POPULARITY_DESC){' + FL + '}}}';
 
 function ExplorePage({onPlay}) {
-  const [fmt,    setFmt]    = React.useState('');
-  const [genre,  setGenre]  = React.useState('');
-  const [status, setStatus] = React.useState('');
-  const [year,   setYear]   = React.useState('');
-  const [items,  setItems]  = React.useState([]);
-  const [loading,setLoad]   = React.useState(false);
-  const [pg,     setPg]     = React.useState(1);
-  const [totalPg,setTPg]    = React.useState(1);
+  const [fmt,    setFmt]    = useState('');
+  const [genre,  setGenre]  = useState('');
+  const [status, setStatus] = useState('');
+  const [year,   setYear]   = useState('');
+  const [items,  setItems]  = useState([]);
+  const [loading,setLoad]   = useState(false);
+  const [pg,     setPg]     = useState(1);
+  const [totalPg,setTPg]    = useState(1);
 
   const hasFilter = fmt || genre || status || year;
 
-  const runQuery = React.useCallback(async (f, g, s, y, p) => {
+  const runQuery = useCallback(async (f, g, s, y, p) => {
     setLoad(true);
     const vars = {p};
     if (f) vars.format = f;
@@ -2012,7 +2001,7 @@ function ExplorePage({onPlay}) {
     setLoad(false);
   }, []);
 
-  React.useEffect(() => { runQuery(fmt, genre, status, year, pg); }, [fmt, genre, status, year, pg]);
+  useEffect(() => { runQuery(fmt, genre, status, year, pg); }, [fmt, genre, status, year, pg]);
 
   const change = (setter) => (e) => { setPg(1); setter(e.target.value); };
   const reset  = () => { setPg(1); setFmt(''); setGenre(''); setStatus(''); setYear(''); };
