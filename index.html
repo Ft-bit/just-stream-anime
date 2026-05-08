@@ -2271,7 +2271,7 @@ function ExplorePage({onPlay}) {
   const [totalPg, setTotalPg] = useState(1);
   const [loading, setLoading] = useState(true);
 
-  const fetch = useCallback(async (f,g,st,y,so,p) => {
+  const loadResults = useCallback(async (f,g,st,y,so,p) => {
     setLoading(true);
     const vars = {
       p, sort:[so],
@@ -2288,8 +2288,8 @@ function ExplorePage({onPlay}) {
     setLoading(false);
   }, []);
 
-  useEffect(() => { fetch(format,genre,status,year,sort,1); setPage(1); }, [format,genre,status,year,sort]);
-  useEffect(() => { if (page > 1) fetch(format,genre,status,year,sort,page); }, [page]);
+  useEffect(() => { loadResults(format,genre,status,year,sort,1); setPage(1); }, [format,genre,status,year,sort]);
+  useEffect(() => { if (page > 1) loadResults(format,genre,status,year,sort,page); }, [page]);
 
   const hasFilter = format||genre||status||year;
   const reset = () => { setFormat(''); setGenre(''); setStatus(''); setYear(''); setSort('TRENDING_DESC'); setPage(1); };
@@ -2533,17 +2533,21 @@ function App() {
       )}
       {navPage==='history' && <BackToTop/>}
 
+      {/* Search results overlay — shows on any page */}
+      {srView && (
+        <SearchResultsPage query={srView.query} results={srView.results}
+          loading={false} onPlay={openWatch} onBack={()=>setSrView(null)}/>
+      )}
+
+      {/* Explore page */}
       {navPage==='explore' && !srView && (
         <ExplorePage onPlay={openWatch}/>
       )}
-      {navPage==='explore' && !srView && <BackToTop/>}
+      {navPage==='explore' && <BackToTop/>}
 
-      {navPage!=='history' && navPage!=='explore' && (
-      <>{srView ? (
-        <SearchResultsPage query={srView.query} results={srView.results}
-          loading={false} onPlay={openWatch} onBack={()=>setSrView(null)}/>
-
-      ) : tab==='schedule' ? (
+      {/* Main home/schedule content */}
+      {navPage!=='history' && navPage!=='explore' && !srView && (
+      <>{tab==='schedule' ? (
         <>
           <div style={{paddingTop:'calc(var(--nav) + .5rem)'}}>
             <div className="tabs-bar">
