@@ -1031,21 +1031,27 @@ function Hero({items, onPlay}) {
 
 function SearchBar({onSel, onSearch}) {
   const [q,setQ] = useState(''), [res,setRes] = useState([]), [open,setO] = useState(false);
-  const tmr = useRef(null), ref = useRef(null);
-  useEffect(() => {
-    const h = e => { if (!ref.current?.contains(e.target)) setO(false); };
-    document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
-  }, []);
+  const tmr = useRef(null), closeTimer = useRef(null), ref = useRef(null);
+
+  const openDrop  = () => { clearTimeout(closeTimer.current); setO(true); };
+  const closeDrop = () => { closeTimer.current = setTimeout(() => setO(false), 160); };
+
   const run = useCallback(async v => {
     if (!v.trim()) { setRes([]); setO(false); return; }
     const d = await gql(Qs.search, {s:v});
     setRes((d.data?.Page?.media||[]).map(mapA)); setO(true);
   }, []);
-  const oc = e => { setQ(e.target.value); clearTimeout(tmr.current); tmr.current = setTimeout(()=>run(e.target.value), 360); };
+
+  const oc = e => {
+    setQ(e.target.value);
+    clearTimeout(tmr.current);
+    tmr.current = setTimeout(()=>run(e.target.value), 360);
+  };
   const onKey = e => {
     if (e.key==='Enter' && q.trim()) { setO(false); onSearch(q.trim(), res); }
+    if (e.key==='Escape') setO(false);
   };
+
   return (
     <div className="nav-search" ref={ref}>
       <svg className="nav-ico" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1053,11 +1059,14 @@ function SearchBar({onSel, onSearch}) {
       </svg>
       <input className="nav-inp" value={q} onChange={oc} onKeyDown={onKey}
         placeholder="Search anime… (Enter for full results)"
-        onFocus={()=>res.length&&setO(true)}/>
+        onFocus={()=>{ if(res.length) openDrop(); }}
+        onBlur={closeDrop}/>
       {open && res.length > 0 && (
         <div className="search-drop">
           {res.map(a=>(
-            <div key={a.id} className="s-row" onClick={()=>{onSel(a);setO(false);setQ('');}}>
+            <div key={a.id} className="s-row"
+              onMouseDown={e=>e.preventDefault()}
+              onClick={()=>{ setO(false); setQ(''); onSel(a); }}>
               <img src={a.image} alt={a.title} onError={e=>e.target.style.display='none'}/>
               <div style={{minWidth:0}}>
                 <div className="s-title">{a.title}</div>
@@ -1065,8 +1074,10 @@ function SearchBar({onSel, onSearch}) {
               </div>
             </div>
           ))}
-          <div className="s-row" style={{justifyContent:'center',color:'var(--txt3)',fontSize:11,fontFamily:'var(--mono)'}}
-            onClick={()=>{setO(false); onSearch(q.trim(), res);}}>
+          <div className="s-row"
+            style={{justifyContent:'center',color:'var(--txt3)',fontSize:11,fontFamily:'var(--mono)'}}
+            onMouseDown={e=>e.preventDefault()}
+            onClick={()=>{ setO(false); onSearch(q.trim(), res); }}>
             Press Enter or tap here to see all results →
           </div>
         </div>
