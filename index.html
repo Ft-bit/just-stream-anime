@@ -104,7 +104,7 @@
     .s-title{font-weight:700;font-size:13px;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .s-meta{font-family:var(--mono);font-size:10px;color:var(--txt3);margin-top:2px}
     .hero{position:relative;min-height:clamp(480px,85vh,780px);display:flex;align-items:flex-end;overflow:hidden}
-    .hero-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:var(--bg2)}
+    .hero-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:var(--bg)}
     .hero-progress{position:absolute;top:0;left:0;height:2px;background:linear-gradient(to right,var(--red),#ff6b8a);z-index:20;border-radius:0 2px 2px 0}
     .hero-img-desk{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;filter:brightness(.78) saturate(1.05);transition:opacity .75s ease}
     .hero-img-mob{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(.82) saturate(1.05);transition:opacity .75s ease;display:none}
@@ -186,8 +186,7 @@
     @media(min-width:1200px){.agrid{grid-template-columns:repeat(6,1fr)}}
     .acard{cursor:pointer;border-radius:10px;overflow:hidden;background:var(--bg2);border:1px solid var(--border);-webkit-tap-highlight-color:transparent;transition:transform .22s cubic-bezier(.4,0,.2,1),box-shadow .22s,border-color .22s}
     @media(hover:hover){.acard:hover{transform:translateY(-5px) scale(1.015);box-shadow:0 16px 36px rgba(0,0,0,.55);border-color:rgba(255,255,255,.14)}.acard:hover .acard-img{transform:scale(1.05)}.acard:hover .acard-play{opacity:1}}
-    .acard:active{transform:translateY(-2px)}
-    @media(hover:none){.acard:active{transform:none}}
+    .acard:active{transform:scale(.97)}
     .acard-top{position:relative;overflow:hidden;padding-top:140%;background:#131328;border-radius:10px 10px 0 0}
     .acard-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s cubic-bezier(.4,0,.2,1)}
     .acard-grad{position:absolute;inset:0;background:linear-gradient(to top,var(--bg2) 0%,transparent 55%)}
@@ -513,7 +512,7 @@
     .contact-card-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px}
     .contact-card-info{min-width:0}
     .contact-card-label{font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--txt3);margin-bottom:3px}
-    .contact-card-desc{font-size:12px;color:var(--txt2);margin-top:1px}
+    .contact-card-value{font-size:13px;font-weight:700;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .contact-card-arrow{margin-left:auto;color:var(--txt3);font-size:16px;flex-shrink:0}
     .contact-card.email{border-color:rgba(225,29,72,.2)}
     .contact-card.email:hover{border-color:rgba(225,29,72,.5);box-shadow:0 12px 32px rgba(225,29,72,.15)}
@@ -1391,9 +1390,6 @@ function readHash() {
     const raw = (window.location.hash||'').slice(1);
     const [sec,b,c] = raw.split('/');
     if (sec==='watch'&&b) return {view:'watch',animeId:b,wTab:c||'watch'};
-    if (sec==='contact')  return {view:'contact'};
-    if (sec==='dmca')     return {view:'dmca'};
-    if (sec==='privacy')  return {view:'privacy'};
     if (sec==='home')     return {view:'home',tab:b||'trending',page:Math.max(1,parseInt(c)||1)};
   } catch(e) {}
   return {view:'home',tab:'trending',page:1};
@@ -1401,9 +1397,6 @@ function readHash() {
 function writeHash(view, extra={}) {
   const hash = view==='watch'
     ? `#watch/${extra.id||''}/${extra.wTab||'watch'}`
-    : view==='contact' ? '#contact'
-    : view==='dmca'    ? '#dmca'
-    : view==='privacy' ? '#privacy'
     : `#home/${extra.tab||'trending'}/${extra.page||1}`;
   try { history.pushState(null,'',hash); } catch(e) { window.location.hash = hash; }
 }
@@ -1766,7 +1759,7 @@ function ShareModal({url, hashUrl, title, image, desc, onClose, toast}) {
     { label:'Telegram', Icon:ShareIcons.Telegram,
       href:`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText + (image ? '\n🖼 ' + image : ''))}` },
     { label:'Twitter', Icon:ShareIcons.Twitter,
-      href:`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Watch ' + title + ' on JustStreamAnime 🎌')}` },
+      href:`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}` },
     { label:'Facebook', Icon:ShareIcons.Facebook,
       href:`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
     { label:'Reddit', Icon:ShareIcons.Reddit,
@@ -2144,7 +2137,7 @@ function ExplorePage({onPlay}) {
 function ContactPage({onBack}) {
   const contacts = [
     {
-      cls:'email', label:'Email', desc:'Send us a message',
+      cls:'email', label:'Email', value:'fredbv22@gmail.com',
       href:'https://mail.google.com/mail/?view=cm&to=fredbv22%40gmail.com&su=Contact%20JustStreamAnime',
       icon:(
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" style={{width:22,height:22}}>
@@ -2153,7 +2146,7 @@ function ContactPage({onBack}) {
       )
     },
     {
-      cls:'wa', label:'WhatsApp', desc:'Chat with us directly',
+      cls:'wa', label:'WhatsApp', value:'+234 811 872 2788',
       href:'https://wa.me/2348118722788',
       icon:(
         <svg viewBox="0 0 24 24" fill="currentColor" style={{width:22,height:22}}>
@@ -2162,7 +2155,7 @@ function ContactPage({onBack}) {
       )
     },
     {
-      cls:'tg', label:'Telegram', desc:'Join our channel',
+      cls:'tg', label:'Telegram Channel', value:'@juststreamanime',
       href:'https://t.me/juststreamanime',
       icon:(
         <svg viewBox="0 0 24 24" fill="currentColor" style={{width:22,height:22}}>
@@ -2171,7 +2164,7 @@ function ContactPage({onBack}) {
       )
     },
     {
-      cls:'dc', label:'Discord', desc:'Join our community server',
+      cls:'dc', label:'Discord Server', value:'discord.gg/Upyq7cYcPa',
       href:'https://discord.gg/Upyq7cYcPa',
       icon:(
         <svg viewBox="0 0 24 24" fill="currentColor" style={{width:22,height:22}}>
@@ -2180,7 +2173,7 @@ function ContactPage({onBack}) {
       )
     },
     {
-      cls:'tw', label:'Twitter / X', desc:'Follow us for updates',
+      cls:'tw', label:'Twitter / X', value:'@juststreamanime',
       href:'https://x.com/juststreamanime',
       icon:(
         <svg viewBox="0 0 24 24" fill="currentColor" style={{width:20,height:20}}>
@@ -2217,7 +2210,7 @@ function ContactPage({onBack}) {
               <div className="contact-card-icon">{c.icon}</div>
               <div className="contact-card-info">
                 <div className="contact-card-label">{c.label}</div>
-                <div className="contact-card-desc">{c.desc}</div>
+                <div className="contact-card-value">{c.value}</div>
               </div>
               <span className="contact-card-arrow">›</span>
             </a>
@@ -2338,18 +2331,6 @@ function App() {
     setCwList(loadCW()); resetOGTags(); setNavPage('home');
     writeHash('home',{tab,page}); window.scrollTo({top:0});
   };
-
-  // Navigate from anywhere (including watch page) to a sidebar section
-  const goNav = (p) => {
-    setView('home'); setWatch(null); setSrView(null);
-    resetOGTags(); setNavPage(p); setCwList(loadCW());
-    if (p==='schedule') setTab('schedule');
-    else if (p==='history') { /* history page doesn't need tab */ }
-    else setTab('trending');
-    writeHash('home',{tab: p==='schedule'?'schedule':'trending', page:1});
-    window.scrollTo({top:0});
-  };
-
   const chPg = p => { setPage(p); writeHash('home',{tab,page:p}); window.scrollTo({top:0,behavior:'smooth'}); };
 
   useEffect(() => {
@@ -2358,8 +2339,7 @@ function App() {
       if (h.view==='watch') {
         const c = cache.current[String(h.animeId)];
         if (c) { setWatch(c); setWTab(h.wTab); setView('watch'); setNavPage('none'); }
-      } else if (h.view==='contact'||h.view==='dmca'||h.view==='privacy') {
-        setView(h.view);
+        // If not in cache, stay on current view — don't blank the page
       } else {
         setView('home'); setWatch(null); setNavPage('home');
         setTab(h.tab||'trending'); setPage(h.page||1);
@@ -2375,8 +2355,8 @@ function App() {
 
   if (view==='watch'&&watching) return (
     <ToastProvider>
-      <Sidebar page="none" setPage={goNav} goHome={goHome}/>
-      <MobileNav page="none" setPage={goNav}/>
+      <Sidebar page="none" setPage={()=>{}} goHome={goHome}/>
+      <MobileNav page="none" setPage={()=>{}}/>
       <nav className="nav">
         <div className="logo" onClick={goHome}>
           <div className="logo-mark"><PIco s={13}/></div>
@@ -2447,7 +2427,7 @@ function App() {
 
       ) : (
         <>
-          <Hero items={hero} onPlay={openWatch}/>
+          {page===1&&<Hero items={hero} onPlay={openWatch}/>}
 
           {page===1&&cwList.length>0&&(
             <div style={{paddingTop:'clamp(.6rem,2vw,1rem)'}}>
@@ -2515,11 +2495,11 @@ function App() {
           </a>
         </div>
         <div className="ft-links">
-          <button className="ft-link" onClick={()=>{setView('contact');writeHash('contact');}}>Contact Us</button>
+          <button className="ft-link" onClick={()=>setView('contact')}>Contact Us</button>
           <span className="ft-sep">·</span>
-          <button className="ft-link" onClick={()=>{setView('dmca');writeHash('dmca');}}>Copyright Policy</button>
+          <button className="ft-link" onClick={()=>setView('dmca')}>Copyright Policy</button>
           <span className="ft-sep">·</span>
-          <button className="ft-link" onClick={()=>{setView('privacy');writeHash('privacy');}}>Privacy</button>
+          <button className="ft-link" onClick={()=>setView('privacy')}>Privacy</button>
         </div>
       </footer>
       <BackToTop/>
