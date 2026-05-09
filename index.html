@@ -1720,7 +1720,7 @@ function ShareModal({url, hashUrl, title, image, desc, onClose, toast}) {
     { label:'Telegram', Icon:ShareIcons.Telegram,
       href:`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText + (image ? '\n🖼 ' + image : ''))}` },
     { label:'Twitter', Icon:ShareIcons.Twitter,
-      href:`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText + ' ' + shareUrl)}` },
+      href:`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}` },
     { label:'Facebook', Icon:ShareIcons.Facebook,
       href:`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
     { label:'Reddit', Icon:ShareIcons.Reddit,
@@ -2216,6 +2216,14 @@ function App() {
 
   if (view==='watch'&&watching) return (
     <ToastProvider>
+      <Sidebar page="none" setPage={()=>{}} goHome={goHome}/>
+      <MobileNav page="none" setPage={()=>{}}/>
+      <nav className="nav">
+        <div className="logo" onClick={goHome}>
+          <div className="logo-mark"><PIco s={13}/></div>
+          <div className="logo-name">just<em>stream</em>anime</div>
+        </div>
+      </nav>
       <WatchPage anime={watching} startTab={wTab} onBack={goHome}/>
       <BackToTop/>
     </ToastProvider>
