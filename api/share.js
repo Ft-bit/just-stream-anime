@@ -1,115 +1,167 @@
-/**
- * Vercel Serverless Function — /api/share?a=ANIME_ID
- * 
- * When WhatsApp/Facebook/Twitter crawlers open a share link,
- * this function fetches the anime from AniList and returns
- * HTML with the correct og:image, og:title, og:description.
- * 
- * Real users get a 302 redirect to the watch page instantly.
- */
+// api/share.js — Universal share page for JustStreamAnime
+// Works on ALL platforms: Telegram, Discord, WhatsApp, Twitter, Facebook, iMessage, etc.
+//
+// How it works:
+// - Bots (Telegram, Discord, etc.) fetch this URL and read the OG meta tags
+// - Real users hit this URL and get instantly redirected to the actual watch page
+// - No JavaScript needed for the OG tags — pure HTML that every bot can read
 
-const CRAWLERS = [
-  'whatsapp', 'facebookexternalhit', 'twitterbot', 'telegrambot',
-  'linkedinbot', 'discordbot', 'slackbot', 'redditbot', 'googlebot',
-  'bingbot', 'applebot', 'ia_archiver', 'crawler', 'spider', 'preview'
-];
+const ANILIST_URL = 'https://graphql.anilist.co';
+const SITE_URL    = 'https://jsanime.site';
+const FALLBACK_IMG = 'https://jsanime.site/og-image.jpg';
 
-function isCrawler(ua = '') {
-  const lower = ua.toLowerCase();
-  return CRAWLERS.some(bot => lower.includes(bot));
-}
-
-async function getAnime(id) {
-  const query = `query($id:Int){Media(id:$id,type:ANIME){
-    id title{english romaji}
+const QUERY = `
+query($id:Int){
+  Media(id:$id, type:ANIME){
+    id idMal
+    title{ english romaji }
     description(asHtml:false)
-    coverImage{extraLarge large}
-    bannerImage averageScore seasonYear genres format
-  }}`;
-  const res = await fetch('https://graphql.anilist.co', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables: { id: parseInt(id) } }),
-  });
-  const json = await res.json();
-  return json.data?.Media || null;
-}
+    coverImage{ extraLarge large }
+    bannerImage
+    averageScore episodes status
+    nextAiringEpisode{ episode timeUntilAiring }
+    seasonYear season format genres
+  }
+}`;
 
-function ogHTML(anime, shareUrl) {
-  const title = anime.title?.english || anime.title?.romaji || 'Anime';
-  const rawDesc = (anime.description || '').replace(/<[^>]+>/g, '').trim();
-  const desc = rawDesc.slice(0, 220) || 'Watch free on JustStreamAnime.';
-  const image = anime.bannerImage || anime.coverImage?.extraLarge || anime.coverImage?.large || 'https://jsanime.site/og-image.jpg';
-  const watchUrl = `https://jsanime.site/#watch/${anime.id}/watch`;
-  const score = anime.averageScore ? `${anime.averageScore}% · ` : '';
-  const year = anime.seasonYear || '';
-
-  return `<!DOCTYPE html>
-<html prefix="og: https://ogp.me/ns#">
-<head>
-<meta charset="UTF-8"/>
-<title>${title} – Watch Free on JustStreamAnime</title>
-<meta name="description" content="${desc}"/>
-
-<!-- Open Graph -->
-<meta property="og:type" content="video.other"/>
-<meta property="og:site_name" content="JustStreamAnime"/>
-<meta property="og:url" content="${shareUrl}"/>
-<meta property="og:title" content="${title}"/>
-<meta property="og:description" content="${score}${year} · ${desc}"/>
-<meta property="og:image" content="${image}"/>
-<meta property="og:image:secure_url" content="${image}"/>
-<meta property="og:image:type" content="image/jpeg"/>
-<meta property="og:image:width" content="460"/>
-<meta property="og:image:height" content="650"/>
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:site" content="@JustStreamAnime"/>
-<meta name="twitter:title" content="${title}"/>
-<meta name="twitter:description" content="${desc}"/>
-<meta name="twitter:image" content="${image}"/>
-<meta name="twitter:image:alt" content="${title} cover"/>
-
-<!-- Redirect real users immediately -->
-<meta http-equiv="refresh" content="0;url=${watchUrl}"/>
-<script>window.location.replace("${watchUrl}");</script>
-</head>
-<body style="background:#07070e;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0">
-  <div style="text-align:center">
-    <p style="opacity:.6;font-size:14px">Redirecting to ${title}…</p>
-    <a href="${watchUrl}" style="color:#e11d48">Click here if not redirected</a>
-  </div>
-</body>
-</html>`;
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
 
 export default async function handler(req, res) {
-  const { a: animeId } = req.query;
+  const animeId = parseInt(req.query.a || '0');
 
+  // No ID → redirect home
   if (!animeId) {
-    return res.redirect(302, 'https://jsanime.site/');
+    res.writeHead(302, { Location: SITE_URL });
+    res.end();
+    return;
   }
 
-  const ua = req.headers['user-agent'] || '';
-  const shareUrl = `https://jsanime.site/share?a=${animeId}`;
+  const watchUrl = `${SITE_URL}/#watch/${animeId}/watch`;
 
-  // Real user — redirect straight to the watch page
-  if (!isCrawler(ua)) {
-    return res.redirect(302, `https://jsanime.site/#watch/${animeId}/watch`);
-  }
-
-  // Crawler — serve OG HTML
+  // Fetch anime data from AniList
+  let anime = null;
   try {
-    const anime = await getAnime(animeId);
-    if (!anime) {
-      return res.redirect(302, 'https://jsanime.site/');
-    }
-    const html = ogHTML(anime, shareUrl);
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
-    return res.status(200).send(html);
-  } catch (err) {
-    return res.redirect(302, 'https://jsanime.site/');
+    const r = await fetch(ANILIST_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ query: QUERY, variables: { id: animeId } }),
+    });
+    const data = await r.json();
+    anime = data?.data?.Media || null;
+  } catch(e) {
+    // If AniList is down, redirect to watch page anyway
+    res.writeHead(302, { Location: watchUrl });
+    res.end();
+    return;
   }
+
+  if (!anime) {
+    res.writeHead(302, { Location: watchUrl });
+    res.end();
+    return;
+  }
+
+  // Build metadata
+  const title   = anime.title?.english || anime.title?.romaji || 'Anime';
+  const rawDesc = (anime.description || '').replace(/<[^>]+>/g, '').trim();
+  const desc    = rawDesc.slice(0, 200) + (rawDesc.length > 200 ? '...' : '');
+  const image   = anime.coverImage?.extraLarge || anime.coverImage?.large || FALLBACK_IMG;
+  const season  = anime.season
+    ? anime.season.charAt(0) + anime.season.slice(1).toLowerCase() + ' ' + anime.seasonYear
+    : (anime.seasonYear || '');
+  const eps     = anime.nextAiringEpisode
+    ? anime.nextAiringEpisode.episode - 1
+    : (anime.episodes || null);
+  const shareUrl = `${SITE_URL}/share?a=${animeId}`;
+
+  // Build rich description for the preview card
+  const metaParts = [
+    season,
+    anime.format,
+    eps ? `${eps} Episodes` : null,
+    anime.averageScore ? `⭐ ${anime.averageScore}%` : null,
+    (anime.genres || []).slice(0,3).join(', '),
+  ].filter(Boolean).join(' • ');
+
+  const fullDesc = metaParts ? `${metaParts}\n\n${desc}` : desc;
+
+  // Detect bots vs real users
+  const ua = (req.headers['user-agent'] || '').toLowerCase();
+  const isBot = /telegrambot|facebookexternalhit|twitterbot|whatsapp|discordbot|linkedinbot|slackbot|applebot|googlebot|bingbot|bot|crawler|spider|preview|scraper/i.test(ua);
+
+  // Cache for 1 hour — bots read from cache, so OG tags are stable
+  res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=7200');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+
+  // Return full HTML — bots read OG tags, users get redirected
+  const html = `<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <!-- Primary meta -->
+  <title>${esc(title)} — Watch on JustStreamAnime</title>
+  <meta name="description" content="${esc(fullDesc)}"/>
+
+  <!-- Open Graph — works on Facebook, Discord, Telegram, WhatsApp, iMessage, Slack -->
+  <meta property="og:type"               content="website"/>
+  <meta property="og:site_name"          content="JustStreamAnime"/>
+  <meta property="og:url"                content="${esc(shareUrl)}"/>
+  <meta property="og:title"              content="${esc(title)} — JustStreamAnime"/>
+  <meta property="og:description"        content="${esc(fullDesc)}"/>
+  <meta property="og:image"              content="${esc(image)}"/>
+  <meta property="og:image:secure_url"   content="${esc(image)}"/>
+  <meta property="og:image:type"         content="image/jpeg"/>
+  <meta property="og:image:width"        content="460"/>
+  <meta property="og:image:height"       content="650"/>
+  <meta property="og:image:alt"          content="${esc(title)} cover art"/>
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image"/>
+  <meta name="twitter:site"        content="@juststreamanime"/>
+  <meta name="twitter:title"       content="${esc(title)} — JustStreamAnime"/>
+  <meta name="twitter:description" content="${esc(fullDesc)}"/>
+  <meta name="twitter:image"       content="${esc(image)}"/>
+  <meta name="twitter:image:alt"   content="${esc(title)} cover art"/>
+
+  <!-- Telegram specifically reads og: tags. These extras help. -->
+  <meta property="og:locale" content="en_US"/>
+
+  <!-- Redirect real users immediately -->
+  <meta http-equiv="refresh" content="0; url=${esc(watchUrl)}"/>
+
+  <style>
+    body{margin:0;padding:0;background:#07070e;color:#e4e4f0;font-family:sans-serif;
+      display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center}
+    .card{max-width:400px;padding:2rem}
+    img{width:120px;border-radius:12px;margin-bottom:1rem}
+    h1{font-size:1.2rem;margin:0 0 .5rem}
+    p{font-size:.85rem;color:#8888a6;margin:0 0 1.5rem}
+    a{display:inline-block;padding:.6rem 1.4rem;background:#e11d48;color:#fff;
+      border-radius:8px;text-decoration:none;font-weight:700;font-size:.9rem}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img src="${esc(image)}" alt="${esc(title)}"/>
+    <h1>${esc(title)}</h1>
+    <p>${esc(metaParts)}</p>
+    <a href="${esc(watchUrl)}">▶ Watch on JustStreamAnime</a>
+  </div>
+  <script>
+    // Instant JS redirect for real users (faster than meta refresh)
+    window.location.replace(${JSON.stringify(watchUrl)});
+  </script>
+</body>
+</html>`;
+
+  res.status(200).send(html);
 }
