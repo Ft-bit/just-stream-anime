@@ -49,10 +49,14 @@ export default async function handler(req, res) {
 
   const title     = anime ? (anime.title?.english || anime.title?.romaji || 'Anime') : 'Watch Anime Free';
   const rawDesc   = (anime?.description || '')
-    .replace(/<[^>]+>/g, '')              // strip HTML tags
-    .replace(/https?:\/\/\S+/g, '')       // strip any raw URLs
-    .replace(/\(Source:[^)]*\)/gi, '')    // strip "(Source: ...)" notes
-    .replace(/\s{2,}/g, ' ')             // collapse double spaces
+    .replace(/<[^>]+>/g, '')                     // strip HTML tags
+    .replace(/https?:\/\/[^\s<>"]+/g, '')        // strip http/https URLs
+    .replace(/\/\/[^\s<>"]+/g, '')               // strip protocol-relative URLs
+    .replace(/s4\.anilist\.co[^\s]*/g, '')       // strip any leftover anilist CDN paths
+    .replace(/anilistcdn[^\s]*/gi, '')           // strip anilistcdn references
+    .replace(/\(Source:[^)]*\)/gi, '')           // strip "(Source: ...)" notes
+    .replace(/\[Written by[^\]]*\]/gi, '')       // strip "[Written by MAL Rewrite]"
+    .replace(/\s{2,}/g, ' ')                    // collapse whitespace
     .trim();
   const desc = rawDesc.slice(0, 200) + (rawDesc.length > 200 ? '…' : '');
   const image     = anime ? (anime.coverImage?.extraLarge || anime.coverImage?.large || FALLBACK_IMG) : FALLBACK_IMG;
