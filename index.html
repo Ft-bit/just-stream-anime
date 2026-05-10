@@ -767,10 +767,11 @@ function mapA(a) {
       ? `https://www.dailymotion.com/embed/video/${a.trailer.id}` : null;
   }
   const rawDesc = (a.description||'').replace(/<[^>]+>/g,'').trim();
-  const stubPattern = /^(the\s+)?(first|second|third|fourth|fifth|sixth|seventh|eighth|\d+(st|nd|rd|th))\s+(season|cour|part|cours)\s+of/i;
-  const shortStub   = rawDesc.length < 120;
-  const isSequel    = /^(sequel|continuation|second|third|fourth|part\s*\d|season\s*\d|cour\s*\d)/i.test(rawDesc);
-  const descIsStub  = shortStub || stubPattern.test(rawDesc) || isSequel;
+  const stubPattern = /^(the\s+)?(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|\d+(st|nd|rd|th))\s+(season|cour|part|cours|series)\s+of/i;
+  const shortStub   = rawDesc.length < 150;
+  const isSequel    = /^(sequel|continuation|second|third|fourth|fifth|part\s*\d|season\s*\d|cour\s*\d|this (is|follows|continues)|based on)/i.test(rawDesc);
+  const hasNoDesc   = rawDesc.length === 0;
+  const descIsStub  = hasNoDesc || shortStub || stubPattern.test(rawDesc) || isSequel;
   return {
     id: a.id, malId: a.idMal, siteUrl: a.siteUrl||null,
     title: a.title?.english||a.title?.romaji||'Unknown',
@@ -870,10 +871,20 @@ function Hero({items, onPlay}) {
   const [idx,setIdx]     = useState(0);
   const [loaded,setLoad] = useState(false);
   const [prog,setProg]   = useState(0);
-  const descCache = useRef({});
   const [extraDesc, setExtraDesc] = useState('');
   const pv = useRef(null), pr = useRef(0), tx = useRef(null), ty = useRef(null), fi = useRef(true);
   const CAP = Math.min(items.length, 8);
+
+  // localStorage-backed description cache — survives page reloads
+  const DESC_STORE = 'jsa_desc_cache';
+  const descCache  = useRef((() => {
+    try { return JSON.parse(localStorage.getItem(DESC_STORE) || '{}'); }
+    catch { return {}; }
+  })());
+  const saveDesc = (key, synopsis) => {
+    descCache.current[key] = synopsis;
+    try { localStorage.setItem(DESC_STORE, JSON.stringify(descCache.current)); } catch {}
+  };
   const prev = useCallback(() => {
     const h = Math.min(items.length, 8);
     setIdx(i => (i - 1 + h) % h);
@@ -901,7 +912,7 @@ function Hero({items, onPlay}) {
     start();
   }, [idx]);
 
-  // Pre-fetch ALL stub descriptions for hero slides with rate limiting
+  // Pre-fetch ALL stub descriptions — saved to localStorage so they never revert
   useEffect(() => {
     if (!items.length) return;
     const cap = Math.min(items.length, 8);
@@ -912,16 +923,22 @@ function Hero({items, onPlay}) {
       for (const a of stubs) {
         if (cancelled) break;
         const key = String(a.malId);
-        if (descCache.current[key]) continue;
+        if (descCache.current[key]) {
+          // Already cached from a previous session — instantly update display
+          setIdx(cur => {
+            if (items[cur]?.malId === a.malId) setExtraDesc(descCache.current[key]);
+            return cur;
+          });
+          continue;
+        }
         try {
-          await new Promise(r => setTimeout(r, 450));
+          await new Promise(r => setTimeout(r, 400));
           if (cancelled) break;
           const r = await fetch(`https://api.jikan.moe/v4/anime/${a.malId}`);
           const d = await r.json();
-          const synopsis = d.data?.synopsis || '';
-          if (synopsis) {
-            descCache.current[key] = synopsis;
-            // Update display if this is the currently shown slide
+          const synopsis = (d.data?.synopsis || '').replace(/\(Source:[^)]*\)/gi,'').replace(/https?:\/\/\S+/g,'').trim();
+          if (synopsis && synopsis.length > 50) {
+            saveDesc(key, synopsis);
             setIdx(cur => {
               if (items[cur]?.malId === a.malId) setExtraDesc(synopsis);
               return cur;
@@ -1153,11 +1170,26 @@ function WatchPage({anime, startTab, onBack}) {
 
   useEffect(() => {
     if (!anime.descIsStub || !anime.malId) return;
+    const key = String(anime.malId);
+    // Check localStorage first
+    try {
+      const stored = JSON.parse(localStorage.getItem('jsa_desc_cache') || '{}');
+      if (stored[key]) { setJikanDesc(stored[key]); return; }
+    } catch {}
     (async () => {
       try {
         const r = await fetch(`https://api.jikan.moe/v4/anime/${anime.malId}`);
         const d = await r.json();
-        if (d.data?.synopsis) setJikanDesc(d.data.synopsis);
+        const synopsis = (d.data?.synopsis || '').replace(/\(Source:[^)]*\)/gi,'').replace(/https?:\/\/\S+/g,'').trim();
+        if (synopsis && synopsis.length > 50) {
+          setJikanDesc(synopsis);
+          // Save to localStorage for future use
+          try {
+            const cache = JSON.parse(localStorage.getItem('jsa_desc_cache') || '{}');
+            cache[key] = synopsis;
+            localStorage.setItem('jsa_desc_cache', JSON.stringify(cache));
+          } catch {}
+        }
       } catch(e) {}
     })();
   }, [anime.malId, anime.descIsStub]);
@@ -1775,7 +1807,7 @@ function ShareModal({url, hashUrl, title, image, desc, onClose, toast}) {
     { label:'WhatsApp', Icon:ShareIcons.WhatsApp,
       href:`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareUrl)}` },
     { label:'Telegram', Icon:ShareIcons.Telegram,
-      href:`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText + (image ? '\n🖼 ' + image : ''))}` },
+      href:`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}` },
     { label:'Twitter', Icon:ShareIcons.Twitter,
       href:`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Watch ' + title + ' on JustStreamAnime 🎌')}` },
     { label:'Facebook', Icon:ShareIcons.Facebook,
