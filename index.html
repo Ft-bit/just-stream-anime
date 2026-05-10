@@ -104,10 +104,10 @@
     .s-title{font-weight:700;font-size:13px;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .s-meta{font-family:var(--mono);font-size:10px;color:var(--txt3);margin-top:2px}
     .hero{position:relative;min-height:clamp(480px,85vh,780px);display:flex;align-items:flex-end;overflow:hidden}
-    .hero-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:var(--bg)}
+    .hero-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:var(--bg2)}
     .hero-progress{position:absolute;top:0;left:0;height:2px;background:linear-gradient(to right,var(--red),#ff6b8a);z-index:20;border-radius:0 2px 2px 0}
     .hero-img-desk{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;filter:brightness(.78) saturate(1.05);transition:opacity .75s ease}
-    .hero-img-mob{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(.82) saturate(1.05);transition:opacity .75s ease;display:none}
+    .hero-img-mob{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center top;background:var(--bg2);filter:brightness(.82) saturate(1.05);transition:opacity .75s ease;display:none}
     @media(max-width:768px){
       .hero-img-desk{display:none}
       .hero-img-mob{display:block}
@@ -186,7 +186,8 @@
     @media(min-width:1200px){.agrid{grid-template-columns:repeat(6,1fr)}}
     .acard{cursor:pointer;border-radius:10px;overflow:hidden;background:var(--bg2);border:1px solid var(--border);-webkit-tap-highlight-color:transparent;transition:transform .22s cubic-bezier(.4,0,.2,1),box-shadow .22s,border-color .22s}
     @media(hover:hover){.acard:hover{transform:translateY(-5px) scale(1.015);box-shadow:0 16px 36px rgba(0,0,0,.55);border-color:rgba(255,255,255,.14)}.acard:hover .acard-img{transform:scale(1.05)}.acard:hover .acard-play{opacity:1}}
-    .acard:active{transform:scale(.97)}
+    .acard:active{transform:translateY(-2px)}
+    @media(hover:none){.acard:active{transform:none}}
     .acard-top{position:relative;overflow:hidden;padding-top:140%;background:#131328;border-radius:10px 10px 0 0}
     .acard-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s cubic-bezier(.4,0,.2,1)}
     .acard-grad{position:absolute;inset:0;background:linear-gradient(to top,var(--bg2) 0%,transparent 55%)}
@@ -301,10 +302,11 @@
     .toast.out{animation:toastOut .3s ease forwards}
     @keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.88)}to{opacity:1;transform:translateY(0) scale(1)}}
     @keyframes toastOut{to{opacity:0;transform:translateY(6px) scale(.93)}}
-    .btt{position:fixed;bottom:32px;right:22px;z-index:800;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red2));border:none;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px var(--glow),0 2px 8px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s,box-shadow .2s;transform:translateY(16px) scale(.85)}
+    .btt{position:fixed;bottom:88px;right:18px;z-index:800;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red2));border:none;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px var(--glow),0 2px 8px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s,box-shadow .2s;transform:translateY(16px) scale(.85)}
     .btt.vis{opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
     .btt:hover{box-shadow:0 6px 28px var(--glow);filter:brightness(1.15);transform:translateY(-2px) scale(1.08)!important}
     .btt:active{transform:scale(.92)!important}
+    @media(max-width:768px){.btt{bottom:calc(58px + max(6px,env(safe-area-inset-bottom)) + 16px);right:14px;width:38px;height:38px;font-size:18px}}
     .genre-wrap{padding:0 clamp(.75rem,3.5vw,2.5rem) clamp(.5rem,1.5vw,.9rem);position:relative}
     .genre-wrap::after{content:'';position:absolute;right:0;top:0;bottom:0;width:40px;background:linear-gradient(to right,transparent,var(--bg));pointer-events:none}
     .genre-bar{display:flex;gap:7px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -512,7 +514,7 @@
     .contact-card-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px}
     .contact-card-info{min-width:0}
     .contact-card-label{font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--txt3);margin-bottom:3px}
-    .contact-card-value{font-size:13px;font-weight:700;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .contact-card-desc{font-size:12px;color:var(--txt2);margin-top:1px}
     .contact-card-arrow{margin-left:auto;color:var(--txt3);font-size:16px;flex-shrink:0}
     .contact-card.email{border-color:rgba(225,29,72,.2)}
     .contact-card.email:hover{border-color:rgba(225,29,72,.5);box-shadow:0 12px 32px rgba(225,29,72,.15)}
@@ -818,10 +820,12 @@ function Stars({s}) {
 }
 
 function AnimeCard({a, onPlay}) {
+  const didScroll = React.useRef(false);
   return (
     <div className="acard"
-      onClick={()=>onPlay(a)}
-      onTouchEnd={e=>{ e.preventDefault(); onPlay(a); }}>
+      onTouchStart={()=>{ didScroll.current = false; }}
+      onTouchMove={()=>{ didScroll.current = true; }}
+      onClick={()=>{ if (!didScroll.current) onPlay(a); }}>
       <div className="acard-top">
         <img className="acard-img" src={a.image} alt={a.title} loading="lazy" onError={e=>{e.target.style.display='none'}}/>
         <div className="acard-grad"/>
@@ -947,7 +951,15 @@ function Hero({items, onPlay}) {
     tx.current = null; ty.current = null;
   };
 
-  if (!items.length) return <div style={{minHeight:'100vh',background:'var(--bg)'}}/>;
+  if (!items.length) return (
+    <div style={{
+      minHeight:'clamp(480px,85vh,780px)',
+      background:'linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 100%)',
+      display:'flex',alignItems:'flex-end',position:'relative',overflow:'hidden'
+    }}>
+      <div style={{position:'absolute',inset:0,background:'linear-gradient(90deg,#1a1a2e 25%,#20203a 50%,#1a1a2e 75%)',backgroundSize:'200% 100%',animation:'shimmer 1.7s infinite'}}/>
+    </div>
+  );
   const h = CAP;
   const a        = items[idx];
   const prevItem = items[(idx - 1 + h) % h];
@@ -1390,6 +1402,9 @@ function readHash() {
     const raw = (window.location.hash||'').slice(1);
     const [sec,b,c] = raw.split('/');
     if (sec==='watch'&&b) return {view:'watch',animeId:b,wTab:c||'watch'};
+    if (sec==='contact')  return {view:'contact'};
+    if (sec==='dmca')     return {view:'dmca'};
+    if (sec==='privacy')  return {view:'privacy'};
     if (sec==='home')     return {view:'home',tab:b||'trending',page:Math.max(1,parseInt(c)||1)};
   } catch(e) {}
   return {view:'home',tab:'trending',page:1};
@@ -1397,6 +1412,9 @@ function readHash() {
 function writeHash(view, extra={}) {
   const hash = view==='watch'
     ? `#watch/${extra.id||''}/${extra.wTab||'watch'}`
+    : view==='contact' ? '#contact'
+    : view==='dmca'    ? '#dmca'
+    : view==='privacy' ? '#privacy'
     : `#home/${extra.tab||'trending'}/${extra.page||1}`;
   try { history.pushState(null,'',hash); } catch(e) { window.location.hash = hash; }
 }
@@ -1759,7 +1777,7 @@ function ShareModal({url, hashUrl, title, image, desc, onClose, toast}) {
     { label:'Telegram', Icon:ShareIcons.Telegram,
       href:`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText + (image ? '\n🖼 ' + image : ''))}` },
     { label:'Twitter', Icon:ShareIcons.Twitter,
-      href:`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}` },
+      href:`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Watch ' + title + ' on JustStreamAnime 🎌')}` },
     { label:'Facebook', Icon:ShareIcons.Facebook,
       href:`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
     { label:'Reddit', Icon:ShareIcons.Reddit,
@@ -2137,7 +2155,7 @@ function ExplorePage({onPlay}) {
 function ContactPage({onBack}) {
   const contacts = [
     {
-      cls:'email', label:'Email', value:'fredbv22@gmail.com',
+      cls:'email', label:'Email', desc:'Send us a message',
       href:'https://mail.google.com/mail/?view=cm&to=fredbv22%40gmail.com&su=Contact%20JustStreamAnime',
       icon:(
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" style={{width:22,height:22}}>
@@ -2146,7 +2164,7 @@ function ContactPage({onBack}) {
       )
     },
     {
-      cls:'wa', label:'WhatsApp', value:'+234 811 872 2788',
+      cls:'wa', label:'WhatsApp', desc:'Chat with us directly',
       href:'https://wa.me/2348118722788',
       icon:(
         <svg viewBox="0 0 24 24" fill="currentColor" style={{width:22,height:22}}>
@@ -2155,7 +2173,7 @@ function ContactPage({onBack}) {
       )
     },
     {
-      cls:'tg', label:'Telegram Channel', value:'@juststreamanime',
+      cls:'tg', label:'Telegram', desc:'Join our channel',
       href:'https://t.me/juststreamanime',
       icon:(
         <svg viewBox="0 0 24 24" fill="currentColor" style={{width:22,height:22}}>
@@ -2164,7 +2182,7 @@ function ContactPage({onBack}) {
       )
     },
     {
-      cls:'dc', label:'Discord Server', value:'discord.gg/Upyq7cYcPa',
+      cls:'dc', label:'Discord', desc:'Join our community server',
       href:'https://discord.gg/Upyq7cYcPa',
       icon:(
         <svg viewBox="0 0 24 24" fill="currentColor" style={{width:22,height:22}}>
@@ -2173,7 +2191,7 @@ function ContactPage({onBack}) {
       )
     },
     {
-      cls:'tw', label:'Twitter / X', value:'@juststreamanime',
+      cls:'tw', label:'Twitter / X', desc:'Follow us for updates',
       href:'https://x.com/juststreamanime',
       icon:(
         <svg viewBox="0 0 24 24" fill="currentColor" style={{width:20,height:20}}>
@@ -2210,7 +2228,7 @@ function ContactPage({onBack}) {
               <div className="contact-card-icon">{c.icon}</div>
               <div className="contact-card-info">
                 <div className="contact-card-label">{c.label}</div>
-                <div className="contact-card-value">{c.value}</div>
+                <div className="contact-card-desc">{c.desc}</div>
               </div>
               <span className="contact-card-arrow">›</span>
             </a>
@@ -2246,16 +2264,20 @@ function App() {
   const cache = useRef({});
 
   const heroLoaded = useRef(false);
+
+  // Always pre-fetch hero (trending) immediately on mount — carousel shows on all pages/tabs
+  useEffect(() => {
+    if (heroLoaded.current) return;
+    heroLoaded.current = true;
+    gql(Qs.trending, {p:1}).then(d => {
+      const list = (d.data?.Page?.media||[]).map(mapA);
+      list.forEach(a => { cache.current[String(a.id)] = a; });
+      setHero(list);
+    }).catch(()=>{});
+  }, []);
+
   const load = useCallback(async (t, p) => {
     setLoad(true);
-    if (!heroLoaded.current) {
-      heroLoaded.current = true;
-      gql(Qs.trending, {p:1}).then(d => {
-        const list = (d.data?.Page?.media||[]).map(mapA);
-        list.forEach(a => { cache.current[String(a.id)] = a; });
-        setHero(list);
-      }).catch(()=>{});
-    }
     const d = await gql(Qs[t], {p});
     const list = (d.data?.Page?.media||[]).map(mapA);
     list.forEach(a => { cache.current[String(a.id)] = a; });
@@ -2331,6 +2353,18 @@ function App() {
     setCwList(loadCW()); resetOGTags(); setNavPage('home');
     writeHash('home',{tab,page}); window.scrollTo({top:0});
   };
+
+  // Navigate from anywhere (including watch page) to a sidebar section
+  const goNav = (p) => {
+    setView('home'); setWatch(null); setSrView(null);
+    resetOGTags(); setNavPage(p); setCwList(loadCW());
+    if (p==='schedule') setTab('schedule');
+    else if (p==='history') { /* history page doesn't need tab */ }
+    else setTab('trending');
+    writeHash('home',{tab: p==='schedule'?'schedule':'trending', page:1});
+    window.scrollTo({top:0});
+  };
+
   const chPg = p => { setPage(p); writeHash('home',{tab,page:p}); window.scrollTo({top:0,behavior:'smooth'}); };
 
   useEffect(() => {
@@ -2339,7 +2373,8 @@ function App() {
       if (h.view==='watch') {
         const c = cache.current[String(h.animeId)];
         if (c) { setWatch(c); setWTab(h.wTab); setView('watch'); setNavPage('none'); }
-        // If not in cache, stay on current view — don't blank the page
+      } else if (h.view==='contact'||h.view==='dmca'||h.view==='privacy') {
+        setView(h.view);
       } else {
         setView('home'); setWatch(null); setNavPage('home');
         setTab(h.tab||'trending'); setPage(h.page||1);
@@ -2355,8 +2390,8 @@ function App() {
 
   if (view==='watch'&&watching) return (
     <ToastProvider>
-      <Sidebar page="none" setPage={()=>{}} goHome={goHome}/>
-      <MobileNav page="none" setPage={()=>{}}/>
+      <Sidebar page="none" setPage={goNav} goHome={goHome}/>
+      <MobileNav page="none" setPage={goNav}/>
       <nav className="nav">
         <div className="logo" onClick={goHome}>
           <div className="logo-mark"><PIco s={13}/></div>
@@ -2427,7 +2462,7 @@ function App() {
 
       ) : (
         <>
-          {page===1&&<Hero items={hero} onPlay={openWatch}/>}
+          <Hero items={hero} onPlay={openWatch}/>
 
           {page===1&&cwList.length>0&&(
             <div style={{paddingTop:'clamp(.6rem,2vw,1rem)'}}>
@@ -2495,11 +2530,11 @@ function App() {
           </a>
         </div>
         <div className="ft-links">
-          <button className="ft-link" onClick={()=>setView('contact')}>Contact Us</button>
+          <button className="ft-link" onClick={()=>{setView('contact');writeHash('contact');}}>Contact Us</button>
           <span className="ft-sep">·</span>
-          <button className="ft-link" onClick={()=>setView('dmca')}>Copyright Policy</button>
+          <button className="ft-link" onClick={()=>{setView('dmca');writeHash('dmca');}}>Copyright Policy</button>
           <span className="ft-sep">·</span>
-          <button className="ft-link" onClick={()=>setView('privacy')}>Privacy</button>
+          <button className="ft-link" onClick={()=>{setView('privacy');writeHash('privacy');}}>Privacy</button>
         </div>
       </footer>
       <BackToTop/>
