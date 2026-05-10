@@ -48,8 +48,13 @@ export default async function handler(req, res) {
   } catch (_) { /* AniList down — fallback values used */ }
 
   const title     = anime ? (anime.title?.english || anime.title?.romaji || 'Anime') : 'Watch Anime Free';
-  const rawDesc   = (anime?.description || '').replace(/<[^>]+>/g, '').trim();
-  const desc      = rawDesc.slice(0, 220) + (rawDesc.length > 220 ? '…' : '');
+  const rawDesc   = (anime?.description || '')
+    .replace(/<[^>]+>/g, '')              // strip HTML tags
+    .replace(/https?:\/\/\S+/g, '')       // strip any raw URLs
+    .replace(/\(Source:[^)]*\)/gi, '')    // strip "(Source: ...)" notes
+    .replace(/\s{2,}/g, ' ')             // collapse double spaces
+    .trim();
+  const desc = rawDesc.slice(0, 200) + (rawDesc.length > 200 ? '…' : '');
   const image     = anime ? (anime.coverImage?.extraLarge || anime.coverImage?.large || FALLBACK_IMG) : FALLBACK_IMG;
   const season    = anime?.season ? anime.season.charAt(0) + anime.season.slice(1).toLowerCase() + ' ' + anime.seasonYear : (anime?.seasonYear ? String(anime.seasonYear) : '');
   const eps       = anime?.nextAiringEpisode ? anime.nextAiringEpisode.episode - 1 : (anime?.episodes || null);
