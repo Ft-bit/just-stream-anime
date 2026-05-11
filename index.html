@@ -27,7 +27,7 @@
   <meta id="og-image-w" property="og:image:width" content="1200"/>
   <meta id="og-image-h" property="og:image:height" content="630"/>
   <meta property="og:site_name" content="JustStreamAnime"/>
-  
+
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:url" content="https://jsanime.site/"/>
   <meta name="twitter:title" content="JustStreamAnime – Watch & Stream Anime Free Online"/>
@@ -790,19 +790,22 @@ function mapA(a) {
 }
 
 function buildServers(aniId, ep, lang, malId) {
-  const e   = ep   || 1;
-  const L   = lang === 'dub' ? 'dub' : 'sub';
+  const e = ep  || 1;
+  const L = lang === 'dub' ? 'dub' : 'sub';
+  // Server 1 uses AniList ID — works even without MAL ID
   const list = [
     { n:'1', url:`https://vidnest.fun/animepahe/${aniId}/${e}/${L}` },
   ];
   if (malId) {
     list.push(
-      { n:'2',  url:`https://vidsrc.xyz/embed/anime?mal=${malId}&ep=${e}` },
-      { n:'3',  url:`https://vidsrc.to/embed/anime/${malId}/${e}` },
-      { n:'4',  url:`https://vidsrc.me/embed/anime?mal=${malId}&ep=${e}` },
-      { n:'5',  url:`https://embed.su/embed/anime/${malId}/${e}` },
-      { n:'6',  url:`https://www.2embed.cc/embedanime/${malId}?ep=${e}` },
-      { n:'7',  url:`https://player.smashy.stream/anime/${malId}?ep=${e}` },
+      { n:'2', url:`https://vidsrc.cc/v2/embed/anime/${malId}/${e}/`              },
+      { n:'3', url:`https://vidsrc.xyz/embed/anime?mal=${malId}&ep=${e}`           },
+      { n:'4', url:`https://vidsrc.to/embed/anime/${malId}/${e}`                   },
+      { n:'5', url:`https://vidsrc.icu/embed/anime?mal=${malId}&ep=${e}`           },
+      { n:'6', url:`https://vidsrc.me/embed/anime?mal=${malId}&ep=${e}`            },
+      { n:'7', url:`https://embed.su/embed/anime/${malId}/${e}`                    },
+      { n:'8', url:`https://www.2embed.cc/embedanime/${malId}?ep=${e}`             },
+      { n:'9', url:`https://player.smashy.stream/anime/${malId}?ep=${e}`          },
     );
   }
   return list;
