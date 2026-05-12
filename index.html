@@ -789,26 +789,58 @@ function mapA(a) {
   };
 }
 
+// Server definitions — label shown in UI, url builder receives (aniId, ep, lang, malId)
+const SERVER_DEFS = [
+  {
+    id:'pahe',   label:'AnimePahe',  hasDub:true,
+    url:(a,e,L,m)=>`https://vidnest.fun/animepahe/${a}/${e}/${L}`
+  },
+  {
+    id:'vscc',   label:'VidSrc',     hasDub:true,
+    url:(a,e,L,m)=>m?`https://vidsrc.cc/v2/embed/anime/${m}/${e}/`:null
+  },
+  {
+    id:'vsxyz',  label:'VidSrc2',    hasDub:true,
+    url:(a,e,L,m)=>m?`https://vidsrc.xyz/embed/anime?mal=${m}&ep=${e}`:null
+  },
+  {
+    id:'vsto',   label:'VidSrc3',    hasDub:true,
+    url:(a,e,L,m)=>m?`https://vidsrc.to/embed/anime/${m}/${e}`:null
+  },
+  {
+    id:'emsu',   label:'EmbedSU',    hasDub:true,
+    url:(a,e,L,m)=>m?`https://embed.su/embed/anime/${m}/${e}`:null
+  },
+  {
+    id:'vsme',   label:'VidSrc4',    hasDub:true,
+    url:(a,e,L,m)=>m?`https://vidsrc.me/embed/anime?mal=${m}&ep=${e}`:null
+  },
+  {
+    id:'vsicu',  label:'VidSrc5',    hasDub:false,
+    url:(a,e,L,m)=>m?`https://vidsrc.icu/embed/anime?mal=${m}&ep=${e}`:null
+  },
+  {
+    id:'smash',  label:'Smashy',     hasDub:false,
+    url:(a,e,L,m)=>m?`https://player.smashy.stream/anime/${m}?ep=${e}`:null
+  },
+  {
+    id:'twoemb', label:'2Embed',     hasDub:false,
+    url:(a,e,L,m)=>m?`https://www.2embed.cc/embedanime/${m}?ep=${e}`:null
+  },
+];
+
 function buildServers(aniId, ep, lang, malId) {
-  const e = ep  || 1;
+  const e = ep || 1;
   const L = lang === 'dub' ? 'dub' : 'sub';
-  // Server 1 uses AniList ID — works even without MAL ID
-  const list = [
-    { n:'1', url:`https://vidnest.fun/animepahe/${aniId}/${e}/${L}` },
-  ];
-  if (malId) {
-    list.push(
-      { n:'2', url:`https://vidsrc.cc/v2/embed/anime/${malId}/${e}/`              },
-      { n:'3', url:`https://vidsrc.xyz/embed/anime?mal=${malId}&ep=${e}`           },
-      { n:'4', url:`https://vidsrc.to/embed/anime/${malId}/${e}`                   },
-      { n:'5', url:`https://vidsrc.icu/embed/anime?mal=${malId}&ep=${e}`           },
-      { n:'6', url:`https://vidsrc.me/embed/anime?mal=${malId}&ep=${e}`            },
-      { n:'7', url:`https://embed.su/embed/anime/${malId}/${e}`                    },
-      { n:'8', url:`https://www.2embed.cc/embedanime/${malId}?ep=${e}`             },
-      { n:'9', url:`https://player.smashy.stream/anime/${malId}?ep=${e}`          },
-    );
+  const results = [];
+  for (const def of SERVER_DEFS) {
+    // Skip servers with no dub when dub is selected and server can't handle it
+    // (user can still switch manually, but we warn via label)
+    const url = def.url(aniId, e, L, malId);
+    if (!url) continue; // no MAL ID — skip MAL-dependent servers
+    results.push({ id:def.id, label:def.label, hasDub:def.hasDub, url });
   }
-  return list;
+  return results;
 }
 
 const PIco = ({s=16}) => (<svg viewBox="0 0 20 20" fill="currentColor" style={{width:s,height:s}}><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>);
@@ -824,12 +856,8 @@ function Stars({s}) {
 }
 
 function AnimeCard({a, onPlay}) {
-  const didScroll = React.useRef(false);
   return (
-    <div className="acard"
-      onTouchStart={()=>{ didScroll.current = false; }}
-      onTouchMove={()=>{ didScroll.current = true; }}
-      onClick={()=>{ if (!didScroll.current) onPlay(a); }}>
+    <div className="acard" onClick={()=>onPlay(a)} style={{touchAction:'manipulation'}}>
       <div className="acard-top">
         <img className="acard-img" src={a.image} alt={a.title} loading="lazy" onError={e=>{e.target.style.display='none'}}/>
         <div className="acard-grad"/>
@@ -1242,7 +1270,7 @@ function WatchPage({anime, startTab, onBack}) {
     return () => window.removeEventListener('keydown', onKey);
   }, [curEp, totalEps, lang]);
 
-  const switchSrv  = i => { setSi(i); setKey(k=>k+1); setSpin(true); toast(`📡 Switched to Server ${srvs[i]?.n||i+1}`); };
+  const switchSrv  = i => { setSi(i); setKey(k=>k+1); setSpin(true); toast(`📡 ${srvs[i]?.label||'Server'}`); };
   const switchLang = l => { setLang(l); loadEp(curEp, l); toast(l==='dub'?'🔊 Switched to DUB':'💬 Switched to SUB'); };
   const switchTab  = t => { setTab(t); setKey(k=>k+1); setSpin(true); };
 
@@ -1294,10 +1322,19 @@ function WatchPage({anime, startTab, onBack}) {
                 </div>
                 <div className="srv-btns">
                   {srvs.map((s,i)=>(
-                    <button key={i} className={'sbtn'+(si===i?' on':'')} onClick={()=>switchSrv(i)}>{s.n}</button>
+                    <button key={s.id} className={'sbtn'+(si===i?' on':'')} onClick={()=>switchSrv(i)}
+                      title={lang==='dub'&&!s.hasDub?'May not have DUB — try if others fail':s.label}>
+                      {s.label}
+                      {lang==='dub'&&!s.hasDub&&<span style={{fontSize:8,opacity:.6,marginLeft:3}}>?</span>}
+                    </button>
                   ))}
                 </div>
-                <p className="srv-hint">Server 1 loads automatically. <span>Try others if it fails.</span></p>
+                <p className="srv-hint">
+                  {lang==='dub'
+                    ? <><span>DUB mode:</span> AnimePahe &amp; VidSrc servers have best dub coverage. Servers marked <span>?</span> may be SUB only.</>
+                    : <><span>SUB mode:</span> AnimePahe loads first. If it fails, try VidSrc or EmbedSU — they have the widest coverage.</>
+                  }
+                </p>
               </div>
             )}
             <div className="winfo">
@@ -2281,6 +2318,36 @@ function ContactPage({onBack}) {
   );
 }
 
+// ── ERROR BOUNDARY — catches React render crashes so screen never goes blank ──
+class ErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { crashed:false, err:'' }; }
+  static getDerivedStateFromError(e) { return { crashed:true, err:e?.message||'Unknown error' }; }
+  componentDidCatch(e,i) { console.error('[JSAnime crash]', e, i); }
+  render() {
+    if (this.state.crashed) {
+      return (
+        <div style={{minHeight:'100vh',background:'#07070e',display:'flex',alignItems:'center',
+          justifyContent:'center',flexDirection:'column',gap:18,padding:'2rem',textAlign:'center'}}>
+          <div style={{fontSize:'3rem'}}>⚠️</div>
+          <div style={{color:'#e4e4f0',fontWeight:900,fontSize:'1.3rem',letterSpacing:'-.02em'}}>
+            Something went wrong
+          </div>
+          <div style={{color:'#8888a6',fontSize:13,maxWidth:320,lineHeight:1.6}}>
+            A page error occurred. Click below to go back home — your watch history is safe.
+          </div>
+          <button
+            style={{padding:'11px 28px',background:'#e11d48',border:'none',borderRadius:10,
+              color:'#fff',fontWeight:700,fontSize:14,cursor:'pointer'}}
+            onClick={()=>{ this.setState({crashed:false,err:''}); this.props.onReset(); }}>
+            ← Go Home
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function App() {
   const init = readHash();
   const [view,    setView]  = useState(init.view);
@@ -2425,16 +2492,18 @@ function App() {
 
   if (view==='watch'&&watching) return (
     <ToastProvider>
-      <Sidebar page="none" setPage={goNav} goHome={goHome}/>
-      <MobileNav page="none" setPage={goNav}/>
-      <nav className="nav">
-        <div className="logo" onClick={goHome}>
-          <div className="logo-mark"><PIco s={13}/></div>
-          <div className="logo-name">just<em>stream</em>anime</div>
-        </div>
-      </nav>
-      <WatchPage anime={watching} startTab={wTab} onBack={goHome}/>
-      <BackToTop/>
+      <ErrorBoundary onReset={goHome}>
+        <Sidebar page="none" setPage={goNav} goHome={goHome}/>
+        <MobileNav page="none" setPage={goNav}/>
+        <nav className="nav">
+          <div className="logo" onClick={goHome}>
+            <div className="logo-mark"><PIco s={13}/></div>
+            <div className="logo-name">just<em>stream</em>anime</div>
+          </div>
+        </nav>
+        <WatchPage anime={watching} startTab={wTab} onBack={goHome}/>
+        <BackToTop/>
+      </ErrorBoundary>
     </ToastProvider>
   );
   if (view==='dmca')    return <PolicyPage type="dmca"    onBack={()=>{setView('home');writeHash('home',{tab,page});}}/>;
