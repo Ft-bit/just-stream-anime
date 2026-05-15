@@ -41,50 +41,93 @@
   <meta name="twitter:description" content="Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed."/>
   <meta id="tw-image" name="twitter:image" content="https://jsanime.site/og-image.jpg"/>
 
- <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "JustStreamAnime",
-  "alternateName": "JsAnime",
-  "url": "https://jsanime.site/",
-  "description": "Stream anime free online on JustStreamAnime. Watch trending, popular and top-rated anime with subtitles or dub. No account needed — just click and play.",
-  "inLanguage": "en",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": {
-      "@type": "EntryPoint",
-      "urlTemplate": "https://jsanime.site/#search?q={search_term_string}"
-    },
-    "query-input": "required name=search_term_string"
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "JustStreamAnime",
+    "alternateName": ["JSAnime", "JustStream Anime", "jsanime.site"],
+    "url": "https://jsanime.site/",
+    "description": "Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed — just click and play.",
+    "inLanguage": "en",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://jsanime.site/#search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
   }
-}
-</script>
+  </script>
 
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "JustStreamAnime",
-  "url": "https://jsanime.site/",
-  "logo": {
-    "@type": "ImageObject",
-    "url": "https://jsanime.site/og-image.jpg",
-    "width": 1200,
-    "height": 630
-  },
-  "sameAs": [
-    "https://x.com/juststreamanime",
-    "https://t.me/juststreamanime",
-    "https://discord.gg/Upyq7cYcPa"
-  ],
-  "contactPoint": {
-    "@type": "ContactPoint",
-    "email": "fredbv22@gmail.com",
-    "contactType": "customer support"
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "JustStreamAnime",
+    "url": "https://jsanime.site/",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://jsanime.site/favicon-512.png",
+      "width": 512,
+      "height": 512
+    },
+    "image": "https://jsanime.site/og-image.jpg",
+    "description": "Free anime streaming platform. Watch subbed and dubbed anime online with no account required.",
+    "sameAs": [
+      "https://t.me/juststreamanime",
+      "https://x.com/juststreamanime",
+      "https://discord.gg/Upyq7cYcPa"
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "fredbv22@gmail.com",
+      "contactType": "customer support",
+      "availableLanguage": "English"
+    }
   }
-}
-</script>
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "JustStreamAnime — Watch & Stream Anime Free Online",
+    "description": "Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub.",
+    "url": "https://jsanime.site/",
+    "isPartOf": { "@type": "WebSite", "url": "https://jsanime.site/" },
+    "about": {
+      "@type": "Thing",
+      "name": "Anime Streaming",
+      "description": "Free online anime streaming with subtitles and English dub"
+    },
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://jsanime.site/" },
+        { "@type": "ListItem", "position": 2, "name": "Trending Anime", "item": "https://jsanime.site/#home/trending/1" },
+        { "@type": "ListItem", "position": 3, "name": "Popular Anime", "item": "https://jsanime.site/#home/popular/1" }
+      ]
+    },
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": [".hero-title", ".hero-desc", ".sec-title"]
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Trending Anime",
+    "description": "Currently trending anime on JustStreamAnime",
+    "url": "https://jsanime.site/#home/trending/1",
+    "itemListOrder": "https://schema.org/ItemListOrderDescending",
+    "numberOfItems": 30
+  }
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -518,7 +561,17 @@
     .ra-title{font-size:10px;font-weight:700;color:var(--txt);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .ra-sk{flex-shrink:0;width:clamp(100px,20vw,130px);border-radius:10px;background:linear-gradient(90deg,#1a1a2e 25%,#20203a 50%,#1a1a2e 75%);background-size:200% 100%;animation:shimmer 1.7s infinite;height:clamp(170px,32vw,220px)}
 
-    /* ── CONTACT PAGE ────────────────────────────────────────────────────────── */
+    /* ── DOWNLOAD MODAL ──────────────────────────────────────────────────────── */
+    .dl-source{display:flex;align-items:center;gap:14px;padding:13px 16px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--txt);transition:all .2s;cursor:pointer;-webkit-tap-highlight-color:transparent;margin-bottom:8px}
+    .dl-source:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.18);transform:translateX(4px)}
+    .dl-source:active{transform:scale(.97)}
+    .dl-source-ico{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+    .dl-source-info{min-width:0;flex:1}
+    .dl-source-name{font-size:14px;font-weight:700;color:var(--txt);margin-bottom:2px}
+    .dl-source-desc{font-family:var(--mono);font-size:10px;color:var(--txt3);line-height:1.4}
+    .dl-note{font-family:var(--mono);font-size:10px;color:var(--txt3);text-align:center;line-height:1.7;padding:10px 0 0;border-top:1px solid var(--border);margin-top:4px}
+    .dl-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.13);color:var(--txt2);background:rgba(255,255,255,.05);transition:all .15s;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .dl-btn:hover{background:rgba(255,255,255,.1);color:var(--txt);border-color:rgba(255,255,255,.22)}
     .contact-page{min-height:100vh;background:var(--bg);padding-top:var(--nav)}
     .contact-inner{max-width:680px;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem) 5rem}
     .contact-hero{text-align:center;padding:clamp(2rem,6vw,4rem) 0 clamp(1.5rem,4vw,2.5rem)}
@@ -810,21 +863,21 @@ function mapA(a) {
 
 // Server definitions — label shown in UI, url builder receives (aniId, ep, lang, malId)
 const SERVER_DEFS = [
-  // ── Primary: megaplay.buzz (HiAnime/Anikoto library — massive coverage, true sub/dub URLs)
+  // ── Server 1: AnimePahe via vidnest — confirmed working, AniList ID, true sub/dub
   {
     n:'1', hasDub:true,
-    url:(a,e,L,m)=>`https://megaplay.buzz/stream/ani/${a}/${e}/${L}`          // AniList ID — works without MAL
-  },
-  {
-    n:'2', hasDub:true,
-    url:(a,e,L,m)=>m?`https://megaplay.buzz/stream/mal/${m}/${e}/${L}`:null   // MAL ID fallback
-  },
-  // ── Secondary: AnimePahe via vidnest (confirmed working)
-  {
-    n:'3', hasDub:true,
     url:(a,e,L,m)=>`https://vidnest.fun/animepahe/${a}/${e}/${L}`
   },
-  // ── Tertiary: vidsrc family
+  // ── Servers 2 & 3: HiAnime/Anikoto library (megaplay.buzz) — massive catalogue
+  {
+    n:'2', hasDub:true,
+    url:(a,e,L,m)=>`https://megaplay.buzz/stream/ani/${a}/${e}/${L}`
+  },
+  {
+    n:'3', hasDub:true,
+    url:(a,e,L,m)=>m?`https://megaplay.buzz/stream/mal/${m}/${e}/${L}`:null
+  },
+  // ── Servers 4–9: vidsrc family backups
   {
     n:'4', hasDub:true,
     url:(a,e,L,m)=>m?`https://vidsrc.cc/v2/embed/anime/${m}/${e}/`:null
@@ -1203,6 +1256,76 @@ function SearchBar({onSel, onSearch}) {
   );
 }
 
+// ── DOWNLOAD MODAL ────────────────────────────────────────────────────────────
+function DownloadModal({anime, curEp, onClose}) {
+  const q = encodeURIComponent(anime.title);
+  const epPad = String(curEp).padStart(2,'0');
+  const sources = [
+    {
+      name:'Nyaa.si',
+      desc:'Largest anime torrent index — search by episode number',
+      bg:'rgba(85,130,60,.15)', color:'#86efac',
+      emoji:'🧲',
+      url:`https://nyaa.si/?q=${encodeURIComponent(anime.title+' '+epPad)}&c=1_0&f=0`
+    },
+    {
+      name:'SubsPlease',
+      desc:'Best for currently airing anime — clean 1080p releases',
+      bg:'rgba(59,130,246,.12)', color:'#93c5fd',
+      emoji:'📺',
+      url:`https://subsplease.org/search/?q=${q}`
+    },
+    {
+      name:'AnimePahe',
+      desc:'High quality, smaller file sizes — great for mobile storage',
+      bg:'rgba(225,29,72,.12)', color:'#fb7185',
+      emoji:'🍣',
+      url:`https://animepahe.ru/search?q=${q}`
+    },
+    {
+      name:'Tokyo Toshokan',
+      desc:'Alternative torrent index — good for older anime',
+      bg:'rgba(168,85,247,.12)', color:'#c4b5fd',
+      emoji:'📚',
+      url:`https://www.tokyotosho.info/search.php?terms=${q}&type=1`
+    },
+  ];
+
+  return (
+    <div className="share-overlay" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div className="share-sheet" onClick={e=>e.stopPropagation()}>
+        <div className="share-sheet-hdr">
+          <span className="share-sheet-title">
+            ⬇ Download — EP {curEp}
+          </span>
+          <button className="share-sheet-close" onClick={onClose}>✕</button>
+        </div>
+        <p style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:16,lineHeight:1.6}}>
+          Searching for <strong style={{color:'#fb7185'}}>{anime.title}</strong> — choose a source below
+        </p>
+        {sources.map(s=>(
+          <a key={s.name} className="dl-source"
+            href={s.url} target="_blank" rel="noopener noreferrer"
+            onClick={onClose}>
+            <div className="dl-source-ico" style={{background:s.bg,color:s.color}}>
+              {s.emoji}
+            </div>
+            <div className="dl-source-info">
+              <div className="dl-source-name">{s.name}</div>
+              <div className="dl-source-desc">{s.desc}</div>
+            </div>
+            <span style={{color:'var(--txt3)',fontSize:18,flexShrink:0}}>›</span>
+          </a>
+        ))}
+        <div className="dl-note">
+          💡 Nyaa &amp; Tokyo Toshokan need a torrent client or browser extension (eg. Torrent Web)<br/>
+          AnimePahe &amp; SubsPlease have direct browser downloads — no extras needed
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function WatchPage({anime, startTab, onBack}) {
   const toast = useToast();
   const totalEps = anime.airedEps || anime.eps || 12;
@@ -1215,6 +1338,7 @@ function WatchPage({anime, startTab, onBack}) {
   const [spin,   setSpin]   = useState(true);
   const [fil,    setFil]    = useState('');
   const [shareOpen, setShareOpen] = useState(false);
+  const [downloadOpen, setDownloadOpen] = useState(false);
   const [jikanEps,  setJikanEps]  = useState({});
   const [jikanDone, setJikanDone] = useState(false);
   const [jikanDesc, setJikanDesc] = useState('');
@@ -1391,14 +1515,30 @@ function WatchPage({anime, startTab, onBack}) {
                   toast={toast}
                 />
               )}
-              <button className="share-trigger" style={{marginTop:'10px'}}
-                onClick={()=>setShareOpen(true)}>
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" style={{width:11,height:11}}>
-                  <circle cx="13" cy="2.5" r="1.5"/><circle cx="13" cy="13.5" r="1.5"/><circle cx="3" cy="8" r="1.5"/>
-                  <path d="M4.5 7.1L11.5 3.4M4.5 8.9L11.5 12.6" strokeLinecap="round"/>
-                </svg>
-                Share Episode
-              </button>
+              {downloadOpen && (
+                <DownloadModal
+                  anime={anime}
+                  curEp={curEp}
+                  onClose={()=>setDownloadOpen(false)}
+                />
+              )}
+              <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:'10px'}}>
+                <button className="share-trigger"
+                  onClick={()=>setShareOpen(true)}>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" style={{width:11,height:11}}>
+                    <circle cx="13" cy="2.5" r="1.5"/><circle cx="13" cy="13.5" r="1.5"/><circle cx="3" cy="8" r="1.5"/>
+                    <path d="M4.5 7.1L11.5 3.4M4.5 8.9L11.5 12.6" strokeLinecap="round"/>
+                  </svg>
+                  Share
+                </button>
+                <button className="dl-btn"
+                  onClick={()=>setDownloadOpen(true)}>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{width:11,height:11}}>
+                    <path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12h12"/>
+                  </svg>
+                  Download
+                </button>
+              </div>
             </div>
           </div>
           <div className="ep-panel">
@@ -1930,8 +2070,77 @@ function updateOGTags({title, image, desc, url}) {
   document.title = siteTitle;
 }
 
+// Inject dynamic TVSeries + VideoObject schema when watching an anime
+function injectAnimeSchema(anime, ep) {
+  // Remove any previous dynamic schema
+  const old = document.getElementById('dynamic-schema');
+  if (old) old.remove();
+
+  if (!anime) return;
+
+  const shareUrl = `https://jsanime.site/share?a=${anime.id}`;
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TVSeries",
+        "name": anime.title,
+        "alternateName": anime.romaji || undefined,
+        "url": shareUrl,
+        "image": anime.image || undefined,
+        "description": anime.desc || undefined,
+        "genre": (anime.genres || []).slice(0,5),
+        "numberOfEpisodes": anime.eps || anime.airedEps || undefined,
+        "inLanguage": "ja",
+        "subtitleLanguage": "en",
+        "contentRating": "TV-14",
+        "aggregateRating": anime.rating ? {
+          "@type": "AggregateRating",
+          "ratingValue": (anime.rating / 10).toFixed(1),
+          "bestRating": "10",
+          "worstRating": "1",
+          "ratingCount": 1000
+        } : undefined,
+        "potentialAction": {
+          "@type": "WatchAction",
+          "target": shareUrl
+        }
+      },
+      {
+        "@type": "VideoObject",
+        "name": `${anime.title} Episode ${ep}`,
+        "description": anime.desc || `Watch ${anime.title} Episode ${ep} online free with subtitles or dub on JustStreamAnime.`,
+        "thumbnailUrl": anime.image || undefined,
+        "uploadDate": new Date().toISOString().split('T')[0],
+        "embedUrl": shareUrl,
+        "contentUrl": shareUrl,
+        "inLanguage": "ja",
+        "potentialAction": {
+          "@type": "WatchAction",
+          "target": shareUrl
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://jsanime.site/" },
+          { "@type": "ListItem", "position": 2, "name": anime.title, "item": shareUrl },
+          { "@type": "ListItem", "position": 3, "name": `Episode ${ep}`, "item": shareUrl }
+        ]
+      }
+    ]
+  };
+
+  const script = document.createElement('script');
+  script.id   = 'dynamic-schema';
+  script.type = 'application/ld+json';
+  script.text = JSON.stringify(schema);
+  document.head.appendChild(script);
+}
+
 function resetOGTags() {
   updateOGTags({});
+  injectAnimeSchema(null, null); // remove dynamic schema
   document.title = 'JustStreamAnime – Watch Anime Free Online';
 }
 
@@ -2459,13 +2668,14 @@ function App() {
 
   const openWatch = (a, t='watch') => {
     const full = cache.current[String(a.id)] || a;
-    cache.current[String(a.id)] = full; // always store so popstate can find it
+    cache.current[String(a.id)] = full;
     updateOGTags({
       title: full.title,
       image: full.banner || full.image,
       desc:  full.desc,
       url:   `https://jsanime.site/share?a=${full.id}`,
     });
+    injectAnimeSchema(full, 1);
     setWatch(full); setWTab(t); setView('watch'); setSrView(null); setNavPage('none');
     writeHash('watch',{id:full.id,wTab:t}); window.scrollTo({top:0});
   };
