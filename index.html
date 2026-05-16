@@ -28,7 +28,7 @@
 
   <meta property="og:type" content="website"/>
   <meta id="og-url" property="og:url" content="https://jsanime.site/"/>
-  <meta id="og-title" property="og:title" content="JustStreamAnime – Watch &amp; Stream Anime Free Online"/>
+  <meta id="og-title" property="og:title" content="JustStreamAnime · Watch &amp; Stream Anime Free Online"/>
   <meta id="og-desc" property="og:description" content="Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed — just click and play."/>
   <meta id="og-image" property="og:image" content="https://jsanime.site/og-image.jpg"/>
   <meta id="og-image-w" property="og:image:width" content="1200"/>
@@ -37,7 +37,7 @@
 
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:url" content="https://jsanime.site/"/>
-  <meta name="twitter:title" content="JustStreamAnime – Watch & Stream Anime Free Online"/>
+  <meta name="twitter:title" content="JustStreamAnime · Watch &amp; Stream Anime Free Online"/>
   <meta name="twitter:description" content="Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed."/>
   <meta id="tw-image" name="twitter:image" content="https://jsanime.site/og-image.jpg"/>
 
@@ -93,7 +93,7 @@
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": "JustStreamAnime — Watch & Stream Anime Free Online",
+    "name": "JustStreamAnime · Watch & Stream Anime Free Online",
     "description": "Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub.",
     "url": "https://jsanime.site/",
     "isPartOf": { "@type": "WebSite", "url": "https://jsanime.site/" },
@@ -1515,30 +1515,14 @@ function WatchPage({anime, startTab, onBack}) {
                   toast={toast}
                 />
               )}
-              {downloadOpen && (
-                <DownloadModal
-                  anime={anime}
-                  curEp={curEp}
-                  onClose={()=>setDownloadOpen(false)}
-                />
-              )}
-              <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:'10px'}}>
-                <button className="share-trigger"
-                  onClick={()=>setShareOpen(true)}>
-                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" style={{width:11,height:11}}>
-                    <circle cx="13" cy="2.5" r="1.5"/><circle cx="13" cy="13.5" r="1.5"/><circle cx="3" cy="8" r="1.5"/>
-                    <path d="M4.5 7.1L11.5 3.4M4.5 8.9L11.5 12.6" strokeLinecap="round"/>
-                  </svg>
-                  Share
-                </button>
-                <button className="dl-btn"
-                  onClick={()=>setDownloadOpen(true)}>
-                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{width:11,height:11}}>
-                    <path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12h12"/>
-                  </svg>
-                  Download
-                </button>
-              </div>
+              <button className="share-trigger" style={{marginTop:'10px'}}
+                onClick={()=>setShareOpen(true)}>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" style={{width:11,height:11}}>
+                  <circle cx="13" cy="2.5" r="1.5"/><circle cx="13" cy="13.5" r="1.5"/><circle cx="3" cy="8" r="1.5"/>
+                  <path d="M4.5 7.1L11.5 3.4M4.5 8.9L11.5 12.6" strokeLinecap="round"/>
+                </svg>
+                Share Episode
+              </button>
             </div>
           </div>
           <div className="ep-panel">
@@ -2055,7 +2039,7 @@ function updateOGTags({title, image, desc, url}) {
     const el = document.getElementById(id);
     if (el && val) el.setAttribute(attr, val);
   };
-  const siteTitle = title ? `${title} – JustStreamAnime` : 'JustStreamAnime – Watch Anime Free Online';
+  const siteTitle = title ? `${title} · JustStreamAnime` : 'JustStreamAnime · Watch Anime Free Online';
   const siteDesc  = desc  ? desc.slice(0, 200) : 'Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub.';
   const imgUrl    = image || 'https://jsanime.site/og-image.jpg';
   const pageUrl   = url   || 'https://jsanime.site/';
@@ -2140,8 +2124,8 @@ function injectAnimeSchema(anime, ep) {
 
 function resetOGTags() {
   updateOGTags({});
-  injectAnimeSchema(null, null); // remove dynamic schema
-  document.title = 'JustStreamAnime – Watch Anime Free Online';
+  injectAnimeSchema(null, null);
+  document.title = 'JustStreamAnime · Watch Anime Free Online · Stream Subbed & Dubbed';
 }
 
 // ── SIDEBAR + MOBILE NAV ICONS ────────────────────────────────────────────────
