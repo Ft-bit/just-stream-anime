@@ -1,8 +1,3 @@
-Here is your complete 2800+ lines of code, intact and fully updated. 
-
-I have applied the **SEO fixes** to the `<head>` so Google Search will correctly parse your site name ("JustStreamAnime") and display the title format you requested. I also completely rewrote the **Download Modal** to look like a "Direct Mirror" source selector, and added comments detailing the Firebase/Kwik backend extraction logic so the knowledge is safely stored right in the component for when you're ready to build it.
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,10 +6,7 @@ I have applied the **SEO fixes** to the `<head>` so Google Search will correctly
   <link rel="preconnect" href="https://img.anili.st"/>
   <link rel="preconnect" href="https://graphql.anilist.co"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
-  
-  <!-- SEO FIX: Cleaner title helps Google distinguish Site Name from Page Title -->
-  <title>JustStreamAnime · Watch Free Anime Online · Stream Subbed</title>
-  
+  <title>JustStreamAnime · Watch Anime Free Online · Stream Subbed &amp; Dubbed</title>
   <meta name="theme-color" content="#e11d48"/>
   <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-192.png"/>
@@ -26,7 +18,6 @@ I have applied the **SEO fixes** to the `<head>` so Google Search will correctly
   <!-- Site name signals for Google Search -->
   <meta name="application-name" content="JustStreamAnime"/>
   <meta name="apple-mobile-web-app-title" content="JustStreamAnime"/>
-  <meta property="og:site_name" content="JustStreamAnime"/>
 
   <link rel="alternate" type="application/rss+xml" title="JustStreamAnime — Trending Anime" href="https://jsanime.site/api/feed?type=trending"/>
   <link rel="alternate" type="application/rss+xml" title="JustStreamAnime — Currently Airing" href="https://jsanime.site/api/feed?type=airing"/>
@@ -37,50 +28,93 @@ I have applied the **SEO fixes** to the `<head>` so Google Search will correctly
 
   <meta property="og:type" content="website"/>
   <meta id="og-url" property="og:url" content="https://jsanime.site/"/>
-  <meta id="og-title" property="og:title" content="JustStreamAnime · Watch Free Anime Online · Stream Subbed"/>
+  <meta id="og-title" property="og:title" content="JustStreamAnime – Watch &amp; Stream Anime Free Online"/>
   <meta id="og-desc" property="og:description" content="Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed — just click and play."/>
   <meta id="og-image" property="og:image" content="https://jsanime.site/og-image.jpg"/>
   <meta id="og-image-w" property="og:image:width" content="1200"/>
   <meta id="og-image-h" property="og:image:height" content="630"/>
+  <meta property="og:site_name" content="JustStreamAnime"/>
 
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:url" content="https://jsanime.site/"/>
-  <meta name="twitter:title" content="JustStreamAnime · Watch Free Anime Online · Stream Subbed"/>
+  <meta name="twitter:title" content="JustStreamAnime – Watch & Stream Anime Free Online"/>
   <meta name="twitter:description" content="Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed."/>
   <meta id="tw-image" name="twitter:image" content="https://jsanime.site/og-image.jpg"/>
 
-  <!-- Consolidated Schema.org Structured Data -->
   <script type="application/ld+json">
-  [
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "JustStreamAnime",
-      "alternateName": ["JSAnime", "Just Stream Anime"],
-      "url": "https://jsanime.site/",
-      "description": "Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed — just click and play.",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://jsanime.site/#search?q={search_term_string}"
-        },
-        "query-input": "required name=search_term_string"
-      }
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "JustStreamAnime",
-      "url": "https://jsanime.site/",
-      "logo": "https://jsanime.site/favicon-512.png",
-      "sameAs": [
-        "https://t.me/juststreamanime",
-        "https://x.com/juststreamanime",
-        "https://discord.gg/Upyq7cYcPa"
-      ]
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "JustStreamAnime",
+    "alternateName": ["JSAnime", "JustStream Anime", "jsanime.site"],
+    "url": "https://jsanime.site/",
+    "description": "Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed — just click and play.",
+    "inLanguage": "en",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://jsanime.site/#search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
     }
-  ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "JustStreamAnime",
+    "url": "https://jsanime.site/",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://jsanime.site/favicon-512.png",
+      "width": 512,
+      "height": 512
+    },
+    "image": "https://jsanime.site/og-image.jpg",
+    "description": "Free anime streaming platform. Watch subbed and dubbed anime online with no account required.",
+    "sameAs": [
+      "https://t.me/juststreamanime",
+      "https://x.com/juststreamanime",
+      "https://discord.gg/Upyq7cYcPa"
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "fredbv22@gmail.com",
+      "contactType": "customer support",
+      "availableLanguage": "English"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "JustStreamAnime — Watch & Stream Anime Free Online",
+    "description": "Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub.",
+    "url": "https://jsanime.site/",
+    "isPartOf": { "@type": "WebSite", "url": "https://jsanime.site/" },
+    "about": {
+      "@type": "Thing",
+      "name": "Anime Streaming",
+      "description": "Free online anime streaming with subtitles and English dub"
+    },
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://jsanime.site/" },
+        { "@type": "ListItem", "position": 2, "name": "Trending Anime", "item": "https://jsanime.site/#home/trending/1" },
+        { "@type": "ListItem", "position": 3, "name": "Popular Anime", "item": "https://jsanime.site/#home/popular/1" }
+      ]
+    },
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": [".hero-title", ".hero-desc", ".sec-title"]
+    }
+  }
   </script>
 
   <script type="application/ld+json">
@@ -336,7 +370,7 @@ I have applied the **SEO fixes** to the `<head>` so Google Search will correctly
     .btt:active{transform:scale(.92)!important}
     @media(max-width:768px){.btt{bottom:calc(58px + max(6px,env(safe-area-inset-bottom)) + 16px);right:14px;width:38px;height:38px;font-size:18px}}
     .genre-wrap{padding:0 clamp(.75rem,3.5vw,2.5rem) clamp(.5rem,1.5vw,.9rem);position:relative}
-    .genre-wrap::after{content:'absolute';position:absolute;right:0;top:0;bottom:0;width:40px;background:linear-gradient(to right,transparent,var(--bg));pointer-events:none}
+    .genre-wrap::after{content:'';position:absolute;right:0;top:0;bottom:0;width:40px;background:linear-gradient(to right,transparent,var(--bg));pointer-events:none}
     .genre-bar{display:flex;gap:7px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
     .genre-bar::-webkit-scrollbar{display:none}
     .gpill{font-family:var(--mono);font-size:11px;font-weight:700;padding:6px 16px;border-radius:20px;flex-shrink:0;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--txt2);cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;letter-spacing:.02em;user-select:none;white-space:nowrap}
@@ -1224,31 +1258,37 @@ function SearchBar({onSel, onSearch}) {
 
 // ── DOWNLOAD MODAL ────────────────────────────────────────────────────────────
 function DownloadModal({anime, curEp, onClose}) {
-  // KNOWLEDGE NOTE FOR LATER (FIREBASE + KWIK EXTRACTOR):
-  // To implement JustAnime's direct download pattern and avoid static page redirects:
-  // 1. We must use a backend (e.g., Firebase Cloud Functions) to bypass browser CORS.
-  // 2. The backend fetches the provider's page (like AnimePahe).
-  // 3. It locates the Kwik video link inside the page source.
-  // 4. It extracts and decodes the obfuscated JavaScript (eval(function(p,a,c,k,e,d)...))
-  //    similar to the python 'kwik.py' logic from anime-downloader.
-  // 5. It parses the final .m3u8 or .mp4 URL and returns it to this frontend.
-  // 6. The user clicks the button below and downloads directly without leaving jsanime.site.
-
+  const q = encodeURIComponent(anime.title);
+  const epPad = String(curEp).padStart(2,'0');
   const sources = [
     {
-      name: 'Direct Mirror (Fast)',
-      desc: 'High-speed direct MP4 download (Pending backend)',
-      bg: 'rgba(225,29,72,.12)', color: '#fb7185',
-      emoji: '⚡',
-      action: () => alert('Download unavailable: Firebase extraction backend required to decode Kwik links and bypass redirects.')
+      name:'Nyaa.si',
+      desc:'Largest anime torrent index — search by episode number',
+      bg:'rgba(85,130,60,.15)', color:'#86efac',
+      emoji:'🧲',
+      url:`https://nyaa.si/?q=${encodeURIComponent(anime.title+' '+epPad)}&c=1_0&f=0`
     },
     {
-      name: 'Source Backup',
-      desc: 'Alternative server extraction (Pending backend)',
-      bg: 'rgba(59,130,246,.12)', color: '#93c5fd',
-      emoji: '☁️',
-      action: () => alert('Download unavailable: Backend implementation pending.')
-    }
+      name:'SubsPlease',
+      desc:'Best for currently airing anime — clean 1080p releases',
+      bg:'rgba(59,130,246,.12)', color:'#93c5fd',
+      emoji:'📺',
+      url:`https://subsplease.org/search/?q=${q}`
+    },
+    {
+      name:'AnimePahe',
+      desc:'High quality, smaller file sizes — great for mobile storage',
+      bg:'rgba(225,29,72,.12)', color:'#fb7185',
+      emoji:'🍣',
+      url:`https://animepahe.ru/search?q=${q}`
+    },
+    {
+      name:'Tokyo Toshokan',
+      desc:'Alternative torrent index — good for older anime',
+      bg:'rgba(168,85,247,.12)', color:'#c4b5fd',
+      emoji:'📚',
+      url:`https://www.tokyotosho.info/search.php?terms=${q}&type=1`
+    },
   ];
 
   return (
@@ -1261,10 +1301,12 @@ function DownloadModal({anime, curEp, onClose}) {
           <button className="share-sheet-close" onClick={onClose}>✕</button>
         </div>
         <p style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:16,lineHeight:1.6}}>
-          Select a direct download source for <strong style={{color:'#fb7185'}}>{anime.title}</strong>
+          Searching for <strong style={{color:'#fb7185'}}>{anime.title}</strong> — choose a source below
         </p>
         {sources.map(s=>(
-          <div key={s.name} className="dl-source" onClick={s.action}>
+          <a key={s.name} className="dl-source"
+            href={s.url} target="_blank" rel="noopener noreferrer"
+            onClick={onClose}>
             <div className="dl-source-ico" style={{background:s.bg,color:s.color}}>
               {s.emoji}
             </div>
@@ -1273,10 +1315,11 @@ function DownloadModal({anime, curEp, onClose}) {
               <div className="dl-source-desc">{s.desc}</div>
             </div>
             <span style={{color:'var(--txt3)',fontSize:18,flexShrink:0}}>›</span>
-          </div>
+          </a>
         ))}
         <div className="dl-note">
-          💡 Note: Direct downloads are disabled until the Firebase extraction backend is configured to fetch and decode video links (bypassing static page redirects).
+          💡 Nyaa &amp; Tokyo Toshokan need a torrent client or browser extension (eg. Torrent Web)<br/>
+          AnimePahe &amp; SubsPlease have direct browser downloads — no extras needed
         </div>
       </div>
     </div>
@@ -2012,7 +2055,7 @@ function updateOGTags({title, image, desc, url}) {
     const el = document.getElementById(id);
     if (el && val) el.setAttribute(attr, val);
   };
-  const siteTitle = title ? `${title} – JustStreamAnime` : 'JustStreamAnime · Watch Free Anime Online · Stream Subbed';
+  const siteTitle = title ? `${title} – JustStreamAnime` : 'JustStreamAnime – Watch Anime Free Online';
   const siteDesc  = desc  ? desc.slice(0, 200) : 'Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub.';
   const imgUrl    = image || 'https://jsanime.site/og-image.jpg';
   const pageUrl   = url   || 'https://jsanime.site/';
@@ -2098,7 +2141,7 @@ function injectAnimeSchema(anime, ep) {
 function resetOGTags() {
   updateOGTags({});
   injectAnimeSchema(null, null); // remove dynamic schema
-  document.title = 'JustStreamAnime · Watch Free Anime Online · Stream Subbed';
+  document.title = 'JustStreamAnime – Watch Anime Free Online';
 }
 
 // ── SIDEBAR + MOBILE NAV ICONS ────────────────────────────────────────────────
@@ -2326,8 +2369,7 @@ function ExplorePage({onPlay}) {
   const hasFilter = format||genre||status||year;
   const reset = () => { setFormat(''); setGenre(''); setStatus(''); setYear(''); setSort('TRENDING_DESC'); setPage(1); };
 
-  const ps=[], s=Math.max(1,page-2), e2=Math.
-    min(totalPg,s+4);
+  const ps=[], s=Math.max(1,page-2), e2=Math.min(totalPg,s+4);
   for(let i=s;i<=e2;i++) ps.push(i);
 
   return (
