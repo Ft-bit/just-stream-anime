@@ -1257,51 +1257,14 @@ function SearchBar({onSel, onSearch}) {
 }
 
 // ── CLIENT-SIDE HLS DOWNLOADER ────────────────────────────────────────────────
-// Captures m3u8 URL passively from the player iframe via PerformanceObserver
-// then downloads all .ts segments in-browser and merges into one file.
-
-function useStreamCapture() {
-  const [m3u8Url, setM3u8Url] = React.useState(null);
-  React.useEffect(() => {
-    if (!window.PerformanceObserver) return;
-    const captured = new Set();
-    const obs = new PerformanceObserver(list => {
-      list.getEntries().forEach(entry => {
-        const url = entry.name || '';
-        if ((url.includes('.m3u8') || url.includes('m3u8')) && !captured.has(url)) {
-          // Only keep sub-playlist URLs (not master), they contain actual segments
-          if (!url.includes('master') && !captured.size) {
-            captured.add(url);
-            setM3u8Url(url);
-          }
-        }
-      });
-    });
-    try { obs.observe({ type:'resource', buffered:true }); } catch(e) {}
-    // Also listen postMessage from player iframes
-    const onMsg = e => {
-      const d = e.data;
-      if (!d) return;
-      const url = d.url || d.src || d.source || d.stream || d.hls || d.m3u8 || '';
-      if (typeof url === 'string' && url.includes('.m3u8') && !captured.has(url)) {
-        captured.add(url); setM3u8Url(url);
-      }
-    };
-    window.addEventListener('message', onMsg);
-    return () => { obs.disconnect(); window.removeEventListener('message', onMsg); };
-  }, []);
-  return m3u8Url;
-}
 
 async function fetchWithFallback(url) {
-  // Try direct fetch first (works if CDN has CORS headers)
   try {
     const r = await fetch(url, { headers:{ Referer:'https://jsanime.site/' } });
     if (r.ok) return r;
   } catch(_) {}
-  // Fall back to Vercel proxy
   const r = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
-  if (!r.ok) throw new Error(`Fetch failed for ${url}`);
+  if (!r.ok) throw new Error(`Fetch failed: ${r.status}`);
   return r;
 }
 
@@ -1311,80 +1274,84 @@ async function downloadHLS(m3u8Url, filename, onProgress, onStatus) {
   const text = await r1.text();
   const base = m3u8Url.substring(0, m3u8Url.lastIndexOf('/') + 1);
 
-  // Parse segments — handle both master and sub-playlists
-  let segmentUrls = text.split('\n')
-    .map(l => l.trim())
-    .filter(l => l && !l.startsWith('#'));
+  let segmentUrls = text.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
+  if (!segmentUrls.length) throw new Error('No segments found');
 
-  if (!segmentUrls.length) throw new Error('No segments found in playlist');
-
-  // If this is a master playlist (contains .m3u8 sub-playlists), pick first sub-playlist
+  // Handle master playlist
   if (segmentUrls[0].includes('.m3u8')) {
-    const subUrl = segmentUrls[0].startsWith('http') ? segmentUrls[0] : base + segmentUrls[0];
-    const r2     = await fetchWithFallback(subUrl);
-    const subTxt = await r2.text();
+    const subUrl  = segmentUrls[0].startsWith('http') ? segmentUrls[0] : base + segmentUrls[0];
     const subBase = subUrl.substring(0, subUrl.lastIndexOf('/') + 1);
-    segmentUrls = subTxt.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
-    base.replace(base, subBase);
+    const r2   = await fetchWithFallback(subUrl);
+    const sub  = await r2.text();
+    segmentUrls = sub.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
+    // rebase
+    const total2 = segmentUrls.length;
+    const bufs2  = [];
+    for (let i=0;i<total2;i++) {
+      const su = segmentUrls[i].startsWith('http') ? segmentUrls[i] : subBase + segmentUrls[i];
+      onStatus(`Downloading… ${i+1}/${total2}`); onProgress(Math.round(i/total2*100));
+      const sr = await fetchWithFallback(su); bufs2.push(await sr.arrayBuffer());
+    }
+    return mergeAndSave(bufs2, filename, onStatus, onProgress);
   }
 
-  const total   = segmentUrls.length;
-  const buffers = [];
-  for (let i = 0; i < total; i++) {
-    const segUrl = segmentUrls[i].startsWith('http') ? segmentUrls[i] : base + segmentUrls[i];
-    onStatus(`Downloading… ${i+1}/${total}`);
-    onProgress(Math.round((i / total) * 100));
-    const sr  = await fetchWithFallback(segUrl);
-    const buf = await sr.arrayBuffer();
-    buffers.push(buf);
+  const total = segmentUrls.length, bufs = [];
+  for (let i=0;i<total;i++) {
+    const su = segmentUrls[i].startsWith('http') ? segmentUrls[i] : base + segmentUrls[i];
+    onStatus(`Downloading… ${i+1}/${total}`); onProgress(Math.round(i/total*100));
+    const sr = await fetchWithFallback(su); bufs.push(await sr.arrayBuffer());
   }
+  mergeAndSave(bufs, filename, onStatus, onProgress);
+}
 
-  onStatus('Merging…');
-  onProgress(99);
-  const totalBytes = buffers.reduce((s,b) => s + b.byteLength, 0);
-  const merged     = new Uint8Array(totalBytes);
-  let offset       = 0;
-  for (const buf of buffers) { merged.set(new Uint8Array(buf), offset); offset += buf.byteLength; }
-
-  const blob    = new Blob([merged], { type:'video/mp2t' });
-  const blobUrl = URL.createObjectURL(blob);
-  const a       = document.createElement('a');
-  a.href        = blobUrl;
-  a.download    = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-  onProgress(100);
-  onStatus('Done!');
+function mergeAndSave(buffers, filename, onStatus, onProgress) {
+  onStatus('Merging…'); onProgress(99);
+  const total = buffers.reduce((s,b)=>s+b.byteLength,0);
+  const out   = new Uint8Array(total);
+  let off = 0;
+  for (const b of buffers) { out.set(new Uint8Array(b), off); off += b.byteLength; }
+  const blob = new Blob([out], {type:'video/mp2t'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 5000);
+  onProgress(100); onStatus('Done!');
 }
 
 function DownloadModal({anime, curEp, onClose}) {
-  const capturedUrl              = useStreamCapture();
-  const [status,   setStatus]    = React.useState('waiting');
-  const [progress, setProgress]  = React.useState(0);
-  const [statusTxt,setStatusTxt] = React.useState('Waiting for stream to load…');
-  const [error,    setError]     = React.useState('');
+  const [status,   setStatus]   = React.useState('loading');
+  const [m3u8Url,  setM3u8Url]  = React.useState(null);
+  const [progress, setProgress] = React.useState(0);
+  const [statusTxt,setStatusTxt]= React.useState('Please wait…');
+  const [error,    setError]    = React.useState('');
   const toast = useToast();
 
-  // Once m3u8 is captured, we're ready
   React.useEffect(() => {
-    if (capturedUrl && status === 'waiting') setStatus('ready');
-  }, [capturedUrl]);
+    fetch(`/api/download?aniId=${anime.id}&ep=${curEp}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.url || d.m3u8Url) { setM3u8Url(d.url||d.m3u8Url); setStatus('ready'); }
+        else if (d.kwikUrl)     { setM3u8Url(d.kwikUrl);         setStatus('fallback'); }
+        else                    { setStatus('fallback'); }
+      })
+      .catch(() => setStatus('fallback'));
+  }, [anime.id, curEp]);
+
+  const openVidnest = () => {
+    window.open(`https://vidnest.fun/animepahe/${anime.id}/${curEp}/sub`, '_blank', 'noopener');
+    onClose();
+  };
 
   const doDownload = async () => {
-    if (!capturedUrl) return;
-    setStatus('downloading');
-    setProgress(0);
+    if (!m3u8Url) return;
+    if (status === 'fallback') { openVidnest(); return; }
+    setStatus('downloading'); setProgress(0);
     const filename = `${anime.title.replace(/[^\w\s]/g,'').trim()} EP${String(curEp).padStart(3,'0')}.ts`;
     try {
-      await downloadHLS(capturedUrl, filename, setProgress, setStatusTxt);
-      setStatus('done');
-      toast('✅ Download complete!');
-    } catch(e) {
-      setError(e.message);
-      setStatus('error');
-    }
+      await downloadHLS(m3u8Url, filename, setProgress, setStatusTxt);
+      setStatus('done'); toast('✅ Download complete!');
+    } catch(e) { setError(e.message); setStatus('error'); }
   };
 
   return (
@@ -1397,56 +1364,47 @@ function DownloadModal({anime, curEp, onClose}) {
         <p style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:20,lineHeight:1.6}}>
           <strong style={{color:'#fb7185'}}>{anime.title}</strong> — Episode {curEp}
         </p>
-
-        {/* Waiting for stream */}
-        {status==='waiting' && (
-          <div style={{textAlign:'center',padding:'1.2rem 0'}}>
-            <div className="spin-ring" style={{width:34,height:34,margin:'0 auto 12px'}}/>
-            <div style={{color:'var(--txt)',fontWeight:700,marginBottom:8}}>Detecting stream…</div>
-            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',lineHeight:1.7}}>
-              Make sure the episode is playing on the watch page.<br/>
-              The stream URL will be captured automatically.
-            </div>
+        {status==='loading' && (
+          <div style={{textAlign:'center',padding:'1.5rem 0'}}>
+            <div className="spin-ring" style={{width:34,height:34,margin:'0 auto 14px'}}/>
+            <div style={{color:'var(--txt)',fontWeight:700,fontSize:14}}>Please wait…</div>
+            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:6}}>Fetching download link</div>
           </div>
         )}
-
-        {/* Ready to download */}
         {status==='ready' && (
           <>
             <div style={{background:'rgba(34,197,94,.06)',border:'1px solid rgba(34,197,94,.2)',borderRadius:10,padding:'12px 14px',marginBottom:16}}>
-              <div style={{fontFamily:'var(--mono)',fontSize:9,color:'#86efac',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:4}}>Stream captured ✓</div>
-              <div style={{fontSize:11,color:'var(--txt)',wordBreak:'break-all',lineHeight:1.5,opacity:.7}}>
-                {capturedUrl?.substring(0,60)}…
-              </div>
+              <div style={{fontFamily:'var(--mono)',fontSize:9,color:'#86efac',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:4}}>Link found ✓</div>
+              <div style={{fontSize:11,color:'var(--txt)',wordBreak:'break-all',lineHeight:1.5,opacity:.7}}>{m3u8Url?.substring(0,55)}…</div>
             </div>
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginBottom:16,lineHeight:1.6}}>
-              ⚡ Downloads as <strong style={{color:'var(--txt)'}}>.ts</strong> format — plays in VLC, MX Player, and most media players
+              Downloads as <strong style={{color:'var(--txt)'}}>TS</strong> — plays in VLC, MX Player &amp; most media players.
             </div>
-            <button className="btn-play"
-              style={{width:'100%',justifyContent:'center',fontSize:14,padding:'13px'}}
-              onClick={doDownload}>
-              <svg viewBox="0 0 20 20" fill="currentColor" style={{width:15,height:15}}>
-                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"/>
-              </svg>
-              Download Episode {curEp}
+            <button className="btn-play" style={{width:'100%',justifyContent:'center',fontSize:14,padding:'13px'}} onClick={doDownload}>
+              ⬇ Download Episode {curEp}
             </button>
           </>
         )}
-
-        {/* Downloading with progress */}
+        {status==='fallback' && (
+          <>
+            <div style={{background:'rgba(251,191,36,.06)',border:'1px solid rgba(251,191,36,.18)',borderRadius:10,padding:'12px 14px',marginBottom:16,fontFamily:'var(--mono)',fontSize:10,color:'#fcd34d',lineHeight:1.7}}>
+              ⚡ Direct link unavailable. The player page has a built-in download button.
+            </div>
+            <button className="btn-play" style={{width:'100%',justifyContent:'center',fontSize:14,padding:'13px'}} onClick={openVidnest}>
+              ► Open Player &amp; Download
+            </button>
+          </>
+        )}
         {status==='downloading' && (
           <div style={{textAlign:'center',padding:'.5rem 0'}}>
             <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:12}}>{statusTxt}</div>
             <div style={{background:'var(--bg2)',borderRadius:999,height:8,overflow:'hidden',marginBottom:8}}>
-              <div style={{height:'100%',background:'linear-gradient(90deg,#e11d48,#9f1239)',borderRadius:999,
-                width:`${progress}%`,transition:'width .3s ease'}}/>
+              <div style={{height:'100%',background:'linear-gradient(90deg,#e11d48,#9f1239)',borderRadius:999,width:`${progress}%`,transition:'width .3s ease'}}/>
             </div>
             <div style={{fontFamily:'var(--mono)',fontSize:12,color:'#fb7185',fontWeight:700}}>{progress}%</div>
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:8}}>Do not close this window</div>
           </div>
         )}
-
-        {/* Done */}
         {status==='done' && (
           <div style={{textAlign:'center',padding:'1rem 0'}}>
             <div style={{fontSize:'2.5rem',marginBottom:8}}>✅</div>
@@ -1454,14 +1412,15 @@ function DownloadModal({anime, curEp, onClose}) {
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>Check your downloads folder</div>
           </div>
         )}
-
-        {/* Error */}
         {status==='error' && (
           <div style={{textAlign:'center',padding:'1rem 0'}}>
             <div style={{fontSize:'2rem',marginBottom:8}}>❌</div>
             <div style={{color:'var(--txt)',fontWeight:700,marginBottom:6}}>Download failed</div>
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',lineHeight:1.6,marginBottom:14}}>{error}</div>
-            <button className="share-trigger" onClick={()=>{setStatus('ready');setError('');}}>Try Again</button>
+            <div style={{display:'flex',gap:8,justifyContent:'center'}}>
+              <button className="share-trigger" onClick={()=>{setStatus('ready');setError('');}}>Try Again</button>
+              <button className="share-trigger" onClick={openVidnest}>Open Player Page</button>
+            </div>
           </div>
         )}
       </div>
