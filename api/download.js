@@ -1,19 +1,10 @@
 // api/download.js — JustStreamAnime Download Handler
-// Uses: https://jsanime-dl.onrender.com (AnimePahe API on Render)
-// Endpoints from github.com/ElijahCodes12345/animepahe-api
+// Extracts m3u8 stream URL from vidnest.fun (AnimePahe source)
+// Returns the URL so the client can download segments and merge in-browser
 
-const ANILIST    = 'https://graphql.anilist.co';
-const PAHE_API   = 'https://jsanime-dl.onrender.com';
+const ANILIST = 'https://graphql.anilist.co';
 
-// Headers that satisfy the Render API allowlist
-const PAHE_HEADERS = {
-  'Origin':  'https://jsanime.site',
-  'Referer': 'https://jsanime.site/',
-  'Accept':  'application/json',
-};
-
-// ── Get anime title from AniList ID ──────────────────────────────────────────
-async function getTitle(aniId) {
+async function getAnimeTitle(aniId) {
   const r = await fetch(ANILIST, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -26,130 +17,112 @@ async function getTitle(aniId) {
   return d.data?.Media?.title?.english || d.data?.Media?.title?.romaji || null;
 }
 
-// ── Search AnimePahe via Render API ──────────────────────────────────────────
-async function searchAnime(title) {
-  const r = await fetch(`${PAHE_API}/search?q=${encodeURIComponent(title)}`, { headers: PAHE_HEADERS });
-  if (!r.ok) throw new Error(`Search failed: ${r.status}`);
-  const d = await r.json();
-  // d is array of results
-  const list = Array.isArray(d) ? d : (d.results || d.data || []);
-  if (!list.length) return null;
-  const t = title.toLowerCase();
-  return list.find(a =>
-    (a.title||'').toLowerCase().includes(t) ||
-    t.includes((a.title||'').toLowerCase())
-  ) || list[0];
+// Try to fetch the vidnest.fun embed page and extract the m3u8 URL
+async function getM3u8(aniId, ep, lang) {
+  const embedUrl = `https://vidnest.fun/animepahe/${aniId}/${ep}/${lang}`;
+
+  const headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,*/*;q=0.9',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Referer': 'https://jsanime.site/',
+    'Origin': 'https://jsanime.site',
+    'Cache-Control': 'no-cache',
+  };
+
+  const r = await fetch(embedUrl, { headers });
+  if (!r.ok) return null;
+  const html = await r.text();
+
+  // Pattern 1: direct .m3u8 URL in quotes
+  const p1 = html.match(/["'`](https?:\/\/[^"'`\s]+\.m3u8[^"'`\s]*)['"` ]/);
+  if (p1) return p1[1];
+
+  // Pattern 2: source: "url" or file: "url"
+  const p2 = html.match(/(?:source|file|src)\s*[:=]\s*["'`](https?:\/\/[^"'`\s]+)['"` ]/i);
+  if (p2 && (p2[1].includes('m3u8') || p2[1].includes('.ts'))) return p2[1];
+
+  // Pattern 3: hls: or hlsUrl:
+  const p3 = html.match(/(?:hls|hlsUrl|streamUrl)\s*[:=]\s*["'`](https?:\/\/[^"'`\s]+)['"` ]/i);
+  if (p3) return p3[1];
+
+  // Pattern 4: any kwik or pahe CDN URL
+  const p4 = html.match(/https?:\/\/[a-z0-9\-\.]+(?:kwik|pahe|ani|cdn)[a-z0-9\-\.]*\/[^"'\s]+\.m3u8[^"'\s]*/i);
+  if (p4) return p4[0];
+
+  return null;
 }
 
-// ── Get all episodes via Render API ──────────────────────────────────────────
-async function getEpisodes(session) {
-  const r = await fetch(`${PAHE_API}/episodes?session=${session}`, { headers: PAHE_HEADERS });
-  if (!r.ok) throw new Error(`Episodes failed: ${r.status}`);
-  const d = await r.json();
-  return Array.isArray(d) ? d : (d.data || d.episodes || []);
+// Try megaplay.buzz as secondary source
+async function getM3u8FromMegaplay(aniId, ep, lang) {
+  const embedUrl = `https://megaplay.buzz/stream/ani/${aniId}/${ep}/${lang}`;
+  const headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    'Referer': 'https://jsanime.site/',
+    'Origin': 'https://jsanime.site',
+  };
+  try {
+    const r = await fetch(embedUrl, { headers });
+    if (!r.ok) return null;
+    const html = await r.text();
+    const m = html.match(/["'`](https?:\/\/[^"'`\s]+\.m3u8[^"'`\s]*)['"` ]/);
+    return m ? m[1] : null;
+  } catch { return null; }
 }
 
-// ── Get sources (kwik links) via Render API ───────────────────────────────────
-async function getSources(animeSession, episodeSession) {
-  const r = await fetch(
-    `${PAHE_API}/sources?anime_session=${animeSession}&episode_session=${episodeSession}`,
-    { headers: PAHE_HEADERS }
-  );
-  if (!r.ok) throw new Error(`Sources failed: ${r.status}`);
-  return await r.json();
-}
-
-// ── Resolve kwik → direct m3u8 via Render API ────────────────────────────────
-async function resolveM3u8(kwikUrl) {
-  const r = await fetch(`${PAHE_API}/m3u8?url=${encodeURIComponent(kwikUrl)}`, { headers: PAHE_HEADERS });
-  if (!r.ok) throw new Error(`m3u8 resolve failed: ${r.status}`);
-  const d = await r.json();
-  return d.url || d.m3u8 || d.source || (typeof d === 'string' ? d : null);
-}
-
-// ── Main handler ──────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
 
-  const { aniId, ep = '1', quality = 'best' } = req.query;
+  const { aniId, ep = '1', lang = 'sub' } = req.query;
   if (!aniId) return res.status(400).json({ error: 'aniId required' });
 
+  const epNum = parseInt(ep) || 1;
+  const L = lang === 'dub' ? 'dub' : 'sub';
+
   try {
-    const epNum = parseInt(ep) || 1;
+    // Get title for filename
+    const title = await getAnimeTitle(aniId);
 
-    // Step 1 — Get title from AniList
-    const title = await getTitle(aniId);
-    if (!title) return res.status(404).json({ error: 'Anime not found on AniList' });
+    // Try vidnest.fun first (Server 1 — AnimePahe)
+    let m3u8Url = await getM3u8(aniId, epNum, L);
 
-    // Step 2 — Search AnimePahe
-    const anime = await searchAnime(title);
-    if (!anime) return res.status(404).json({ error: `"${title}" not found on AnimePahe` });
-
-    const animeSession = anime.session || anime.id;
-
-    // Step 3 — Get episode list
-    const episodes = await getEpisodes(animeSession);
-    if (!episodes.length) return res.status(404).json({ error: 'No episodes found' });
-
-    // Find the target episode (1-indexed)
-    const episode = episodes.find(e =>
-      Math.round(parseFloat(e.episode || e.ep || 0)) === epNum
-    ) || episodes[epNum - 1] || episodes[0];
-
-    if (!episode) return res.status(404).json({ error: `Episode ${epNum} not found` });
-
-    const epSession = episode.session || episode.id;
-
-    // Step 4 — Get sources (kwik links per quality)
-    const sources = await getSources(animeSession, epSession);
-    const sourceList = Array.isArray(sources) ? sources : (sources.data || sources.sources || []);
-
-    if (!sourceList.length) return res.status(404).json({ error: 'No sources available' });
-
-    // Build quality map
-    const qualityOrder = ['1080', '720', '480', '360'];
-    const qualityMap = {};
-    for (const s of sourceList) {
-      const q = String(s.quality || s.res || s.resolution || '720').replace('p','');
-      qualityMap[q] = s.kwik || s.url || s.link || s.hls;
+    // Try megaplay.buzz as fallback
+    if (!m3u8Url) {
+      m3u8Url = await getM3u8FromMegaplay(aniId, epNum, L);
     }
 
-    const available = qualityOrder.filter(q => qualityMap[q]);
-    if (!available.length) return res.status(404).json({ error: 'No quality options found' });
+    if (m3u8Url) {
+      const filename = title
+        ? `${title.replace(/[^\w\s]/g,'').trim()} EP${String(epNum).padStart(3,'0')}.ts`
+        : `Anime_EP${String(epNum).padStart(3,'0')}.ts`;
 
-    const chosen = (quality !== 'best' && available.includes(quality))
-      ? quality : available[0];
-
-    const kwikUrl = qualityMap[chosen];
-
-    // Step 5 — Resolve kwik → direct m3u8
-    let directUrl = null;
-    let useFallback = false;
-    try {
-      directUrl = await resolveM3u8(kwikUrl);
-    } catch {
-      useFallback = true;
+      return res.status(200).json({
+        success: true,
+        url: m3u8Url,
+        m3u8Url,
+        title: title || 'Anime',
+        episode: epNum,
+        filename,
+        type: 'm3u8',
+      });
     }
-    if (!directUrl) useFallback = true;
 
-    const filename = `${title.replace(/[^\w\s]/g,'').trim()} EP${String(epNum).padStart(3,'0')} ${chosen}p.mp4`;
-
+    // Nothing worked — return vidnest URL as kwik fallback for the UI
     return res.status(200).json({
-      success: true,
-      title,
+      success: false,
+      kwikUrl: `https://vidnest.fun/animepahe/${aniId}/${epNum}/${L}`,
+      title: title || 'Anime',
       episode: epNum,
-      quality: chosen,
-      availableQualities: available,
-      filename,
-      url:         directUrl,
-      kwikUrl,
-      useFallback,
-      type:        directUrl ? 'm3u8' : null,
+      useFallback: true,
     });
 
   } catch (err) {
     console.error('[download]', err.message);
-    return res.status(500).json({ error: 'Server error', detail: err.message });
+    return res.status(500).json({
+      error: 'Server error',
+      useFallback: true,
+      kwikUrl: `https://vidnest.fun/animepahe/${aniId}/${ep}/${L}`,
+    });
   }
 }
