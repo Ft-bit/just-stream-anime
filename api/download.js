@@ -1,6 +1,6 @@
 // api/download.js
 const ANILIST = 'https://graphql.anilist.co';
-const PAHE_API = 'https://animepahe-api-uan4.onrender.com';
+const PAHE_API = 'https://animepahe-api-liard.vercel.app';
 
 const PAHE_HEADERS = {
   'Origin': 'https://jsanime.site',
