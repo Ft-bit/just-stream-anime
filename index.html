@@ -1320,12 +1320,15 @@ function mergeAndSave(buffers, filename, onStatus, onProgress) {
 }
 
 function DownloadModal({anime, curEp, onClose}) {
-  const [status,   setStatus]   = React.useState('loading');
-  const [m3u8Url,  setM3u8Url]  = React.useState(null);
+  const [status,      setStatus]    = React.useState('loading');
+  const [m3u8Url,     setM3u8Url]   = React.useState(null);
+  const [m3u8Referer, setReferer]   = React.useState(null);
   const [directDownload, setDirect] = React.useState(false);
-  const [progress, setProgress] = React.useState(0);
-  const [statusTxt,setStatusTxt]= React.useState('Please wait…');
-  const [error,    setError]    = React.useState('');
+  const [progress,    setProgress]  = React.useState(0);
+  const [statusTxt,   setStatusTxt] = React.useState('Please wait…');
+  const [error,       setError]     = React.useState('');
+  const [fileSize,    setFileSize]  = React.useState(0);
+  const fmtSize = b => b < 1048576 ? `${(b/1024).toFixed(1)} KB` : `${(b/1048576).toFixed(1)} MB`;
   const toast = useToast();
 
   React.useEffect(() => {
