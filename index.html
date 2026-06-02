@@ -930,26 +930,27 @@ function SearchBar({onSel, onSearch}) {
 
 // ── HLS DOWNLOADER HELPERS ────────────────────────────────────────────────────
 
-async function fetchWithFallback(url) {
+async function fetchWithFallback(url, referer) {
   try {
-    const r = await fetch(url, { headers:{ Referer:'https://jsanime.site/' } });
+    const r = await fetch(url, { headers:{ Referer: referer || 'https://jsanime.site/' } });
     if (r.ok) return r;
   } catch(_) {}
-  const r = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
+  const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}${referer ? '&referer=' + encodeURIComponent(referer) : ''}`;
+  const r = await fetch(proxyUrl);
   if (!r.ok) throw new Error(`Fetch failed for ${url}`);
   return r;
 }
 
-async function downloadHLS(m3u8Url, filename, onProgress, onStatus) {
+async function downloadHLS(m3u8Url, filename, onProgress, onStatus, referer) {
   onStatus('Fetching playlist…');
-  const r1   = await fetchWithFallback(m3u8Url);
+  const r1   = await fetchWithFallback(m3u8Url, referer);
   const text = await r1.text();
   let base = m3u8Url.substring(0, m3u8Url.lastIndexOf('/') + 1);
   let segmentUrls = text.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
   if (!segmentUrls.length) throw new Error('No segments found in playlist');
   if (segmentUrls[0].includes('.m3u8')) {
     const subUrl = segmentUrls[0].startsWith('http') ? segmentUrls[0] : base + segmentUrls[0];
-    const r2     = await fetchWithFallback(subUrl);
+    const r2     = await fetchWithFallback(subUrl, referer);
     const subTxt = await r2.text();
     base = subUrl.substring(0, subUrl.lastIndexOf('/') + 1);
     segmentUrls = subTxt.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
@@ -960,7 +961,7 @@ async function downloadHLS(m3u8Url, filename, onProgress, onStatus) {
     const segUrl = segmentUrls[i].startsWith('http') ? segmentUrls[i] : base + segmentUrls[i];
     onStatus(`Downloading… ${i+1}/${total}`);
     onProgress(Math.round((i / total) * 100));
-    const sr  = await fetchWithFallback(segUrl);
+    const sr  = await fetchWithFallback(segUrl, referer);
     const buf = await sr.arrayBuffer();
     buffers.push(buf);
   }
@@ -980,127 +981,103 @@ async function downloadHLS(m3u8Url, filename, onProgress, onStatus) {
   onStatus('Done!');
 }
 
-// ── DOWNLOAD MODAL — 3-strategy resolver ─────────────────────────────────────
-// 1. Server resolves m3u8 directly  →  show download button
-// 2. Server fails, try proxy-scrape vidnest page for m3u8  →  show download button
-// 3. Both fail  →  embed the working vidnest player so user can use its ⬇ button
+// ── DOWNLOAD MODAL ───────────────────────────────────────────────────────────
 function DownloadModal({anime, curEp, onClose}) {
-  const [status,     setStatus]     = React.useState('resolving');
-  const [statusTxt,  setStatusTxt]  = React.useState('Contacting server…');
-  const [directUrl,  setDirectUrl]  = React.useState(null);
-  const [playerUrl,  setPlayerUrl]  = React.useState(null);
-  const [progress,   setProgress]   = React.useState(0);
-  const [error,      setError]      = React.useState('');
+  const [status,      setStatus]    = React.useState('loading');
+  const [m3u8Url,     setM3u8Url]   = React.useState(null);
+  const [m3u8Referer, setReferer]   = React.useState(null);
+  const [directDownload, setDirect] = React.useState(false);
+  const [progress,    setProgress]  = React.useState(0);
+  const [statusTxt,   setStatusTxt] = React.useState('Please wait\u2026');
+  const [error,       setError]     = React.useState('');
   const toast = useToast();
 
-  // Extract first m3u8 URL from an HTML string
-  const extractM3u8 = (html) => {
-    const patterns = [
-      /["'`]([^"'`\s]*\.m3u8[^"'`\s]*)[`'"]/g,
-      /"url"\s*:\s*"([^"]*\.m3u8[^"]*)"/g,
-      /file\s*:\s*["']([^"']+\.m3u8[^"']*)['"]/g,
-      /(https?:\/\/[^\s"'`<>]+\.m3u8[^\s"'`<>]*)/g,
-    ];
-    for (const re of patterns) {
-      let m;
-      while ((m = re.exec(html)) !== null) {
-        let u = m[1];
-        if (!u) continue;
-        if (u.startsWith('//')) u = 'https:' + u;
-        if (u.startsWith('http') && u.includes('m3u8')) return u;
-      }
-    }
-    return null;
-  };
-
-  const resolve = React.useCallback(async () => {
-    setStatus('resolving'); setError(''); setDirectUrl(null); setPlayerUrl(null);
-
-    // ── Step 1: Ask the server (tries AnimePahe chain + vidnest page scrape) ──
-    setStatusTxt('Contacting server…');
-    try {
-      const r  = await fetch(`/api/download?aniId=${anime.id}&ep=${curEp}`);
-      const d  = await r.json();
-
-      if (d.success && d.url) {
-        setDirectUrl(d.url); setStatus('ready'); return;
-      }
-
-      // ── Step 2: Server returned useFallback — try proxy-scraping vidnest ──
-      const pUrl = d.playerUrl || `https://vidnest.fun/animepahe/${anime.id}/${curEp}/sub`;
-      setStatusTxt('Trying alternate extraction…');
-      try {
-        const pr = await fetch(`/api/proxy?url=${encodeURIComponent(pUrl)}`);
-        if (pr.ok) {
-          const html = await pr.text();
-          const found = extractM3u8(html);
-          if (found) { setDirectUrl(found); setStatus('ready'); return; }
+  React.useEffect(() => {
+    fetch(`/api/download?aniId=${anime.id}&ep=${curEp}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.url || d.m3u8Url) {
+          setM3u8Url(d.url || d.m3u8Url);
+          setReferer(d.referer || null);
+          setDirect(!!d.direct);
+          setStatus('ready');
+        } else if (d.playerUrl || d.kwikUrl) {
+          setM3u8Url(d.playerUrl || d.kwikUrl);
+          setStatus('fallback');
+        } else {
+          setStatus('fallback');
         }
-      } catch(_) {}
-
-      // ── Step 3: Both failed — show embedded player as fallback ────────────
-      setPlayerUrl(pUrl);
-      setStatus('fallback');
-
-    } catch(e) {
-      setError(e.message); setStatus('error');
-    }
+      })
+      .catch(() => setStatus('fallback'));
   }, [anime.id, curEp]);
 
-  React.useEffect(() => { resolve(); }, [anime.id, curEp]);
+  const openVidnest = () => {
+    window.open(`https://vidnest.fun/animepahe/${anime.id}/${curEp}/sub`, '_blank', 'noopener');
+    onClose();
+  };
 
   const doDownload = async () => {
-    if (!directUrl) return;
+    if (!m3u8Url) return;
+    if (status === 'ready' && directDownload) {
+      window.open(m3u8Url, '_blank');
+      toast('\u2b07 Download starting\u2026');
+      onClose();
+      return;
+    }
+    if (status === 'fallback') { openVidnest(); return; }
     setStatus('downloading'); setProgress(0);
     const filename = `${anime.title.replace(/[^\w\s]/g,'').trim()} EP${String(curEp).padStart(3,'0')}.ts`;
     try {
-      await downloadHLS(directUrl, filename, setProgress, setStatusTxt);
-      setStatus('done');
-      toast('✅ Download complete!');
+      await downloadHLS(m3u8Url, filename, setProgress, setStatusTxt, m3u8Referer);
+      setStatus('done'); toast('\u2705 Download complete!');
     } catch(e) { setError(e.message); setStatus('error'); }
   };
 
-  const canClose = status !== 'downloading';
-
   return (
-    <div className="share-overlay" onClick={e=>{if(e.target===e.currentTarget&&canClose)onClose();}}>
-      <div className="share-sheet" style={{maxWidth: status==='fallback' ? 500 : 420}}
-        onClick={e=>e.stopPropagation()}>
+    <div className="share-overlay" onClick={e=>{if(e.target===e.currentTarget&&status!=='downloading')onClose();}}>
+      <div className="share-sheet" onClick={e=>e.stopPropagation()}>
         <div className="share-sheet-hdr">
-          <span className="share-sheet-title">⬇ Download — EP {curEp}</span>
-          <button className="share-sheet-close" onClick={()=>{if(canClose)onClose();}}>✕</button>
+          <span className="share-sheet-title">\u2b07 Download \u2014 EP {curEp}</span>
+          <button className="share-sheet-close" onClick={()=>{if(status!=='downloading')onClose();}}>\u2715</button>
         </div>
-        <p style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:16,lineHeight:1.6}}>
-          <strong style={{color:'#fb7185'}}>{anime.title}</strong> — Episode {curEp}
+        <p style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:20,lineHeight:1.6}}>
+          <strong style={{color:'#fb7185'}}>{anime.title}</strong> \u2014 Episode {curEp}
         </p>
 
-        {/* ── Resolving ── */}
-        {status==='resolving' && (
-          <div style={{textAlign:'center',padding:'1.2rem 0'}}>
-            <div className="spin-ring" style={{width:34,height:34,margin:'0 auto 12px'}}/>
-            <div style={{color:'var(--txt)',fontWeight:700,marginBottom:8}}>Resolving stream…</div>
-            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',lineHeight:1.7}}>{statusTxt}</div>
+        {status==='loading' && (
+          <div style={{textAlign:'center',padding:'1.5rem 0'}}>
+            <div className="spin-ring" style={{width:34,height:34,margin:'0 auto 14px'}}/>
+            <div style={{color:'var(--txt)',fontWeight:700,fontSize:14}}>Please wait\u2026</div>
+            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:6}}>Fetching download link</div>
           </div>
         )}
 
-        {/* ── Ready — direct download ── */}
         {status==='ready' && (
           <>
             <div style={{background:'rgba(34,197,94,.06)',border:'1px solid rgba(34,197,94,.2)',borderRadius:10,padding:'12px 14px',marginBottom:16}}>
-              <div style={{fontFamily:'var(--mono)',fontSize:9,color:'#86efac',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:4}}>Stream resolved ✓</div>
-              <div style={{fontSize:11,color:'var(--txt)',wordBreak:'break-all',lineHeight:1.5,opacity:.7}}>{directUrl?.substring(0,65)}…</div>
+              <div style={{fontFamily:'var(--mono)',fontSize:9,color:'#86efac',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:4}}>Stream resolved \u2713</div>
+              <div style={{fontSize:11,color:'var(--txt)',wordBreak:'break-all',lineHeight:1.5,opacity:.7}}>{m3u8Url?.substring(0,55)}\u2026</div>
             </div>
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginBottom:16,lineHeight:1.6}}>
-              ⚡ Downloads as <strong style={{color:'var(--txt)'}}>​.ts</strong> — plays in VLC, MX Player, and most media players
+              Downloads as <strong style={{color:'var(--txt)'}}>​.ts</strong> \u2014 plays in VLC, MX Player &amp; most media players.
             </div>
             <button className="btn-play" style={{width:'100%',justifyContent:'center',fontSize:14,padding:'13px'}} onClick={doDownload}>
-              <svg viewBox="0 0 20 20" fill="currentColor" style={{width:15,height:15}}><path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"/></svg>
-              Download Episode {curEp}
+              \u2b07 Download Episode {curEp}
             </button>
           </>
         )}
 
-        {/* ── Downloading with progress ── */}
+        {status==='fallback' && (
+          <>
+            <div style={{background:'rgba(251,191,36,.06)',border:'1px solid rgba(251,191,36,.18)',borderRadius:10,padding:'12px 14px',marginBottom:16,fontFamily:'var(--mono)',fontSize:10,color:'#fcd34d',lineHeight:1.7}}>
+              \u26a1 Direct link unavailable. The player page has a built-in download button.
+            </div>
+            <button className="btn-play" style={{width:'100%',justifyContent:'center',fontSize:14,padding:'13px'}} onClick={openVidnest}>
+              \u25ba Open Player &amp; Download
+            </button>
+          </>
+        )}
+
         {status==='downloading' && (
           <div style={{textAlign:'center',padding:'.5rem 0'}}>
             <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:12}}>{statusTxt}</div>
@@ -1112,57 +1089,23 @@ function DownloadModal({anime, curEp, onClose}) {
           </div>
         )}
 
-        {/* ── Done ── */}
         {status==='done' && (
           <div style={{textAlign:'center',padding:'1rem 0'}}>
-            <div style={{fontSize:'2.5rem',marginBottom:8}}>✅</div>
+            <div style={{fontSize:'2.5rem',marginBottom:8}}>\u2705</div>
             <div style={{color:'var(--txt)',fontWeight:800,fontSize:'1.1rem',marginBottom:4}}>Download Complete!</div>
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>Check your downloads folder</div>
           </div>
         )}
 
-        {/* ── Fallback: embed the working vidnest player ── */}
-        {status==='fallback' && playerUrl && (
-          <div>
-            <div style={{background:'rgba(251,191,36,.07)',border:'1px solid rgba(251,191,36,.22)',borderRadius:10,padding:'10px 13px',marginBottom:14,display:'flex',gap:9,alignItems:'flex-start'}}>
-              <span style={{fontSize:'1.1rem',flexShrink:0,marginTop:1}}>⚡</span>
-              <div style={{fontFamily:'var(--mono)',fontSize:10,color:'rgba(251,191,36,.9)',lineHeight:1.75}}>
-                Automatic extraction unavailable for this episode.<br/>
-                <strong style={{color:'#fde68a'}}>Press ▶ to play, then click the ⬇ icon in the player bar to download.</strong>
-              </div>
-            </div>
-            {/* Embedded player */}
-            <div style={{borderRadius:10,overflow:'hidden',aspectRatio:'16/9',background:'#000',border:'1px solid var(--border)',marginBottom:11}}>
-              <iframe
-                src={playerUrl}
-                style={{width:'100%',height:'100%',border:'none',display:'block'}}
-                allowFullScreen
-                allow="autoplay;fullscreen;picture-in-picture;encrypted-media"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-            <div style={{fontFamily:'var(--mono)',fontSize:9,color:'var(--txt3)',textAlign:'center',marginBottom:13,lineHeight:1.7}}>
-              The player above has a built-in download button (⬇) in its controls.<br/>
-              Or open it in a new tab for a larger view.
-            </div>
-            <div style={{display:'flex',gap:8}}>
-              <a href={playerUrl} target="_blank" rel="noopener noreferrer"
-                className="share-trigger" style={{flex:1,justifyContent:'center',textDecoration:'none'}}>
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" style={{width:11,height:11}}><path d="M6.5 3.5H3a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V9m-3-5.5H13.5m0 0v5.5m0-5.5L7 9" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                Open Full Tab
-              </a>
-              <button className="share-trigger" onClick={resolve} style={{flexShrink:0}}>↺ Retry</button>
-            </div>
-          </div>
-        )}
-
-        {/* ── Error ── */}
         {status==='error' && (
           <div style={{textAlign:'center',padding:'1rem 0'}}>
-            <div style={{fontSize:'2rem',marginBottom:8}}>❌</div>
+            <div style={{fontSize:'2rem',marginBottom:8}}>\u274c</div>
             <div style={{color:'var(--txt)',fontWeight:700,marginBottom:6}}>Download failed</div>
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',lineHeight:1.6,marginBottom:14}}>{error}</div>
-            <button className="share-trigger" onClick={resolve}>Try Again</button>
+            <div style={{display:'flex',gap:8,justifyContent:'center'}}>
+              <button className="share-trigger" onClick={()=>{setStatus('ready');setError('');}}>Try Again</button>
+              <button className="share-trigger" onClick={openVidnest}>Open Player Page</button>
+            </div>
           </div>
         )}
       </div>
