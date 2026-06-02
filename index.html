@@ -123,6 +123,7 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mux.js@6.3.0/dist/mux.min.js"></script>
   <style>
     :root{
       --red:#e11d48;--red2:#9f1239;--glow:rgba(225,29,72,.28);
@@ -941,7 +942,7 @@ async function fetchWithFallback(url, referer) {
   return r;
 }
 
-async function downloadHLS(m3u8Url, filename, onProgress, onStatus, referer) {
+async function downloadHLS(m3u8Url, filename, onProgress, onStatus, referer, onSize) {
   onStatus('Fetching playlist…');
   const r1   = await fetchWithFallback(m3u8Url, referer);
   const text = await r1.text();
@@ -957,6 +958,7 @@ async function downloadHLS(m3u8Url, filename, onProgress, onStatus, referer) {
   }
   const total   = segmentUrls.length;
   const buffers = [];
+  let downloadedBytes = 0;
   for (let i = 0; i < total; i++) {
     const segUrl = segmentUrls[i].startsWith('http') ? segmentUrls[i] : base + segmentUrls[i];
     onStatus(`Downloading… ${i+1}/${total}`);
@@ -964,6 +966,8 @@ async function downloadHLS(m3u8Url, filename, onProgress, onStatus, referer) {
     const sr  = await fetchWithFallback(segUrl, referer);
     const buf = await sr.arrayBuffer();
     buffers.push(buf);
+    downloadedBytes += buf.byteLength;
+    if (onSize) onSize(downloadedBytes);
   }
   onStatus('Merging…');
   onProgress(99);
@@ -988,8 +992,14 @@ function DownloadModal({anime, curEp, onClose}) {
   const [m3u8Referer, setReferer]   = React.useState(null);
   const [directDownload, setDirect] = React.useState(false);
   const [progress,    setProgress]  = React.useState(0);
-  const [statusTxt,   setStatusTxt] = React.useState('Please wait\u2026');
+  const [statusTxt,   setStatusTxt] = React.useState('Please wait…');
   const [error,       setError]     = React.useState('');
+  const [fileSize,    setFileSize]  = React.useState(0);
+  const [finalSize,   setFinalSize] = React.useState(0);
+  const fmtSize = (b) => {
+    if (!b) return '';
+    return b < 1048576 ? `${(b/1024).toFixed(1)} KB` : `${(b/1048576).toFixed(1)} MB`;
+  };
   const toast = useToast();
 
   React.useEffect(() => {
@@ -1020,7 +1030,7 @@ function DownloadModal({anime, curEp, onClose}) {
     if (!m3u8Url) return;
     if (status === 'ready' && directDownload) {
       window.open(m3u8Url, '_blank');
-      toast('\u2b07 Download starting\u2026');
+      toast('⬇ Download starting…');
       onClose();
       return;
     }
@@ -1028,8 +1038,9 @@ function DownloadModal({anime, curEp, onClose}) {
     setStatus('downloading'); setProgress(0);
     const filename = `${anime.title.replace(/[^\w\s]/g,'').trim()} EP${String(curEp).padStart(3,'0')}.ts`;
     try {
-      await downloadHLS(m3u8Url, filename, setProgress, setStatusTxt, m3u8Referer);
-      setStatus('done'); toast('\u2705 Download complete!');
+      await downloadHLS(m3u8Url, filename, setProgress, setStatusTxt, m3u8Referer, (bytes) => { setFileSize(bytes); });
+      setFinalSize(fileSize);
+      setStatus('done'); toast('✅ Download complete!');
     } catch(e) { setError(e.message); setStatus('error'); }
   };
 
@@ -1037,17 +1048,17 @@ function DownloadModal({anime, curEp, onClose}) {
     <div className="share-overlay" onClick={e=>{if(e.target===e.currentTarget&&status!=='downloading')onClose();}}>
       <div className="share-sheet" onClick={e=>e.stopPropagation()}>
         <div className="share-sheet-hdr">
-          <span className="share-sheet-title">\u2b07 Download \u2014 EP {curEp}</span>
-          <button className="share-sheet-close" onClick={()=>{if(status!=='downloading')onClose();}}>\u2715</button>
+          <span className="share-sheet-title">⬇ Download — EP {curEp}</span>
+          <button className="share-sheet-close" onClick={()=>{if(status!=='downloading')onClose();}}>✕</button>
         </div>
         <p style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:20,lineHeight:1.6}}>
-          <strong style={{color:'#fb7185'}}>{anime.title}</strong> \u2014 Episode {curEp}
+          <strong style={{color:'#fb7185'}}>{anime.title}</strong> — Episode {curEp}
         </p>
 
         {status==='loading' && (
           <div style={{textAlign:'center',padding:'1.5rem 0'}}>
             <div className="spin-ring" style={{width:34,height:34,margin:'0 auto 14px'}}/>
-            <div style={{color:'var(--txt)',fontWeight:700,fontSize:14}}>Please wait\u2026</div>
+            <div style={{color:'var(--txt)',fontWeight:700,fontSize:14}}>Please wait…</div>
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:6}}>Fetching download link</div>
           </div>
         )}
@@ -1055,14 +1066,14 @@ function DownloadModal({anime, curEp, onClose}) {
         {status==='ready' && (
           <>
             <div style={{background:'rgba(34,197,94,.06)',border:'1px solid rgba(34,197,94,.2)',borderRadius:10,padding:'12px 14px',marginBottom:16}}>
-              <div style={{fontFamily:'var(--mono)',fontSize:9,color:'#86efac',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:4}}>Stream resolved \u2713</div>
-              <div style={{fontSize:11,color:'var(--txt)',wordBreak:'break-all',lineHeight:1.5,opacity:.7}}>{m3u8Url?.substring(0,55)}\u2026</div>
+              <div style={{fontFamily:'var(--mono)',fontSize:9,color:'#86efac',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:4}}>Stream resolved ✓</div>
+              <div style={{fontSize:11,color:'var(--txt)',wordBreak:'break-all',lineHeight:1.5,opacity:.7}}>{m3u8Url?.substring(0,55)}…</div>
             </div>
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginBottom:16,lineHeight:1.6}}>
-              Downloads as <strong style={{color:'var(--txt)'}}>​.ts</strong> \u2014 plays in VLC, MX Player &amp; most media players.
+              Downloads as <strong style={{color:'var(--txt)'}}>​.ts</strong> — plays in VLC, MX Player &amp; most media players.
             </div>
             <button className="btn-play" style={{width:'100%',justifyContent:'center',fontSize:14,padding:'13px'}} onClick={doDownload}>
-              \u2b07 Download Episode {curEp}
+              ⬇ Download Episode {curEp}
             </button>
           </>
         )}
@@ -1070,10 +1081,10 @@ function DownloadModal({anime, curEp, onClose}) {
         {status==='fallback' && (
           <>
             <div style={{background:'rgba(251,191,36,.06)',border:'1px solid rgba(251,191,36,.18)',borderRadius:10,padding:'12px 14px',marginBottom:16,fontFamily:'var(--mono)',fontSize:10,color:'#fcd34d',lineHeight:1.7}}>
-              \u26a1 Direct link unavailable. The player page has a built-in download button.
+              ⚡ Direct link unavailable. The player page has a built-in download button.
             </div>
             <button className="btn-play" style={{width:'100%',justifyContent:'center',fontSize:14,padding:'13px'}} onClick={openVidnest}>
-              \u25ba Open Player &amp; Download
+              ► Open Player &amp; Download
             </button>
           </>
         )}
@@ -1084,22 +1095,34 @@ function DownloadModal({anime, curEp, onClose}) {
             <div style={{background:'var(--bg2)',borderRadius:999,height:8,overflow:'hidden',marginBottom:8}}>
               <div style={{height:'100%',background:'linear-gradient(90deg,#e11d48,#9f1239)',borderRadius:999,width:`${progress}%`,transition:'width .3s ease'}}/>
             </div>
-            <div style={{fontFamily:'var(--mono)',fontSize:12,color:'#fb7185',fontWeight:700}}>{progress}%</div>
-            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:8}}>Do not close this window</div>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:16,marginBottom:6}}>
+              <div style={{fontFamily:'var(--mono)',fontSize:13,color:'#fb7185',fontWeight:700}}>{progress}%</div>
+              {fileSize > 0 && (
+                <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt2)',background:'rgba(255,255,255,.06)',padding:'2px 10px',borderRadius:6}}>
+                  {fmtSize(fileSize)}
+                </div>
+              )}
+            </div>
+            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:4}}>Do not close this window</div>
           </div>
         )}
 
         {status==='done' && (
           <div style={{textAlign:'center',padding:'1rem 0'}}>
-            <div style={{fontSize:'2.5rem',marginBottom:8}}>\u2705</div>
-            <div style={{color:'var(--txt)',fontWeight:800,fontSize:'1.1rem',marginBottom:4}}>Download Complete!</div>
-            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>Check your downloads folder</div>
+            <div style={{fontSize:'2.5rem',marginBottom:8}}>✅</div>
+            <div style={{color:'var(--txt)',fontWeight:800,fontSize:'1.1rem',marginBottom:6}}>Download Complete!</div>
+            {finalSize > 0 && (
+              <div style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--txt2)',background:'rgba(255,255,255,.06)',display:'inline-block',padding:'3px 14px',borderRadius:8,marginBottom:8}}>
+                {fmtSize(finalSize)}
+              </div>
+            )}
+            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>Saved to your downloads folder · plays in VLC or MX Player</div>
           </div>
         )}
 
         {status==='error' && (
           <div style={{textAlign:'center',padding:'1rem 0'}}>
-            <div style={{fontSize:'2rem',marginBottom:8}}>\u274c</div>
+            <div style={{fontSize:'2rem',marginBottom:8}}>❌</div>
             <div style={{color:'var(--txt)',fontWeight:700,marginBottom:6}}>Download failed</div>
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',lineHeight:1.6,marginBottom:14}}>{error}</div>
             <div style={{display:'flex',gap:8,justifyContent:'center'}}>
