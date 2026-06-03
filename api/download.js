@@ -17,12 +17,12 @@ const BROWSER_HEADERS = {
 async function getTitle(aniId) {
   try {
     const r = await fetch(ANILIST, {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        query: `query($id:Int){Media(id:$id,type:ANIME){title{english romaji}}}`,
-        variables: { id: parseInt(aniId) }
-      })
+        query:     'query($id:Int){Media(id:$id,type:ANIME){title{english romaji}}}',
+        variables: { id: parseInt(aniId) },
+      }),
     });
     const d = await r.json();
     return d.data?.Media?.title?.english || d.data?.Media?.title?.romaji || null;
@@ -31,54 +31,46 @@ async function getTitle(aniId) {
 
 async function resolveViaScraper(title, epNum) {
   try {
-    const searchR = await fetch(
-      `${PAHE_API}/search?q=${encodeURIComponent(title)}`,
-      { headers: PAHE_HEADERS }
-    );
-    if (!searchR.ok) return null;
-    const list = await searchR.json();
+    // 1. Search
+    const sR = await fetch(`${PAHE_API}/search?q=${encodeURIComponent(title)}`, { headers: PAHE_HEADERS });
+    if (!sR.ok) return null;
+    const list = await sR.json();
     if (!Array.isArray(list) || !list.length) return null;
 
     const t     = title.toLowerCase();
     const anime = list.find(a => (a.title || '').toLowerCase().includes(t)) || list[0];
 
-    const epsR = await fetch(
-      `${PAHE_API}/episodes?session=${anime.session || anime.id}`,
-      { headers: PAHE_HEADERS }
-    );
-    if (!epsR.ok) return null;
-    const episodes = await epsR.json();
-    if (!Array.isArray(episodes) || !episodes.length) return null;
+    // 2. Episodes  (API uses `number` not `episode`)
+    const eR  = await fetch(`${PAHE_API}/episodes?session=${anime.session || anime.id}`, { headers: PAHE_HEADERS });
+    if (!eR.ok) return null;
+    const eps = await eR.json();
+    if (!Array.isArray(eps) || !eps.length) return null;
 
-    const episode =
-      episodes.find(e => Math.round(parseFloat(e.number ?? e.episode ?? 0)) === epNum)
-      || episodes[epNum - 1];
-    if (!episode) return null;
+    const ep = eps.find(e => Math.round(parseFloat(e.number ?? e.episode ?? 0)) === epNum)
+               || eps[epNum - 1];
+    if (!ep) return null;
 
+    // 3. Sources
     const srcR = await fetch(
-      `${PAHE_API}/sources?anime_session=${anime.session || anime.id}&episode_session=${episode.session || episode.id}`,
+      `${PAHE_API}/sources?anime_session=${anime.session || anime.id}&episode_session=${ep.session || ep.id}`,
       { headers: PAHE_HEADERS }
     );
     if (!srcR.ok) return null;
     const sources = await srcR.json();
     if (!Array.isArray(sources) || !sources.length) return null;
 
-    const best    = sources[sources.length - 1];
+    const best    = sources[sources.length - 1];   // highest quality last
     const kwikUrl = best.url || best.kwik;
     if (!kwikUrl) return null;
 
-    const m3u8R = await fetch(
-      `${PAHE_API}/m3u8?url=${encodeURIComponent(kwikUrl)}`,
-      { headers: PAHE_HEADERS }
-    );
-    if (!m3u8R.ok) return null;
-    const m3u8D = await m3u8R.json();
+    // 4. Resolve kwik → m3u8  (returns { m3u8, referer, proxy_url })
+    const mR  = await fetch(`${PAHE_API}/m3u8?url=${encodeURIComponent(kwikUrl)}`, { headers: PAHE_HEADERS });
+    if (!mR.ok) return null;
+    const mD  = await mR.json();
+    const url = mD.m3u8 || mD.url || mD.source || (typeof mD === 'string' ? mD : null);
 
-    const url     = m3u8D.m3u8 || m3u8D.url || m3u8D.source
-                    || (typeof m3u8D === 'string' ? m3u8D : null);
-    const referer = m3u8D.referer || null;
+    return url ? { url, referer: mD.referer || null, quality: best.quality || '720p' } : null;
 
-    return url ? { url, referer, quality: best.quality || '720p' } : null;
   } catch (e) {
     console.error('Scraper error:', e.message);
     return null;
@@ -91,12 +83,12 @@ async function resolveFromVidnest(aniId, epNum, lang) {
     const r = await fetch(playerUrl, { headers: BROWSER_HEADERS });
     if (!r.ok) return null;
     const html = await r.text();
-    const patterns = [
+    const pats = [
       /["'`]([^"'`\s]*\.m3u8[^"'`\s]*)[`'"]/g,
       /"url"\s*:\s*"([^"]*\.m3u8[^"]*)"/g,
       /(https?:\/\/[^\s"'`<>]+\.m3u8[^\s"'`<>]*)/g,
     ];
-    for (const pat of patterns) {
+    for (const pat of pats) {
       let m;
       while ((m = pat.exec(html)) !== null) {
         let u = m[1];
@@ -123,7 +115,7 @@ export default async function handler(req, res) {
   try {
     const title = await getTitle(aniId);
 
-    // Strategy 1: AnimePahe chain via animepahe-api-liard.vercel.app
+    // Strategy 1 — full AnimePahe chain
     if (title) {
       const result = await resolveViaScraper(title, epNum);
       if (result?.url) {
@@ -133,27 +125,27 @@ export default async function handler(req, res) {
           episode:  epNum,
           quality:  result.quality,
           url:      result.url,
-          referer:  result.referer,
-          filename: `${title.replace(/[^\w\s]/g, '')} EP${String(epNum).padStart(3, '0')}.ts`
+          referer:  result.referer,          // ← CDN needs correct Referer
+          filename: `${title.replace(/[^\w\s]/g, '')} EP${String(epNum).padStart(3, '0')}.mp4`,
         });
       }
     }
 
-    // Strategy 2: Scrape vidnest.fun page for m3u8
-    const vidResult = await resolveFromVidnest(aniId, epNum, L);
-    if (vidResult?.url) {
+    // Strategy 2 — scrape vidnest page
+    const vr = await resolveFromVidnest(aniId, epNum, L);
+    if (vr?.url) {
       return res.status(200).json({
         success:  true,
         title:    title || 'Anime',
         episode:  epNum,
         quality:  'auto',
-        url:      vidResult.url,
-        referer:  vidResult.referer,
-        filename: `${(title || 'Anime').replace(/[^\w\s]/g, '')} EP${String(epNum).padStart(3, '0')}.ts`
+        url:      vr.url,
+        referer:  vr.referer,
+        filename: `${(title || 'Anime').replace(/[^\w\s]/g, '')} EP${String(epNum).padStart(3, '0')}.mp4`,
       });
     }
 
-    // Strategy 3: Fallback to player page
+    // Strategy 3 — fallback: let client embed the player
     return res.status(200).json({
       success:     false,
       title:       title || 'Anime',
