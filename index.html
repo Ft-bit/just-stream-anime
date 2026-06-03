@@ -132,6 +132,7 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mux.js@6.3.0/dist/mux.min.js"></script>
   <style>
     :root{
       --red:#e11d48;--red2:#9f1239;--glow:rgba(225,29,72,.28);
@@ -1258,67 +1259,133 @@ function SearchBar({onSel, onSearch}) {
 
 // ── CLIENT-SIDE HLS DOWNLOADER ────────────────────────────────────────────────
 
+// ── PASTE THIS BLOCK to REPLACE everything from
+//    "async function fetchWithFallback" through the end of "function downloadHLS"
+//    in your index.html  ─────────────────────────────────────────────────────
+
 async function fetchWithFallback(url, referer) {
   try {
-    const r = await fetch(url, { headers:{ Referer: referer || 'https://jsanime.site/' } });
+    const r = await fetch(url, { headers: { Referer: referer || 'https://jsanime.site/' } });
     if (r.ok) return r;
-  } catch(_) {}
+  } catch (_) {}
   const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}${referer ? '&referer=' + encodeURIComponent(referer) : ''}`;
   const r = await fetch(proxyUrl);
-  if (!r.ok) throw new Error(`Fetch failed: ${r.status}`);
+  if (!r.ok) throw new Error(`Fetch failed for ${url}`);
   return r;
+}
+
+// Converts merged TS buffers → proper MP4 using mux.js (loaded from CDN in <head>)
+async function transmuxToMP4(buffers) {
+  return new Promise((resolve, reject) => {
+    const transmuxer = new muxjs.mp4.Transmuxer();
+    const chunks = [];
+    transmuxer.on('data', seg => {
+      if (seg.initSegment) chunks.push(seg.initSegment);
+      chunks.push(seg.data);
+    });
+    transmuxer.on('done', () => {
+      const total  = chunks.reduce((s, b) => s + b.byteLength, 0);
+      const merged = new Uint8Array(total);
+      let off = 0;
+      for (const c of chunks) {
+        merged.set(new Uint8Array(c instanceof ArrayBuffer ? c : c.buffer), off);
+        off += c.byteLength;
+      }
+      resolve(merged);
+    });
+    transmuxer.on('error', reject);
+    for (const buf of buffers) transmuxer.push(new Uint8Array(buf));
+    transmuxer.flush();
+  });
+}
+
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a   = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
 async function downloadHLS(m3u8Url, filename, onProgress, onStatus, referer, onSize) {
   onStatus('Fetching playlist…');
   const r1   = await fetchWithFallback(m3u8Url, referer);
   const text = await r1.text();
-  let base = m3u8Url.substring(0, m3u8Url.lastIndexOf('/') + 1);
-  let segmentUrls = text.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
-  if (!segmentUrls.length) throw new Error('No segments found');
-  if (segmentUrls[0].includes('.m3u8')) {
-    const subUrl = segmentUrls[0].startsWith('http') ? segmentUrls[0] : base + segmentUrls[0];
-    base = subUrl.substring(0, subUrl.lastIndexOf('/') + 1);
-    const r2 = await fetchWithFallback(subUrl, referer);
-    const sub = await r2.text();
-    segmentUrls = sub.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
+  let base   = m3u8Url.substring(0, m3u8Url.lastIndexOf('/') + 1);
+
+  let segUrls = text.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+  if (!segUrls.length) throw new Error('No segments found in playlist');
+
+  if (segUrls[0].includes('.m3u8')) {
+    const subUrl = segUrls[0].startsWith('http') ? segUrls[0] : base + segUrls[0];
+    const r2     = await fetchWithFallback(subUrl, referer);
+    const subTxt = await r2.text();
+    base    = subUrl.substring(0, subUrl.lastIndexOf('/') + 1);
+    segUrls = subTxt.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
   }
-  const total = segmentUrls.length, bufs = [];
-  let downloadedBytes = 0;
-  for (let i=0; i<total; i++) {
-    const su = segmentUrls[i].startsWith('http') ? segmentUrls[i] : base + segmentUrls[i];
-    onStatus(`Downloading… ${i+1}/${total}`); onProgress(Math.round(i/total*100));
-    const sr = await fetchWithFallback(su, referer);
+
+  const total   = segUrls.length;
+  const buffers = [];
+  let downloaded = 0;
+
+  for (let i = 0; i < total; i++) {
+    const su  = segUrls[i].startsWith('http') ? segUrls[i] : base + segUrls[i];
+    onStatus(`Downloading… ${i + 1}/${total}`);
+    onProgress(Math.round((i / total) * 100));
+    const sr  = await fetchWithFallback(su, referer);
     const buf = await sr.arrayBuffer();
-    bufs.push(buf);
-    downloadedBytes += buf.byteLength;
-    if (onSize) onSize(downloadedBytes);
+    buffers.push(buf);
+    downloaded += buf.byteLength;
+    if (onSize) onSize(downloaded);
   }
-  onStatus('Merging…'); onProgress(99);
-  const totalBytes = bufs.reduce((s,b)=>s+b.byteLength,0);
-  const merged = new Uint8Array(totalBytes);
+
+  const baseName = filename.replace(/\.(ts|mp4)$/, '');
+
+  // Try MP4 via mux.js first
+  try {
+    if (window.muxjs) {
+      onStatus('Converting to MP4…');
+      onProgress(98);
+      const mp4 = await transmuxToMP4(buffers);
+      if (onSize) onSize(mp4.byteLength);
+      triggerDownload(new Blob([mp4], { type: 'video/mp4' }), baseName + '.mp4');
+      onProgress(100); onStatus('Done!');
+      return;
+    }
+  } catch (e) {
+    console.warn('MP4 transmux failed, saving as .ts:', e.message);
+  }
+
+  // Fallback: save as .ts
+  onStatus('Saving…');
+  onProgress(99);
+  const total2 = buffers.reduce((s, b) => s + b.byteLength, 0);
+  const merged  = new Uint8Array(total2);
   let off = 0;
-  for (const b of bufs) { merged.set(new Uint8Array(b), off); off += b.byteLength; }
-  const blob = new Blob([merged], {type:'video/mp2t'});
-  const blobUrl = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = blobUrl; a.download = filename;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(blobUrl), 5000);
+  for (const b of buffers) { merged.set(new Uint8Array(b), off); off += b.byteLength; }
+  triggerDownload(new Blob([merged], { type: 'video/mp2t' }), baseName + '.ts');
   onProgress(100); onStatus('Done!');
 }
 
+// ── PASTE THIS to REPLACE your entire "function DownloadModal" block ──────────
+
 function DownloadModal({anime, curEp, onClose}) {
-  const [status,      setStatus]    = React.useState('loading');
-  const [m3u8Url,     setM3u8Url]   = React.useState(null);
-  const [m3u8Referer, setReferer]   = React.useState(null);
-  const [directDownload, setDirect] = React.useState(false);
-  const [progress,    setProgress]  = React.useState(0);
-  const [statusTxt,   setStatusTxt] = React.useState('Please wait…');
-  const [error,       setError]     = React.useState('');
-  const [fileSize,    setFileSize]  = React.useState(0);
-  const fmtSize = b => b < 1048576 ? `${(b/1024).toFixed(1)} KB` : `${(b/1048576).toFixed(1)} MB`;
+  const [status,         setStatus]    = React.useState('loading');
+  const [m3u8Url,        setM3u8Url]   = React.useState(null);
+  const [m3u8Referer,    setReferer]   = React.useState(null);
+  const [quality,        setQuality]   = React.useState(null);
+  const [directDownload, setDirect]    = React.useState(false);
+  const [progress,       setProgress]  = React.useState(0);
+  const [statusTxt,      setStatusTxt] = React.useState('Please wait…');
+  const [fileSize,       setFileSize]  = React.useState(0);
+  const [finalSize,      setFinalSize] = React.useState(0);
+  const [error,          setError]     = React.useState('');
   const toast = useToast();
+
+  const fmtSize = (b) => {
+    if (!b) return '';
+    return b < 1048576 ? `${(b / 1024).toFixed(1)} KB` : `${(b / 1048576).toFixed(1)} MB`;
+  };
 
   React.useEffect(() => {
     fetch(`/api/download?aniId=${anime.id}&ep=${curEp}`)
@@ -1327,6 +1394,7 @@ function DownloadModal({anime, curEp, onClose}) {
         if (d.url || d.m3u8Url) {
           setM3u8Url(d.url || d.m3u8Url);
           setReferer(d.referer || null);
+          setQuality(d.quality || null);
           setDirect(!!d.direct);
           setStatus('ready');
         } else if (d.playerUrl || d.kwikUrl) {
@@ -1346,7 +1414,6 @@ function DownloadModal({anime, curEp, onClose}) {
 
   const doDownload = async () => {
     if (!m3u8Url) return;
-    // direct=true means the url IS the download endpoint (VPS streams MP4 directly)
     if (status === 'ready' && directDownload) {
       window.open(m3u8Url, '_blank');
       toast('⬇ Download starting…');
@@ -1354,79 +1421,140 @@ function DownloadModal({anime, curEp, onClose}) {
       return;
     }
     if (status === 'fallback') { openVidnest(); return; }
-    setStatus('downloading'); setProgress(0); setFileSize(0);
-    const filename = `${anime.title.replace(/[^\w\s]/g,'').trim()} EP${String(curEp).padStart(3,'0')}.ts`;
+    setStatus('downloading');
+    setProgress(0);
+    setFileSize(0);
+    const filename = `${anime.title.replace(/[^\w\s]/g, '').trim()} EP${String(curEp).padStart(3, '0')}`;
     try {
-      await downloadHLS(m3u8Url, filename, setProgress, setStatusTxt, m3u8Referer, setFileSize);
-      setStatus('done'); toast('✅ Download complete!');
-    } catch(e) { setError(e.message); setStatus('error'); }
+      let lastSize = 0;
+      await downloadHLS(
+        m3u8Url, filename, setProgress, setStatusTxt, m3u8Referer,
+        (bytes) => { setFileSize(bytes); lastSize = bytes; }
+      );
+      setFinalSize(lastSize);
+      setStatus('done');
+      toast('✅ Download complete!');
+    } catch(e) {
+      setError(e.message);
+      setStatus('error');
+    }
   };
+
+  const epLabel     = `EP ${String(curEp).padStart(2, '0')}`;
+  const seasonLabel = anime.season ? ` · ${anime.season}` : '';
+  const qualLabel   = quality      ? ` · ${quality}`       : '';
 
   return (
     <div className="share-overlay" onClick={e=>{if(e.target===e.currentTarget&&status!=='downloading')onClose();}}>
       <div className="share-sheet" onClick={e=>e.stopPropagation()}>
+
+        {/* Header */}
         <div className="share-sheet-hdr">
-          <span className="share-sheet-title">⬇ Download — EP {curEp}</span>
+          <span className="share-sheet-title">⬇ Download — {epLabel}</span>
           <button className="share-sheet-close" onClick={()=>{if(status!=='downloading')onClose();}}>✕</button>
         </div>
-        <p style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:20,lineHeight:1.6}}>
-          <strong style={{color:'#fb7185'}}>{anime.title}</strong> — Episode {curEp}
-        </p>
+
+        {/* Anime info */}
+        <div style={{marginBottom:18,paddingBottom:14,borderBottom:'1px solid var(--border)'}}>
+          <div style={{fontWeight:800,fontSize:14,color:'#fff',marginBottom:3,lineHeight:1.3}}>{anime.title}</div>
+          <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>
+            Episode {curEp}{seasonLabel}{qualLabel}
+          </div>
+        </div>
+
+        {/* Loading */}
         {status==='loading' && (
           <div style={{textAlign:'center',padding:'1.5rem 0'}}>
             <div className="spin-ring" style={{width:34,height:34,margin:'0 auto 14px'}}/>
             <div style={{color:'var(--txt)',fontWeight:700,fontSize:14}}>Please wait…</div>
-            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:6}}>Fetching download link</div>
+            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:6}}>Resolving download link</div>
           </div>
         )}
+
+        {/* Ready */}
         {status==='ready' && (
           <>
             <div style={{background:'rgba(34,197,94,.06)',border:'1px solid rgba(34,197,94,.2)',borderRadius:10,padding:'12px 14px',marginBottom:16}}>
-              <div style={{fontFamily:'var(--mono)',fontSize:9,color:'#86efac',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:4}}>Link found ✓</div>
-              <div style={{fontSize:11,color:'var(--txt)',wordBreak:'break-all',lineHeight:1.5,opacity:.7}}>{m3u8Url?.substring(0,55)}…</div>
+              <div style={{fontFamily:'var(--mono)',fontSize:9,color:'#86efac',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:4}}>
+                Stream resolved ✓{quality ? ` · ${quality}` : ''}
+              </div>
+              <div style={{fontSize:11,color:'var(--txt)',wordBreak:'break-all',lineHeight:1.5,opacity:.6}}>
+                {m3u8Url?.substring(0, 62)}…
+              </div>
             </div>
-            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginBottom:16,lineHeight:1.6}}>
-              Downloads as <strong style={{color:'var(--txt)'}}>TS</strong> — plays in VLC, MX Player &amp; most media players.
+            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginBottom:16,lineHeight:1.7}}>
+              Saves as <strong style={{color:'var(--txt)'}}>MP4</strong> · plays in VLC, MX Player &amp; most media players
             </div>
-            <button className="btn-play" style={{width:'100%',justifyContent:'center',fontSize:14,padding:'13px'}} onClick={doDownload}>
+            <button className="btn-play"
+              style={{width:'100%',justifyContent:'center',fontSize:14,padding:'13px'}}
+              onClick={doDownload}>
               ⬇ Download Episode {curEp}
             </button>
           </>
         )}
+
+        {/* Fallback */}
         {status==='fallback' && (
           <>
             <div style={{background:'rgba(251,191,36,.06)',border:'1px solid rgba(251,191,36,.18)',borderRadius:10,padding:'12px 14px',marginBottom:16,fontFamily:'var(--mono)',fontSize:10,color:'#fcd34d',lineHeight:1.7}}>
-              ⚡ Direct link unavailable. The player page has a built-in download button.
+              ⚡ Direct link unavailable. Open the player — it has a built-in download button.
             </div>
-            <button className="btn-play" style={{width:'100%',justifyContent:'center',fontSize:14,padding:'13px'}} onClick={openVidnest}>
+            <button className="btn-play"
+              style={{width:'100%',justifyContent:'center',fontSize:14,padding:'13px'}}
+              onClick={openVidnest}>
               ► Open Player &amp; Download
             </button>
           </>
         )}
+
+        {/* Downloading */}
         {status==='downloading' && (
-          <div style={{textAlign:'center',padding:'.5rem 0'}}>
-            <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:12}}>{statusTxt}</div>
-            <div style={{background:'var(--bg2)',borderRadius:999,height:8,overflow:'hidden',marginBottom:8}}>
-              <div style={{height:'100%',background:'linear-gradient(90deg,#e11d48,#9f1239)',borderRadius:999,width:`${progress}%`,transition:'width .3s ease'}}/>
+          <div style={{padding:'.5rem 0'}}>
+            <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:10,textAlign:'center'}}>{statusTxt}</div>
+            <div style={{background:'var(--bg2)',borderRadius:999,height:10,overflow:'hidden',marginBottom:10}}>
+              <div style={{
+                height:'100%',
+                background:'linear-gradient(90deg,#e11d48,#9f1239)',
+                borderRadius:999,
+                width:`${progress}%`,
+                transition:'width .3s ease'
+              }}/>
             </div>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:16,marginBottom:6}}>
-              <div style={{fontFamily:'var(--mono)',fontSize:13,color:'#fb7185',fontWeight:700}}>{progress}%</div>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',fontFamily:'var(--mono)',fontSize:12}}>
+              <span style={{color:'#fb7185',fontWeight:800}}>{progress}%</span>
               {fileSize > 0 && (
-                <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt2)',background:'rgba(255,255,255,.06)',padding:'2px 10px',borderRadius:6}}>
+                <span style={{color:'var(--txt2)',background:'rgba(255,255,255,.07)',padding:'2px 10px',borderRadius:6}}>
                   {fmtSize(fileSize)}
-                </div>
+                </span>
               )}
             </div>
-            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:4}}>Do not close this window</div>
+            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:10,textAlign:'center'}}>
+              Do not close this window
+            </div>
           </div>
         )}
+
+        {/* Done */}
         {status==='done' && (
           <div style={{textAlign:'center',padding:'1rem 0'}}>
             <div style={{fontSize:'2.5rem',marginBottom:8}}>✅</div>
-            <div style={{color:'var(--txt)',fontWeight:800,fontSize:'1.1rem',marginBottom:4}}>Download Complete!</div>
-            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>Check your downloads folder</div>
+            <div style={{color:'var(--txt)',fontWeight:800,fontSize:'1.1rem',marginBottom:8}}>Download Complete!</div>
+            {finalSize > 0 && (
+              <div style={{
+                fontFamily:'var(--mono)',fontSize:12,color:'var(--txt2)',
+                background:'rgba(255,255,255,.07)',display:'inline-block',
+                padding:'3px 14px',borderRadius:8,marginBottom:10
+              }}>
+                {fmtSize(finalSize)}
+              </div>
+            )}
+            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>
+              Saved as MP4 · check your downloads folder
+            </div>
           </div>
         )}
+
+        {/* Error */}
         {status==='error' && (
           <div style={{textAlign:'center',padding:'1rem 0'}}>
             <div style={{fontSize:'2rem',marginBottom:8}}>❌</div>
@@ -1438,6 +1566,7 @@ function DownloadModal({anime, curEp, onClose}) {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
