@@ -1,6 +1,4 @@
-// api/proxy.js — CORS proxy for HLS segments and m3u8 playlists
-// Accepts &referer= so CDNs (vault-*.uwucdn.top etc.) get the correct Referer header
-
+// api/proxy.js — CORS + Referer proxy for HLS m3u8 and segment files
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin',  '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -9,47 +7,46 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
 
   const { url, referer } = req.query;
-  if (!url) return res.status(400).send('URL required');
+  if (!url) return res.status(400).send('url param required');
 
-  const allowed = [
-    'akamaized.net', 'cloudfront.net', 'fastly.net', 'cdnfile',
-    'kwik', 'pahe', 'animepahe', 'megaplay', 'vidnest',
-    'uwucdn', 'vault-',
-    '.m3u8', '.ts', '.mp4', '.m4s',
-  ];
-  if (!allowed.some(s => url.includes(s)))
-    return res.status(403).send('URL not allowed');
+  // Allow CDN domains used by AnimePahe
+  const ALLOWED = ['uwucdn.top','owocdn.top','vault-','kwik','pahe','animepahe',
+                   'megaplay','vidnest','akamaized.net','cloudfront.net',
+                   '.m3u8','.ts','.mp4','.m4s'];
+  if (!ALLOWED.some(s => url.includes(s)))
+    return res.status(403).send('domain not allowed');
 
-  // Use the supplied referer so CDN authenticates the request
-  const ref = referer || 'https://jsanime.site/';
-  let origin = 'https://jsanime.site';
+  const ref    = referer || 'https://kwik.si/';
+  let   origin = 'https://kwik.si';
   try { origin = new URL(ref).origin; } catch (_) {}
 
   try {
-    const response = await fetch(url, {
+    const upstream = await fetch(url, {
       headers: {
         'Referer':    ref,
         'Origin':     origin,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept':     '*/*',
       },
     });
 
-    if (!response.ok)
-      return res.status(response.status).send(`Upstream error: ${response.status}`);
+    if (!upstream.ok) {
+      console.error('Upstream error:', upstream.status, url.substring(0, 80));
+      return res.status(upstream.status).send(`Upstream ${upstream.status}`);
+    }
 
-    res.setHeader('Content-Type',  response.headers.get('content-type') || 'application/octet-stream');
+    const contentType = upstream.headers.get('content-type') || 'application/octet-stream';
+    res.setHeader('Content-Type',  contentType);
     res.setHeader('Cache-Control', 'public, max-age=3600');
 
-    const reader = response.body.getReader();
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      res.write(value);
-    }
-    res.end();
+    // Buffer the entire response — more reliable than streaming on Vercel
+    const arrayBuf = await upstream.arrayBuffer();
+    const buf      = Buffer.from(arrayBuf);
+    res.setHeader('Content-Length', buf.length);
+    res.end(buf);
 
   } catch (err) {
-    console.error('Proxy error:', err.message);
+    console.error('Proxy error:', err.message, 'url:', url.substring(0, 80));
     res.status(500).send(`Proxy error: ${err.message}`);
   }
-}
+};
