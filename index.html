@@ -1037,11 +1037,12 @@ async function downloadHLS(m3u8Url, filename, onProgress, onStatus, referer, onS
 
 
 function DownloadModal({anime, curEp, onClose}) {
+  const PAHE = 'https://animepahe-api-liard.vercel.app';
+
   const [status,         setStatus]    = React.useState('loading');
   const [m3u8Url,        setM3u8Url]   = React.useState(null);
   const [m3u8Referer,    setReferer]   = React.useState(null);
   const [quality,        setQuality]   = React.useState(null);
-  const [directDownload, setDirect]    = React.useState(false);
   const [progress,       setProgress]  = React.useState(0);
   const [statusTxt,      setStatusTxt] = React.useState('Please wait…');
   const [fileSize,       setFileSize]  = React.useState(0);
@@ -1051,28 +1052,65 @@ function DownloadModal({anime, curEp, onClose}) {
 
   const fmtSize = (b) => {
     if (!b) return '';
-    return b < 1048576 ? `${(b / 1024).toFixed(1)} KB` : `${(b / 1048576).toFixed(1)} MB`;
+    return b < 1048576 ? `${(b/1024).toFixed(1)} KB` : `${(b/1048576).toFixed(1)} MB`;
   };
 
-  React.useEffect(() => {
-    fetch(`/api/download?aniId=${anime.id}&ep=${curEp}`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.url || d.m3u8Url) {
-          setM3u8Url(d.url || d.m3u8Url);
-          setReferer(d.referer || null);
-          setQuality(d.quality || null);
-          setDirect(!!d.direct);
-          setStatus('ready');
-        } else if (d.playerUrl || d.kwikUrl) {
-          setM3u8Url(d.playerUrl || d.kwikUrl);
-          setStatus('fallback');
-        } else {
-          setStatus('fallback');
-        }
-      })
-      .catch(() => setStatus('fallback'));
+  // Resolve m3u8 directly from the browser — avoids server-side IP blocks
+  const resolveStream = React.useCallback(async () => {
+    const title = anime.title || anime.romaji || '';
+    if (!title) { setStatus('fallback'); return; }
+
+    try {
+      // 1. Search AnimePahe
+      const sR   = await fetch(`${PAHE}/search?q=${encodeURIComponent(title)}`);
+      if (!sR.ok) throw new Error('Search failed');
+      const list = await sR.json();
+      if (!Array.isArray(list) || !list.length) throw new Error('Anime not found');
+
+      const t = title.toLowerCase();
+      const a = list.find(x => (x.title||'').toLowerCase().includes(t)) || list[0];
+
+      // 2. Episodes
+      const eR     = await fetch(`${PAHE}/episodes?session=${a.session || a.id}`);
+      if (!eR.ok) throw new Error('Episodes failed');
+      const epsRaw = await eR.json();
+      const eps    = Array.isArray(epsRaw) ? epsRaw : (epsRaw.data || []);
+      if (!eps.length) throw new Error('No episodes');
+
+      const ep = eps.find(e => Math.round(parseFloat(e.number ?? e.episode ?? 0)) === curEp)
+                 || eps[curEp - 1];
+      if (!ep) throw new Error(`EP${curEp} not found`);
+
+      // 3. Sources
+      const srcR  = await fetch(`${PAHE}/sources?anime_session=${a.session||a.id}&episode_session=${ep.session||ep.id}`);
+      if (!srcR.ok) throw new Error('Sources failed');
+      const srcs  = await srcR.json();
+      const srcList = Array.isArray(srcs) ? srcs : (srcs.data || []);
+      if (!srcList.length) throw new Error('No sources');
+
+      const best    = srcList[srcList.length - 1]; // highest quality last
+      const kwikUrl = best.url || best.kwik;
+      if (!kwikUrl) throw new Error('No kwik URL');
+
+      // 4. Resolve kwik → m3u8
+      const mR  = await fetch(`${PAHE}/m3u8?url=${encodeURIComponent(kwikUrl)}`);
+      if (!mR.ok) throw new Error('m3u8 resolution failed');
+      const mD  = await mR.json();
+      const url = mD.m3u8 || mD.url || mD.source;
+      if (!url) throw new Error('No stream URL');
+
+      setM3u8Url(url);
+      setReferer(mD.referer || null);
+      setQuality(best.quality || null);
+      setStatus('ready');
+
+    } catch (e) {
+      console.warn('AnimePahe resolution failed:', e.message);
+      setStatus('fallback');
+    }
   }, [anime.id, curEp]);
+
+  React.useEffect(() => { resolveStream(); }, [anime.id, curEp]);
 
   const openVidnest = () => {
     window.open(`https://vidnest.fun/animepahe/${anime.id}/${curEp}/sub`, '_blank', 'noopener');
@@ -1081,17 +1119,11 @@ function DownloadModal({anime, curEp, onClose}) {
 
   const doDownload = async () => {
     if (!m3u8Url) return;
-    if (status === 'ready' && directDownload) {
-      window.open(m3u8Url, '_blank');
-      toast('⬇ Download starting…');
-      onClose();
-      return;
-    }
     if (status === 'fallback') { openVidnest(); return; }
     setStatus('downloading');
     setProgress(0);
     setFileSize(0);
-    const filename = `${anime.title.replace(/[^\w\s]/g, '').trim()} EP${String(curEp).padStart(3, '0')}`;
+    const filename = `${anime.title.replace(/[^\w\s]/g,'').trim()} EP${String(curEp).padStart(3,'0')}`;
     try {
       let lastSize = 0;
       await downloadHLS(
@@ -1100,28 +1132,26 @@ function DownloadModal({anime, curEp, onClose}) {
       );
       setFinalSize(lastSize);
       setStatus('done');
-      toast('✅ Download complete!');
+      toast('\u2705 Download complete!');
     } catch(e) {
       setError(e.message);
       setStatus('error');
     }
   };
 
-  const epLabel     = `EP ${String(curEp).padStart(2, '0')}`;
+  const epLabel     = `EP ${String(curEp).padStart(2,'0')}`;
   const seasonLabel = anime.season ? ` · ${anime.season}` : '';
-  const qualLabel   = quality      ? ` · ${quality}`       : '';
+  const qualLabel   = quality      ? ` · ${quality}`      : '';
 
   return (
     <div className="share-overlay" onClick={e=>{if(e.target===e.currentTarget&&status!=='downloading')onClose();}}>
       <div className="share-sheet" onClick={e=>e.stopPropagation()}>
 
-        {/* Header */}
         <div className="share-sheet-hdr">
           <span className="share-sheet-title">⬇ Download — {epLabel}</span>
           <button className="share-sheet-close" onClick={()=>{if(status!=='downloading')onClose();}}>✕</button>
         </div>
 
-        {/* Anime info */}
         <div style={{marginBottom:18,paddingBottom:14,borderBottom:'1px solid var(--border)'}}>
           <div style={{fontWeight:800,fontSize:14,color:'#fff',marginBottom:3,lineHeight:1.3}}>{anime.title}</div>
           <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>
@@ -1129,7 +1159,6 @@ function DownloadModal({anime, curEp, onClose}) {
           </div>
         </div>
 
-        {/* Loading */}
         {status==='loading' && (
           <div style={{textAlign:'center',padding:'1.5rem 0'}}>
             <div className="spin-ring" style={{width:34,height:34,margin:'0 auto 14px'}}/>
@@ -1138,7 +1167,6 @@ function DownloadModal({anime, curEp, onClose}) {
           </div>
         )}
 
-        {/* Ready */}
         {status==='ready' && (
           <>
             <div style={{background:'rgba(34,197,94,.06)',border:'1px solid rgba(34,197,94,.2)',borderRadius:10,padding:'12px 14px',marginBottom:16}}>
@@ -1146,7 +1174,7 @@ function DownloadModal({anime, curEp, onClose}) {
                 Stream resolved ✓{quality ? ` · ${quality}` : ''}
               </div>
               <div style={{fontSize:11,color:'var(--txt)',wordBreak:'break-all',lineHeight:1.5,opacity:.6}}>
-                {m3u8Url?.substring(0, 62)}…
+                {m3u8Url?.substring(0,62)}…
               </div>
             </div>
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginBottom:16,lineHeight:1.7}}>
@@ -1160,7 +1188,6 @@ function DownloadModal({anime, curEp, onClose}) {
           </>
         )}
 
-        {/* Fallback */}
         {status==='fallback' && (
           <>
             <div style={{background:'rgba(251,191,36,.06)',border:'1px solid rgba(251,191,36,.18)',borderRadius:10,padding:'12px 14px',marginBottom:16,fontFamily:'var(--mono)',fontSize:10,color:'#fcd34d',lineHeight:1.7}}>
@@ -1174,18 +1201,11 @@ function DownloadModal({anime, curEp, onClose}) {
           </>
         )}
 
-        {/* Downloading */}
         {status==='downloading' && (
           <div style={{padding:'.5rem 0'}}>
             <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:10,textAlign:'center'}}>{statusTxt}</div>
             <div style={{background:'var(--bg2)',borderRadius:999,height:10,overflow:'hidden',marginBottom:10}}>
-              <div style={{
-                height:'100%',
-                background:'linear-gradient(90deg,#e11d48,#9f1239)',
-                borderRadius:999,
-                width:`${progress}%`,
-                transition:'width .3s ease'
-              }}/>
+              <div style={{height:'100%',background:'linear-gradient(90deg,#e11d48,#9f1239)',borderRadius:999,width:`${progress}%`,transition:'width .3s ease'}}/>
             </div>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',fontFamily:'var(--mono)',fontSize:12}}>
               <span style={{color:'#fb7185',fontWeight:800}}>{progress}%</span>
@@ -1201,17 +1221,12 @@ function DownloadModal({anime, curEp, onClose}) {
           </div>
         )}
 
-        {/* Done */}
         {status==='done' && (
           <div style={{textAlign:'center',padding:'1rem 0'}}>
             <div style={{fontSize:'2.5rem',marginBottom:8}}>✅</div>
             <div style={{color:'var(--txt)',fontWeight:800,fontSize:'1.1rem',marginBottom:8}}>Download Complete!</div>
             {finalSize > 0 && (
-              <div style={{
-                fontFamily:'var(--mono)',fontSize:12,color:'var(--txt2)',
-                background:'rgba(255,255,255,.07)',display:'inline-block',
-                padding:'3px 14px',borderRadius:8,marginBottom:10
-              }}>
+              <div style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--txt2)',background:'rgba(255,255,255,.07)',display:'inline-block',padding:'3px 14px',borderRadius:8,marginBottom:10}}>
                 {fmtSize(finalSize)}
               </div>
             )}
@@ -1221,14 +1236,13 @@ function DownloadModal({anime, curEp, onClose}) {
           </div>
         )}
 
-        {/* Error */}
         {status==='error' && (
           <div style={{textAlign:'center',padding:'1rem 0'}}>
             <div style={{fontSize:'2rem',marginBottom:8}}>❌</div>
             <div style={{color:'var(--txt)',fontWeight:700,marginBottom:6}}>Download failed</div>
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',lineHeight:1.6,marginBottom:14}}>{error}</div>
             <div style={{display:'flex',gap:8,justifyContent:'center'}}>
-              <button className="share-trigger" onClick={()=>{setStatus('ready');setError('');}}>Try Again</button>
+              <button className="share-trigger" onClick={()=>{setStatus('loading');setError('');resolveStream();}}>Try Again</button>
               <button className="share-trigger" onClick={openVidnest}>Open Player Page</button>
             </div>
           </div>
