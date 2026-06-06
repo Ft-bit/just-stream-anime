@@ -931,114 +931,86 @@ function SearchBar({onSel, onSearch}) {
 
 // ── HLS DOWNLOADER HELPERS ────────────────────────────────────────────────────
 
+// ── CLIENT-SIDE HLS DOWNLOADER ───────────────────────────────────────────────
 async function fetchWithFallback(url, referer) {
   try {
-    const r = await fetch(url, { headers: { Referer: referer || 'https://jsanime.site/' } });
+    const r = await fetch(url, { headers:{ Referer: referer || 'https://jsanime.site/' } });
     if (r.ok) return r;
-  } catch (_) {}
-  const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}${referer ? '&referer=' + encodeURIComponent(referer) : ''}`;
-  const r = await fetch(proxyUrl);
-  if (!r.ok) throw new Error(`Fetch failed for ${url}`);
-  return r;
+  } catch(_) {}
+  const proxy = `/api/proxy?url=${encodeURIComponent(url)}${referer ? '&referer=' + encodeURIComponent(referer) : ''}`;
+  const r2 = await fetch(proxy);
+  if (!r2.ok) throw new Error('Fetch failed: ' + r2.status);
+  return r2;
 }
 
-// Converts merged TS buffers → proper MP4 using mux.js (loaded from CDN in <head>)
-async function transmuxToMP4(buffers) {
+async function transmuxToMP4(bufs) {
   return new Promise((resolve, reject) => {
-    const transmuxer = new muxjs.mp4.Transmuxer();
+    const tx = new muxjs.mp4.Transmuxer();
     const chunks = [];
-    transmuxer.on('data', seg => {
-      if (seg.initSegment) chunks.push(seg.initSegment);
-      chunks.push(seg.data);
+    tx.on('data', seg => { if (seg.initSegment) chunks.push(seg.initSegment); chunks.push(seg.data); });
+    tx.on('done', () => {
+      const total = chunks.reduce((s,b)=>s+b.byteLength,0);
+      const out = new Uint8Array(total); let off=0;
+      for (const c of chunks) { out.set(new Uint8Array(c instanceof ArrayBuffer?c:c.buffer),off); off+=c.byteLength; }
+      resolve(out);
     });
-    transmuxer.on('done', () => {
-      const total  = chunks.reduce((s, b) => s + b.byteLength, 0);
-      const merged = new Uint8Array(total);
-      let off = 0;
-      for (const c of chunks) {
-        merged.set(new Uint8Array(c instanceof ArrayBuffer ? c : c.buffer), off);
-        off += c.byteLength;
-      }
-      resolve(merged);
-    });
-    transmuxer.on('error', reject);
-    for (const buf of buffers) transmuxer.push(new Uint8Array(buf));
-    transmuxer.flush();
+    tx.on('error', reject);
+    for (const b of bufs) tx.push(new Uint8Array(b));
+    tx.flush();
   });
 }
 
-function triggerDownload(blob, filename) {
-  const url = URL.createObjectURL(blob);
-  const a   = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
+function triggerSave(blob, name) {
+  const u = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href=u; a.download=name; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); setTimeout(()=>URL.revokeObjectURL(u),5000);
 }
 
 async function downloadHLS(m3u8Url, filename, onProgress, onStatus, referer, onSize) {
   onStatus('Fetching playlist…');
-  const r1   = await fetchWithFallback(m3u8Url, referer);
-  const text = await r1.text();
-  let base   = m3u8Url.substring(0, m3u8Url.lastIndexOf('/') + 1);
-
-  let segUrls = text.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
-  if (!segUrls.length) throw new Error('No segments found in playlist');
-
-  if (segUrls[0].includes('.m3u8')) {
-    const subUrl = segUrls[0].startsWith('http') ? segUrls[0] : base + segUrls[0];
-    const r2     = await fetchWithFallback(subUrl, referer);
-    const subTxt = await r2.text();
-    base    = subUrl.substring(0, subUrl.lastIndexOf('/') + 1);
-    segUrls = subTxt.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+  const r1 = await fetchWithFallback(m3u8Url, referer);
+  const txt = await r1.text();
+  let base = m3u8Url.substring(0, m3u8Url.lastIndexOf('/')+1);
+  let segs = txt.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
+  if (!segs.length) throw new Error('No segments in playlist');
+  if (segs[0].includes('.m3u8')) {
+    const sub = segs[0].startsWith('http') ? segs[0] : base+segs[0];
+    const r2  = await fetchWithFallback(sub, referer);
+    const st  = await r2.text();
+    base = sub.substring(0,sub.lastIndexOf('/')+1);
+    segs = st.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
   }
-
-  const total   = segUrls.length;
-  const buffers = [];
-  let downloaded = 0;
-
-  for (let i = 0; i < total; i++) {
-    const su  = segUrls[i].startsWith('http') ? segUrls[i] : base + segUrls[i];
-    onStatus(`Downloading… ${i + 1}/${total}`);
-    onProgress(Math.round((i / total) * 100));
-    const sr  = await fetchWithFallback(su, referer);
-    const buf = await sr.arrayBuffer();
-    buffers.push(buf);
-    downloaded += buf.byteLength;
-    if (onSize) onSize(downloaded);
+  const bufs=[]; let bytes=0;
+  for (let i=0;i<segs.length;i++) {
+    const u = segs[i].startsWith('http') ? segs[i] : base+segs[i];
+    onStatus('Downloading… '+(i+1)+'/'+segs.length);
+    onProgress(Math.round(i/segs.length*100));
+    const sr = await fetchWithFallback(u, referer);
+    const b  = await sr.arrayBuffer();
+    bufs.push(b); bytes+=b.byteLength;
+    if (onSize) onSize(bytes);
   }
-
-  const baseName = filename.replace(/\.(ts|mp4)$/, '');
-
-  // Try MP4 via mux.js first
-  try {
-    if (window.muxjs) {
-      onStatus('Converting to MP4…');
-      onProgress(98);
-      const mp4 = await transmuxToMP4(buffers);
+  const base2 = filename.replace(/\.(ts|mp4)$/,'');
+  if (window.muxjs) {
+    try {
+      onStatus('Converting to MP4…'); onProgress(98);
+      const mp4 = await transmuxToMP4(bufs);
       if (onSize) onSize(mp4.byteLength);
-      triggerDownload(new Blob([mp4], { type: 'video/mp4' }), baseName + '.mp4');
-      onProgress(100); onStatus('Done!');
-      return;
-    }
-  } catch (e) {
-    console.warn('MP4 transmux failed, saving as .ts:', e.message);
+      triggerSave(new Blob([mp4],{type:'video/mp4'}), base2+'.mp4');
+      onProgress(100); onStatus('Done!'); return;
+    } catch(e) { console.warn('mux.js failed, saving .ts:', e.message); }
   }
-
-  // Fallback: save as .ts
-  onStatus('Saving…');
-  onProgress(99);
-  const total2 = buffers.reduce((s, b) => s + b.byteLength, 0);
-  const merged  = new Uint8Array(total2);
-  let off = 0;
-  for (const b of buffers) { merged.set(new Uint8Array(b), off); off += b.byteLength; }
-  triggerDownload(new Blob([merged], { type: 'video/mp2t' }), baseName + '.ts');
+  onStatus('Saving…'); onProgress(99);
+  const total = bufs.reduce((s,b)=>s+b.byteLength,0);
+  const merged = new Uint8Array(total); let off=0;
+  for (const b of bufs) { merged.set(new Uint8Array(b),off); off+=b.byteLength; }
+  triggerSave(new Blob([merged],{type:'video/mp2t'}), base2+'.ts');
   onProgress(100); onStatus('Done!');
 }
 
 
 function DownloadModal({anime, curEp, onClose}) {
   const PAHE = 'https://animepahe-api-liard.vercel.app';
-
   const [status,      setStatus]    = React.useState('loading');
   const [m3u8Url,     setM3u8Url]   = React.useState(null);
   const [m3u8Referer, setReferer]   = React.useState(null);
@@ -1049,189 +1021,143 @@ function DownloadModal({anime, curEp, onClose}) {
   const [finalSize,   setFinalSize] = React.useState(0);
   const [error,       setError]     = React.useState('');
   const toast = useToast();
+  const fmtMB = b => !b ? '' : b<1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB';
 
-  const fmtSize = b => b < 1048576
-    ? `${(b/1024).toFixed(1)} KB`
-    : `${(b/1048576).toFixed(1)} MB`;
-
-  // Client-side fallback: resolve via AnimePahe API directly from browser
-  const resolveClientSide = React.useCallback(async () => {
-    const title = anime.title || anime.romaji || '';
-    if (!title) return false;
+  async function tryBrowser() {
     try {
-      const sR = await fetch(`${PAHE}/search?q=${encodeURIComponent(title)}`);
+      const t = anime.title||anime.romaji||'';
+      if (!t) return false;
+      const sR = await fetch(PAHE+'/search?q='+encodeURIComponent(t));
       if (!sR.ok) return false;
       const list = await sR.json();
-      if (!Array.isArray(list) || !list.length) return false;
-      const a = list.find(x => (x.title||'').toLowerCase().includes(title.toLowerCase())) || list[0];
-
-      const eR = await fetch(`${PAHE}/episodes?session=${a.session||a.id}`);
+      if (!Array.isArray(list)||!list.length) return false;
+      const a = list.find(x=>(x.title||'').toLowerCase().includes(t.toLowerCase()))||list[0];
+      const eR = await fetch(PAHE+'/episodes?session='+(a.session||a.id));
       if (!eR.ok) return false;
       const eBody = await eR.json();
-      const eps = Array.isArray(eBody) ? eBody : (eBody.data || []);
-      const ep = eps.find(e => Math.round(parseFloat(e.number ?? e.episode ?? 0)) === curEp) || eps[curEp-1];
+      const eps = Array.isArray(eBody)?eBody:(eBody.data||[]);
+      if (!eps.length) return false;
+      const ep = eps.find(e=>Math.round(parseFloat(e.number??e.episode??0))===curEp)||eps[curEp-1];
       if (!ep) return false;
-
-      const srcR = await fetch(`${PAHE}/sources?anime_session=${a.session||a.id}&episode_session=${ep.session||ep.id}`);
+      const srcR = await fetch(PAHE+'/sources?anime_session='+(a.session||a.id)+'&episode_session='+(ep.session||ep.id));
       if (!srcR.ok) return false;
-      const srcBody = await srcR.json();
-      const sources = Array.isArray(srcBody) ? srcBody : (srcBody.data || []);
+      const sb = await srcR.json();
+      const sources = Array.isArray(sb)?sb:(sb.data||[]);
       if (!sources.length) return false;
-      const best = sources[sources.length - 1];
-      const kwikUrl = best.url || best.kwik;
-      if (!kwikUrl) return false;
-
-      const mR = await fetch(`${PAHE}/m3u8?url=${encodeURIComponent(kwikUrl)}`);
+      const best = sources[sources.length-1];
+      const kwik = best.url||best.kwik;
+      if (!kwik) return false;
+      const mR = await fetch(PAHE+'/m3u8?url='+encodeURIComponent(kwik));
       if (!mR.ok) return false;
       const mD = await mR.json();
-      const url = mD.m3u8 || mD.url;
+      const url = mD.m3u8||mD.url;
       if (!url) return false;
-
-      setM3u8Url(url);
-      setReferer(mD.referer || null);
-      setQuality(best.quality || null);
-      setStatus('ready');
+      setM3u8Url(url); setReferer(mD.referer||null); setQuality(best.quality||null); setStatus('ready');
       return true;
-    } catch { return false; }
-  }, [anime.id, curEp]);
+    } catch(e) { console.warn('browser resolve failed:',e.message); return false; }
+  }
 
   React.useEffect(() => {
-    // Strategy 1: server-side resolution via /api/download
-    fetch(`/api/download?aniId=${anime.id}&ep=${curEp}`)
-      .then(r => r.json())
+    // Strategy 1: server-side via /api/download
+    fetch('/api/download?aniId='+anime.id+'&ep='+curEp)
+      .then(r=>r.json())
       .then(async d => {
-        if (d.url || d.m3u8Url) {
-          setM3u8Url(d.url || d.m3u8Url);
-          setReferer(d.referer || null);
-          setQuality(d.quality || null);
-          setStatus('ready');
+        if (d.url||d.m3u8Url) {
+          setM3u8Url(d.url||d.m3u8Url); setReferer(d.referer||null); setQuality(d.quality||null); setStatus('ready');
         } else {
-          // Strategy 2: client-side direct browser call
-          const ok = await resolveClientSide();
+          // Strategy 2: browser direct call to AnimePahe API
+          const ok = await tryBrowser();
           if (!ok) setStatus('fallback');
         }
       })
-      .catch(async () => {
-        // Strategy 2: client-side fallback
-        const ok = await resolveClientSide();
-        if (!ok) setStatus('fallback');
-      });
+      .catch(async ()=>{ const ok = await tryBrowser(); if(!ok) setStatus('fallback'); });
   }, [anime.id, curEp]);
 
-  const openVidnest = () => {
-    window.open(`https://vidnest.fun/animepahe/${anime.id}/${curEp}/sub`, '_blank', 'noopener');
-    onClose();
-  };
+  const openPlayer = () => { window.open('https://vidnest.fun/animepahe/'+anime.id+'/'+curEp+'/sub','_blank','noopener'); onClose(); };
 
   const doDownload = async () => {
-    if (!m3u8Url) return;
-    if (status === 'fallback') { openVidnest(); return; }
+    if (!m3u8Url||status==='fallback') { openPlayer(); return; }
     setStatus('downloading'); setProgress(0); setFileSize(0);
-    const filename = `${anime.title.replace(/[^\w\s]/g,'').trim()} EP${String(curEp).padStart(3,'0')}`;
+    const fn = anime.title.replace(/[^\w\s]/g,'').trim()+' EP'+String(curEp).padStart(3,'0');
     try {
-      let lastSize = 0;
-      await downloadHLS(m3u8Url, filename, setProgress, setStatusTxt, m3u8Referer,
-        bytes => { setFileSize(bytes); lastSize = bytes; });
-      setFinalSize(lastSize);
-      setStatus('done');
-      toast('✅ Download complete!');
-    } catch(e) {
-      setError(e.message);
-      setStatus('error');
-    }
+      let last=0;
+      await downloadHLS(m3u8Url, fn, setProgress, setStatusTxt, m3u8Referer, b=>{setFileSize(b);last=b;});
+      setFinalSize(last); setStatus('done'); toast('✅ Download complete!');
+    } catch(e) { setError(e.message); setStatus('error'); }
   };
 
-  const epLabel     = `EP ${String(curEp).padStart(2,'0')}`;
-  const seasonLabel = anime.season ? ` · ${anime.season}` : '';
-  const qualLabel   = quality      ? ` · ${quality}`      : '';
+  const eLabel = 'EP '+String(curEp).padStart(2,'0');
+  const sSub   = anime.season ? ' · '+anime.season : '';
+  const qSub   = quality      ? ' · '+quality      : '';
 
   return (
     <div className="share-overlay" onClick={e=>{if(e.target===e.currentTarget&&status!=='downloading')onClose();}}>
       <div className="share-sheet" onClick={e=>e.stopPropagation()}>
-
         <div className="share-sheet-hdr">
-          <span className="share-sheet-title">⬇ Download — {epLabel}</span>
+          <span className="share-sheet-title">⬇ Download — {eLabel}</span>
           <button className="share-sheet-close" onClick={()=>{if(status!=='downloading')onClose();}}>✕</button>
         </div>
-
-        <div style={{marginBottom:18,paddingBottom:14,borderBottom:'1px solid var(--border)'}}>
+        <div style={{marginBottom:16,paddingBottom:14,borderBottom:'1px solid var(--border)'}}>
           <div style={{fontWeight:800,fontSize:14,color:'#fff',marginBottom:3}}>{anime.title}</div>
-          <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>Episode {curEp}{seasonLabel}{qualLabel}</div>
+          <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>Episode {curEp}{sSub}{qSub}</div>
         </div>
-
-        {status==='loading' && (
+        {status==='loading'&&(
           <div style={{textAlign:'center',padding:'1.5rem 0'}}>
             <div className="spin-ring" style={{width:34,height:34,margin:'0 auto 14px'}}/>
             <div style={{color:'var(--txt)',fontWeight:700,fontSize:14}}>Please wait…</div>
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:6}}>Resolving download link</div>
           </div>
         )}
-
-        {status==='ready' && (
+        {status==='ready'&&(
           <>
             <div style={{background:'rgba(34,197,94,.06)',border:'1px solid rgba(34,197,94,.2)',borderRadius:10,padding:'12px 14px',marginBottom:16}}>
-              <div style={{fontFamily:'var(--mono)',fontSize:9,color:'#86efac',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:4}}>
-                Stream resolved ✓{quality ? ` · ${quality}` : ''}
-              </div>
-              <div style={{fontSize:11,color:'var(--txt)',wordBreak:'break-all',lineHeight:1.5,opacity:.6}}>
-                {m3u8Url?.substring(0,62)}…
-              </div>
+              <div style={{fontFamily:'var(--mono)',fontSize:9,color:'#86efac',letterSpacing:'.1em',textTransform:'uppercase',marginBottom:4}}>Stream resolved ✓{qSub}</div>
+              <div style={{fontSize:11,color:'var(--txt2)',wordBreak:'break-all',opacity:.7}}>{m3u8Url&&m3u8Url.substring(0,60)}…</div>
             </div>
-            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginBottom:16,lineHeight:1.7}}>
-              Saves as <strong style={{color:'var(--txt)'}}>MP4</strong> · plays in VLC, MX Player &amp; most media players
-            </div>
-            <button className="btn-play" style={{width:'100%',justifyContent:'center',fontSize:14,padding:'13px'}} onClick={doDownload}>
-              ⬇ Download Episode {curEp}
-            </button>
+            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginBottom:16}}>Saves as <strong style={{color:'var(--txt)'}}>MP4</strong> · plays in VLC, MX Player &amp; most players</div>
+            <button className="btn-play" style={{width:'100%',justifyContent:'center',padding:'13px'}} onClick={doDownload}>⬇ Download Episode {curEp}</button>
           </>
         )}
-
-        {status==='fallback' && (
+        {status==='fallback'&&(
           <>
             <div style={{background:'rgba(251,191,36,.06)',border:'1px solid rgba(251,191,36,.18)',borderRadius:10,padding:'12px 14px',marginBottom:16,fontFamily:'var(--mono)',fontSize:10,color:'#fcd34d',lineHeight:1.7}}>
               ⚡ Direct link unavailable. Open the player — it has a built-in download button.
             </div>
-            <button className="btn-play" style={{width:'100%',justifyContent:'center',fontSize:14,padding:'13px'}} onClick={openVidnest}>
-              ► Open Player &amp; Download
-            </button>
+            <button className="btn-play" style={{width:'100%',justifyContent:'center',padding:'13px'}} onClick={openPlayer}>► Open Player &amp; Download</button>
           </>
         )}
-
-        {status==='downloading' && (
+        {status==='downloading'&&(
           <div style={{padding:'.5rem 0'}}>
-            <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:10,textAlign:'center'}}>{statusTxt}</div>
-            <div style={{background:'var(--bg2)',borderRadius:999,height:10,overflow:'hidden',marginBottom:10}}>
+            <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',textAlign:'center',marginBottom:10}}>{statusTxt}</div>
+            <div style={{background:'var(--bg2)',borderRadius:999,height:10,overflow:'hidden',marginBottom:8}}>
               <div style={{height:'100%',background:'linear-gradient(90deg,#e11d48,#9f1239)',borderRadius:999,width:`${progress}%`,transition:'width .3s'}}/>
             </div>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',fontFamily:'var(--mono)',fontSize:12}}>
+            <div style={{display:'flex',justifyContent:'space-between',fontFamily:'var(--mono)',fontSize:12}}>
               <span style={{color:'#fb7185',fontWeight:800}}>{progress}%</span>
-              {fileSize>0&&<span style={{color:'var(--txt2)',background:'rgba(255,255,255,.07)',padding:'2px 10px',borderRadius:6}}>{fmtSize(fileSize)}</span>}
+              {fileSize>0&&<span style={{color:'var(--txt2)',background:'rgba(255,255,255,.07)',padding:'2px 10px',borderRadius:6}}>{fmtMB(fileSize)}</span>}
             </div>
-            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:10,textAlign:'center'}}>Do not close this window</div>
+            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',textAlign:'center',marginTop:8}}>Do not close this window</div>
           </div>
         )}
-
-        {status==='done' && (
+        {status==='done'&&(
           <div style={{textAlign:'center',padding:'1rem 0'}}>
             <div style={{fontSize:'2.5rem',marginBottom:8}}>✅</div>
             <div style={{color:'var(--txt)',fontWeight:800,fontSize:'1.1rem',marginBottom:8}}>Download Complete!</div>
-            {finalSize>0&&<div style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--txt2)',background:'rgba(255,255,255,.07)',display:'inline-block',padding:'3px 14px',borderRadius:8,marginBottom:10}}>{fmtSize(finalSize)}</div>}
+            {finalSize>0&&<div style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--txt2)',background:'rgba(255,255,255,.07)',padding:'3px 14px',borderRadius:8,marginBottom:10,display:'inline-block'}}>{fmtMB(finalSize)}</div>}
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>Saved as MP4 · check your downloads folder</div>
           </div>
         )}
-
-        {status==='error' && (
+        {status==='error'&&(
           <div style={{textAlign:'center',padding:'1rem 0'}}>
             <div style={{fontSize:'2rem',marginBottom:8}}>❌</div>
             <div style={{color:'var(--txt)',fontWeight:700,marginBottom:6}}>Download failed</div>
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',lineHeight:1.6,marginBottom:14}}>{error}</div>
             <div style={{display:'flex',gap:8,justifyContent:'center'}}>
-              <button className="share-trigger" onClick={()=>{setStatus('loading');setError('');}}>Try Again</button>
-              <button className="share-trigger" onClick={openVidnest}>Open Player Page</button>
+              <button className="share-trigger" onClick={()=>{setStatus('loading');setError('');}}>Retry</button>
+              <button className="share-trigger" onClick={openPlayer}>Open Player</button>
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
