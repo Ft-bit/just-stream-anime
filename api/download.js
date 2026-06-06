@@ -1,13 +1,19 @@
-// api/download.js — server-side AnimePahe resolution
+// api/download.js
 const ANILIST  = 'https://graphql.anilist.co';
-const PAHE_API = 'https://animepahe-api-liard.vercel.app';
+const PAHE_API = process.env.PAHE_API_URL || 'https://animepahe-api-ft-bit.vercel.app';
 
-// Headers that identify us as coming from jsanime.site
-const H = {
-  'Origin':     'https://jsanime.site',
+console.log('[download] using API:', PAHE_API);
+
+const PAHE_HEADERS = {
+  'Origin':  'https://jsanime.site',
+  'Referer': 'https://jsanime.site/',
+  'Accept':  'application/json',
+};
+const BROWSER_HEADERS = {
   'Referer':    'https://jsanime.site/',
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36',
-  'Accept':     'application/json',
+  'Origin':     'https://jsanime.site',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+  'Accept':     'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 };
 
 async function getTitle(aniId) {
@@ -16,61 +22,99 @@ async function getTitle(aniId) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        query: 'query($id:Int){Media(id:$id,type:ANIME){title{english romaji}}}',
-        variables: { id: parseInt(aniId) },
-      }),
+        query: `query($id:Int){Media(id:$id,type:ANIME){title{english romaji}}}`,
+        variables: { id: parseInt(aniId) }
+      })
     });
     const d = await r.json();
     return d.data?.Media?.title?.english || d.data?.Media?.title?.romaji || null;
   } catch { return null; }
 }
 
-async function resolveM3u8(title, epNum) {
-  // 1 — Search
-  const sR = await fetch(`${PAHE_API}/search?q=${encodeURIComponent(title)}`, { headers: H });
-  if (!sR.ok) throw new Error(`Search ${sR.status}`);
-  const list = await sR.json();
-  if (!Array.isArray(list) || !list.length) throw new Error('Anime not found');
+async function resolveViaScraper(title, epNum) {
+  try {
+    console.log('[scraper] searching:', title, 'ep:', epNum, 'via', PAHE_API);
+    const searchR = await fetch(
+      `${PAHE_API}/search?q=${encodeURIComponent(title)}`,
+      { headers: PAHE_HEADERS }
+    );
+    console.log('[scraper] search status:', searchR.status);
+    if (!searchR.ok) { console.log('[scraper] search failed'); return null; }
+    const list = await searchR.json();
+    console.log('[scraper] search results:', Array.isArray(list) ? list.length : typeof list);
+    if (!Array.isArray(list) || !list.length) return null;
 
-  const anime = list.find(a => (a.title||'').toLowerCase().includes(title.toLowerCase())) || list[0];
-  const animeSession = anime.session || anime.id;
+    const t     = title.toLowerCase();
+    const anime = list.find(a => (a.title || '').toLowerCase().includes(t)) || list[0];
 
-  // 2 — Episodes (API returns array or {data:[...]})
-  const eR     = await fetch(`${PAHE_API}/episodes?session=${animeSession}`, { headers: H });
-  if (!eR.ok) throw new Error(`Episodes ${eR.status}`);
-  const eBody  = await eR.json();
-  const eps    = Array.isArray(eBody) ? eBody : (eBody.data || []);
-  if (!eps.length) throw new Error('No episodes');
+    const epsR = await fetch(
+      `${PAHE_API}/episodes?session=${anime.session || anime.id}`,
+      { headers: PAHE_HEADERS }
+    );
+    if (!epsR.ok) return null;
+    const episodes = await epsR.json();
+    if (!Array.isArray(episodes) || !episodes.length) return null;
 
-  const ep = eps.find(e => Math.round(parseFloat(e.number ?? e.episode ?? 0)) === epNum)
-             || eps[epNum - 1];
-  if (!ep) throw new Error(`EP${epNum} not found`);
+    const episode =
+      episodes.find(e => Math.round(parseFloat(e.number ?? e.episode ?? 0)) === epNum)
+      || episodes[epNum - 1];
+    if (!episode) return null;
 
-  // 3 — Sources
-  const srcR = await fetch(
-    `${PAHE_API}/sources?anime_session=${animeSession}&episode_session=${ep.session||ep.id}`,
-    { headers: H }
-  );
-  if (!srcR.ok) throw new Error(`Sources ${srcR.status}`);
-  const srcBody = await srcR.json();
-  const sources = Array.isArray(srcBody) ? srcBody : (srcBody.data || []);
-  if (!sources.length) throw new Error('No sources');
+    const srcR = await fetch(
+      `${PAHE_API}/sources?anime_session=${anime.session || anime.id}&episode_session=${episode.session || episode.id}`,
+      { headers: PAHE_HEADERS }
+    );
+    if (!srcR.ok) return null;
+    const sources = await srcR.json();
+    if (!Array.isArray(sources) || !sources.length) return null;
 
-  const best    = sources[sources.length - 1]; // highest quality last
-  const kwikUrl = best.url || best.kwik;
-  if (!kwikUrl) throw new Error('No kwik URL');
+    const best    = sources[sources.length - 1];
+    const kwikUrl = best.url || best.kwik;
+    if (!kwikUrl) return null;
 
-  // 4 — Resolve kwik → m3u8
-  const mR = await fetch(`${PAHE_API}/m3u8?url=${encodeURIComponent(kwikUrl)}`, { headers: H });
-  if (!mR.ok) throw new Error(`m3u8 ${mR.status}`);
-  const mD = await mR.json();
-  const url = mD.m3u8 || mD.url || mD.source;
-  if (!url) throw new Error('No m3u8 URL');
+    const m3u8R = await fetch(
+      `${PAHE_API}/m3u8?url=${encodeURIComponent(kwikUrl)}`,
+      { headers: PAHE_HEADERS }
+    );
+    if (!m3u8R.ok) return null;
+    const m3u8D = await m3u8R.json();
 
-  return { url, referer: mD.referer || null, quality: best.quality || '720p' };
+    const url     = m3u8D.m3u8 || m3u8D.url || m3u8D.source
+                    || (typeof m3u8D === 'string' ? m3u8D : null);
+    const referer = m3u8D.referer || null;
+
+    return url ? { url, referer, quality: best.quality || '720p' } : null;
+  } catch (e) {
+    console.error('Scraper error:', e.message);
+    return null;
+  }
 }
 
-module.exports = async function handler(req, res) {
+async function resolveFromVidnest(aniId, epNum, lang) {
+  const playerUrl = `https://vidnest.fun/animepahe/${aniId}/${epNum}/${lang}`;
+  try {
+    const r = await fetch(playerUrl, { headers: BROWSER_HEADERS });
+    if (!r.ok) return null;
+    const html = await r.text();
+    const patterns = [
+      /["'`]([^"'`\s]*\.m3u8[^"'`\s]*)[`'"]/g,
+      /"url"\s*:\s*"([^"]*\.m3u8[^"]*)"/g,
+      /(https?:\/\/[^\s"'`<>]+\.m3u8[^\s"'`<>]*)/g,
+    ];
+    for (const pat of patterns) {
+      let m;
+      while ((m = pat.exec(html)) !== null) {
+        let u = m[1];
+        if (!u) continue;
+        if (u.startsWith('//')) u = 'https:' + u;
+        if (u.startsWith('http') && u.includes('m3u8')) return { url: u, referer: null };
+      }
+    }
+  } catch (_) {}
+  return null;
+}
+
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
 
@@ -78,25 +122,53 @@ module.exports = async function handler(req, res) {
   if (!aniId) return res.status(400).json({ error: 'aniId required' });
 
   const epNum     = parseInt(ep) || 1;
-  const playerUrl = `https://vidnest.fun/animepahe/${aniId}/${epNum}/${lang === 'dub' ? 'dub' : 'sub'}`;
+  const L         = lang === 'dub' ? 'dub' : 'sub';
+  const playerUrl = `https://vidnest.fun/animepahe/${aniId}/${epNum}/${L}`;
 
   try {
     const title = await getTitle(aniId);
-    if (!title) throw new Error('Could not get title from AniList');
 
-    const result = await resolveM3u8(title, epNum);
+    // Strategy 1: AnimePahe chain via animepahe-api-liard.vercel.app
+    if (title) {
+      const result = await resolveViaScraper(title, epNum);
+      if (result?.url) {
+        return res.status(200).json({
+          success:  true,
+          title,
+          episode:  epNum,
+          quality:  result.quality,
+          url:      result.url,
+          referer:  result.referer,
+          filename: `${title.replace(/[^\w\s]/g, '')} EP${String(epNum).padStart(3, '0')}.ts`
+        });
+      }
+    }
+
+    // Strategy 2: Scrape vidnest.fun page for m3u8
+    const vidResult = await resolveFromVidnest(aniId, epNum, L);
+    if (vidResult?.url) {
+      return res.status(200).json({
+        success:  true,
+        title:    title || 'Anime',
+        episode:  epNum,
+        quality:  'auto',
+        url:      vidResult.url,
+        referer:  vidResult.referer,
+        filename: `${(title || 'Anime').replace(/[^\w\s]/g, '')} EP${String(epNum).padStart(3, '0')}.ts`
+      });
+    }
+
+    // Strategy 3: Fallback to player page
     return res.status(200).json({
-      success: true,
-      title,
-      episode: epNum,
-      quality: result.quality,
-      url:     result.url,
-      referer: result.referer,
+      success:     false,
+      title:       title || 'Anime',
+      episode:     epNum,
+      playerUrl,
+      useFallback: true,
     });
 
   } catch (err) {
-    console.error('[download]', err.message);
-    // Fallback — client opens the player page
-    return res.status(200).json({ success: false, playerUrl });
+    console.error('Handler error:', err.message);
+    return res.status(500).json({ error: err.message });
   }
-};
+}
