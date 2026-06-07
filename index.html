@@ -1013,7 +1013,7 @@ function DownloadModal({anime, curEp, onClose}) {
   const PAHE = 'https://animepahe-api-liard.vercel.app';
   const [status,      setStatus]    = React.useState('loading');
   const [m3u8Url,     setM3u8Url]   = React.useState(null);
-  const [m3u8Referer, setReferer]   = React.useState(null);
+  const [m3u8Ref,     setRef]       = React.useState(null);
   const [quality,     setQuality]   = React.useState(null);
   const [progress,    setProgress]  = React.useState(0);
   const [statusTxt,   setStatusTxt] = React.useState('Please wait…');
@@ -1021,74 +1021,78 @@ function DownloadModal({anime, curEp, onClose}) {
   const [finalSize,   setFinalSize] = React.useState(0);
   const [error,       setError]     = React.useState('');
   const toast = useToast();
-  const fmtMB = b => !b ? '' : b<1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB';
+  const fmtMB = b => !b?'':b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(1)+' MB';
 
+  /* Browser-side resolution — called directly from user's browser IP (not blocked) */
   async function tryBrowser() {
     try {
-      const t = anime.title||anime.romaji||'';
+      const t = anime.title || anime.romaji || '';
       if (!t) return false;
-      const sR = await fetch(PAHE+'/search?q='+encodeURIComponent(t));
+      const sR = await fetch(`${PAHE}/search?q=${encodeURIComponent(t)}`);
       if (!sR.ok) return false;
       const list = await sR.json();
       if (!Array.isArray(list)||!list.length) return false;
       const a = list.find(x=>(x.title||'').toLowerCase().includes(t.toLowerCase()))||list[0];
-      const eR = await fetch(PAHE+'/episodes?session='+(a.session||a.id));
+      const eR = await fetch(`${PAHE}/episodes?session=${a.session||a.id}`);
       if (!eR.ok) return false;
-      const eBody = await eR.json();
-      const eps = Array.isArray(eBody)?eBody:(eBody.data||[]);
-      if (!eps.length) return false;
+      const eb = await eR.json();
+      const eps = Array.isArray(eb)?eb:(eb.data||[]);
       const ep = eps.find(e=>Math.round(parseFloat(e.number??e.episode??0))===curEp)||eps[curEp-1];
       if (!ep) return false;
-      const srcR = await fetch(PAHE+'/sources?anime_session='+(a.session||a.id)+'&episode_session='+(ep.session||ep.id));
+      const srcR = await fetch(`${PAHE}/sources?anime_session=${a.session||a.id}&episode_session=${ep.session||ep.id}`);
       if (!srcR.ok) return false;
       const sb = await srcR.json();
-      const sources = Array.isArray(sb)?sb:(sb.data||[]);
-      if (!sources.length) return false;
-      const best = sources[sources.length-1];
+      const srcs = Array.isArray(sb)?sb:(sb.data||[]);
+      if (!srcs.length) return false;
+      const best = srcs[srcs.length-1];
       const kwik = best.url||best.kwik;
       if (!kwik) return false;
-      const mR = await fetch(PAHE+'/m3u8?url='+encodeURIComponent(kwik));
+      const mR = await fetch(`${PAHE}/m3u8?url=${encodeURIComponent(kwik)}`);
       if (!mR.ok) return false;
       const mD = await mR.json();
       const url = mD.m3u8||mD.url;
       if (!url) return false;
-      setM3u8Url(url); setReferer(mD.referer||null); setQuality(best.quality||null); setStatus('ready');
-      return true;
-    } catch(e) { console.warn('browser resolve failed:',e.message); return false; }
+      setM3u8Url(url); setRef(mD.referer||null); setQuality(best.quality||null);
+      setStatus('ready'); return true;
+    } catch(e){ console.warn('browser resolve:',e.message); return false; }
   }
 
-  React.useEffect(() => {
-    // Strategy 1: server-side via /api/download
-    fetch('/api/download?aniId='+anime.id+'&ep='+curEp)
-      .then(r=>r.json())
-      .then(async d => {
-        if (d.url||d.m3u8Url) {
-          setM3u8Url(d.url||d.m3u8Url); setReferer(d.referer||null); setQuality(d.quality||null); setStatus('ready');
-        } else {
-          // Strategy 2: browser direct call to AnimePahe API
-          const ok = await tryBrowser();
-          if (!ok) setStatus('fallback');
+  React.useEffect(()=>{
+    let cancelled = false;
+    (async()=>{
+      /* Strategy 1: server-side /api/download */
+      try {
+        const r = await fetch(`/api/download?aniId=${anime.id}&ep=${curEp}`);
+        const d = await r.json();
+        if (!cancelled && (d.url||d.m3u8Url)) {
+          setM3u8Url(d.url||d.m3u8Url); setRef(d.referer||null);
+          setQuality(d.quality||null); setStatus('ready'); return;
         }
-      })
-      .catch(async ()=>{ const ok = await tryBrowser(); if(!ok) setStatus('fallback'); });
+      } catch(_){}
+      if (cancelled) return;
+      /* Strategy 2: browser calls API directly (user's IP, not blocked) */
+      const ok = await tryBrowser();
+      if (!cancelled && !ok) setStatus('fallback');
+    })();
+    return ()=>{ cancelled=true; };
   }, [anime.id, curEp]);
 
-  const openPlayer = () => { window.open('https://vidnest.fun/animepahe/'+anime.id+'/'+curEp+'/sub','_blank','noopener'); onClose(); };
+  const openPlayer=()=>{ window.open(`https://vidnest.fun/animepahe/${anime.id}/${curEp}/sub`,'_blank','noopener'); onClose(); };
 
-  const doDownload = async () => {
-    if (!m3u8Url||status==='fallback') { openPlayer(); return; }
+  const doDownload=async()=>{
+    if (!m3u8Url||status==='fallback'){ openPlayer(); return; }
     setStatus('downloading'); setProgress(0); setFileSize(0);
     const fn = anime.title.replace(/[^\w\s]/g,'').trim()+' EP'+String(curEp).padStart(3,'0');
     try {
       let last=0;
-      await downloadHLS(m3u8Url, fn, setProgress, setStatusTxt, m3u8Referer, b=>{setFileSize(b);last=b;});
+      await downloadHLS(m3u8Url, fn, setProgress, setStatusTxt, m3u8Ref, b=>{setFileSize(b);last=b;});
       setFinalSize(last); setStatus('done'); toast('✅ Download complete!');
-    } catch(e) { setError(e.message); setStatus('error'); }
+    } catch(e){ setError(e.message); setStatus('error'); }
   };
 
-  const eLabel = 'EP '+String(curEp).padStart(2,'0');
-  const sSub   = anime.season ? ' · '+anime.season : '';
-  const qSub   = quality      ? ' · '+quality      : '';
+  const eLabel = `EP ${String(curEp).padStart(2,'0')}`;
+  const sSub   = anime.season?` · ${anime.season}`:'';
+  const qSub   = quality?` · ${quality}`:'';
 
   return (
     <div className="share-overlay" onClick={e=>{if(e.target===e.currentTarget&&status!=='downloading')onClose();}}>
@@ -1112,7 +1116,7 @@ function DownloadModal({anime, curEp, onClose}) {
           <>
             <div style={{background:'rgba(34,197,94,.06)',border:'1px solid rgba(34,197,94,.2)',borderRadius:10,padding:'12px 14px',marginBottom:16}}>
               <div style={{fontFamily:'var(--mono)',fontSize:9,color:'#86efac',letterSpacing:'.1em',textTransform:'uppercase',marginBottom:4}}>Stream resolved ✓{qSub}</div>
-              <div style={{fontSize:11,color:'var(--txt2)',wordBreak:'break-all',opacity:.7}}>{m3u8Url&&m3u8Url.substring(0,60)}…</div>
+              <div style={{fontSize:11,color:'var(--txt2)',wordBreak:'break-all',opacity:.7}}>{m3u8Url?.substring(0,62)}…</div>
             </div>
             <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginBottom:16}}>Saves as <strong style={{color:'var(--txt)'}}>MP4</strong> · plays in VLC, MX Player &amp; most players</div>
             <button className="btn-play" style={{width:'100%',justifyContent:'center',padding:'13px'}} onClick={doDownload}>⬇ Download Episode {curEp}</button>
@@ -1121,7 +1125,7 @@ function DownloadModal({anime, curEp, onClose}) {
         {status==='fallback'&&(
           <>
             <div style={{background:'rgba(251,191,36,.06)',border:'1px solid rgba(251,191,36,.18)',borderRadius:10,padding:'12px 14px',marginBottom:16,fontFamily:'var(--mono)',fontSize:10,color:'#fcd34d',lineHeight:1.7}}>
-              ⚡ Direct link unavailable. Open the player — it has a built-in download button.
+              ⚡ Direct link unavailable — click below to open the player page which has a built-in download button.
             </div>
             <button className="btn-play" style={{width:'100%',justifyContent:'center',padding:'13px'}} onClick={openPlayer}>► Open Player &amp; Download</button>
           </>
@@ -1130,9 +1134,9 @@ function DownloadModal({anime, curEp, onClose}) {
           <div style={{padding:'.5rem 0'}}>
             <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',textAlign:'center',marginBottom:10}}>{statusTxt}</div>
             <div style={{background:'var(--bg2)',borderRadius:999,height:10,overflow:'hidden',marginBottom:8}}>
-              <div style={{height:'100%',background:'linear-gradient(90deg,#e11d48,#9f1239)',borderRadius:999,width:`${progress}%`,transition:'width .3s'}}/>
+              <div style={{height:'100%',background:'linear-gradient(90deg,#e11d48,#9f1239)',borderRadius:999,width:progress+'%',transition:'width .3s'}}/>
             </div>
-            <div style={{display:'flex',justifyContent:'space-between',fontFamily:'var(--mono)',fontSize:12}}>
+            <div style={{display:'flex',justifyContent:'space-between',fontFamily:'var(--mono)',fontSize:12,alignItems:'center'}}>
               <span style={{color:'#fb7185',fontWeight:800}}>{progress}%</span>
               {fileSize>0&&<span style={{color:'var(--txt2)',background:'rgba(255,255,255,.07)',padding:'2px 10px',borderRadius:6}}>{fmtMB(fileSize)}</span>}
             </div>
