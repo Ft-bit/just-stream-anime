@@ -1,8 +1,21 @@
 {
-  "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
-  ],
   "functions": {
-    "api/proxy.js": { "maxDuration": 30 }
-  }
+    "api/proxy.js":   { "maxDuration": 30 },
+    "api/sitemap.js": { "maxDuration": 60 }
+  },
+  "rewrites": [
+    { "source": "/sitemap.xml",       "destination": "/api/sitemap" },
+    { "source": "/sitemap-anime.xml", "destination": "/api/sitemap?type=anime" },
+    { "source": "/sitemap-index.xml", "destination": "/api/sitemap?type=index" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options",        "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy",        "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
 }
