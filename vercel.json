@@ -3,8 +3,7 @@
     { "source": "/sitemap.xml",       "destination": "/api/sitemap" },
     { "source": "/sitemap-anime.xml", "destination": "/api/sitemap?type=anime" },
     { "source": "/sitemap-index.xml", "destination": "/api/sitemap?type=index" },
-    // Ensure robots.txt is served directly instead of being rewritten to index.html
     { "source": "/robots.txt",        "destination": "/robots.txt" },
-    { "source": "/(.*)",              "destination": "/index.html" }
+    { "source": "/:path((?!\\.\\w+$).)*", "destination": "/index.html" }
   ]
 }
