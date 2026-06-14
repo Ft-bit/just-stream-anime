@@ -48,7 +48,7 @@
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": "https://jsanime.site/#search?q={search_term_string}"
+        "urlTemplate": "https://jsanime.site/?q={search_term_string}"
       },
       "query-input": "required name=search_term_string"
     }
@@ -98,8 +98,8 @@
       "@type": "BreadcrumbList",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://jsanime.site/" },
-        { "@type": "ListItem", "position": 2, "name": "Trending Anime", "item": "https://jsanime.site/#home/trending/1" },
-        { "@type": "ListItem", "position": 3, "name": "Popular Anime", "item": "https://jsanime.site/#home/popular/1" }
+        { "@type": "ListItem", "position": 2, "name": "Trending Anime", "item": "https://jsanime.site/trending" },
+        { "@type": "ListItem", "position": 3, "name": "Popular Anime", "item": "https://jsanime.site/popular" }
       ]
     },
     "speakable": {
@@ -114,7 +114,7 @@
     "@type": "ItemList",
     "name": "Trending Anime",
     "description": "Currently trending anime on JustStreamAnime",
-    "url": "https://jsanime.site/#home/trending/1",
+    "url": "https://jsanime.site/trending",
     "itemListOrder": "https://schema.org/ItemListOrderDescending",
     "numberOfItems": 30
   }
@@ -1197,7 +1197,7 @@ function WatchPage({anime, startTab, onBack}) {
                 {anime.siteUrl&&<a href={anime.siteUrl} target="_blank" rel="noopener noreferrer" className="ext-link"><ExtLinkIco/> AniList</a>}
                 {anime.malId&&<a href={`https://myanimelist.net/anime/${anime.malId}`} target="_blank" rel="noopener noreferrer" className="ext-link"><ExtLinkIco/> MAL</a>}
               </div>
-              {shareOpen&&<ShareModal url={`https://jsanime.site/share?a=${anime.id}`} hashUrl={window.location.href}
+              {shareOpen&&<ShareModal url={`https://jsanime.site/anime/${anime.id}/${makeSlug(anime.title)}`} hashUrl={window.location.href}
                 title={anime.title} image={anime.banner||anime.image||''} desc={anime.desc||''}
                 onClose={()=>setShareOpen(false)} toast={toast}/>}
               <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:10,alignItems:'center'}}>
@@ -1301,30 +1301,58 @@ function PolicyPage({type, onBack}) {
   );
 }
 
-function readHash() {
+// ── CLEAN URL ROUTING (no # hashes) ─────────────────────────────────────────
+function makeSlug(title) {
+  return (title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+}
+
+function readPath() {
   try {
+    // Legacy ?a= share links still work
     const qp = new URLSearchParams(window.location.search);
-    const animeId = qp.get('a');
-    if (animeId) return {view:'watch', animeId, wTab:'watch', fromShare:true};
-    const raw = (window.location.hash||'').slice(1);
-    const [sec,b,c] = raw.split('/');
-    if (sec==='watch'&&b) return {view:'watch',animeId:b,wTab:c||'watch'};
-    if (sec==='contact')  return {view:'contact'};
-    if (sec==='dmca')     return {view:'dmca'};
-    if (sec==='privacy')  return {view:'privacy'};
-    if (sec==='home')     return {view:'home',tab:b||'trending',page:Math.max(1,parseInt(c)||1)};
+    const legacyId = qp.get('a');
+    if (legacyId) return {view:'watch', animeId:legacyId, wTab:'watch'};
+
+    const segs = window.location.pathname.split('/').filter(Boolean);
+    if (!segs.length) return {view:'home', tab:'trending', page:1};
+
+    const [s0, s1, s2] = segs;
+    if (s0==='anime' && s1)  return {view:'watch', animeId:s1, wTab:s2||'watch'};
+    if (s0==='contact')      return {view:'contact'};
+    if (s0==='dmca')         return {view:'dmca'};
+    if (s0==='privacy')      return {view:'privacy'};
+    if (s0==='explore')      return {view:'explore'};
+    if (s0==='schedule')     return {view:'schedule'};
+    if (s0==='history')      return {view:'history'};
+
+    const TABS = ['trending','popular','top','airing'];
+    if (TABS.includes(s0)) return {view:'home', tab:s0, page:Math.max(1,parseInt(s1)||1)};
   } catch(e) {}
-  return {view:'home',tab:'trending',page:1};
+  return {view:'home', tab:'trending', page:1};
 }
-function writeHash(view, extra={}) {
-  const hash = view==='watch'
-    ? `#watch/${extra.id||''}/${extra.wTab||'watch'}`
-    : view==='contact' ? '#contact'
-    : view==='dmca'    ? '#dmca'
-    : view==='privacy' ? '#privacy'
-    : `#home/${extra.tab||'trending'}/${extra.page||1}`;
-  try { history.pushState(null,'',hash); } catch(e) { window.location.hash = hash; }
+
+function writePath(view, extra={}) {
+  let path;
+  if (view==='watch') {
+    const slug = extra.slug ? '-'+extra.slug : '';
+    const tab  = extra.wTab && extra.wTab!=='watch' ? '/'+extra.wTab : '';
+    path = `/anime/${extra.id||''}${slug}${tab}`;
+  } else if (view==='contact')  path = '/contact';
+  else if (view==='dmca')       path = '/dmca';
+  else if (view==='privacy')    path = '/privacy';
+  else if (view==='explore')    path = '/explore';
+  else if (view==='schedule')   path = '/schedule';
+  else if (view==='history')    path = '/history';
+  else {
+    const t = extra.tab || 'trending';
+    const p = extra.page || 1;
+    path = (t==='trending' && p===1) ? '/' : p>1 ? `/${t}/${p}` : `/${t}`;
+  }
+  try { history.pushState(null, '', path); } catch(e) {}
 }
+// Alias for any old references still in the file
+const readHash = readPath;
+const writeHash = (view, extra) => writePath(view, extra);
 
 const TABS = [
   {id:'trending', label:'🔥 Trending'},
@@ -1680,7 +1708,7 @@ function injectAnimeSchema(anime, ep) {
 
   if (!anime) return;
 
-  const shareUrl = `https://jsanime.site/share?a=${anime.id}`;
+  const shareUrl = `https://jsanime.site/anime/${anime.id}/${makeSlug(anime.title)}`;
   const schema = {
     "@context": "https://schema.org",
     "@graph": [
@@ -2137,7 +2165,7 @@ class ErrorBoundary extends React.Component {
           <div style={{fontSize:'3rem',marginBottom:'1rem'}}>⚠️</div>
           <h2 style={{color:'var(--txt)',fontWeight:800,fontSize:'1.4rem',marginBottom:'.5rem'}}>Something went wrong</h2>
           <p style={{color:'var(--txt3)',fontFamily:'var(--mono)',fontSize:12,marginBottom:'1.5rem',maxWidth:400}}>A page error occurred. Try refreshing, or go back to home.</p>
-          <button className="btn-play" onClick={()=>{ this.setState({hasError:false,error:null}); window.location.hash=''; }}>← Go Home</button>
+          <button className="btn-play" onClick={()=>{ this.setState({hasError:false,error:null}); // hash routing removed }}>← Go Home</button>
         </div>
       );
     }
@@ -2146,7 +2174,7 @@ class ErrorBoundary extends React.Component {
 }
 
 function App() {
-  const init        = readHash();
+  const init        = readPath();
   const [view,      setView]     = useState(init.view||'home');
   const [watching,  setWatching] = useState(null);
   const [wTab,      setWTab]     = useState(init.wTab||'watch');
@@ -2166,7 +2194,7 @@ function App() {
 
   // Prefetch hero
   useEffect(() => {
-    gql(Qs.hero, {}).then(d => {
+    gql(Qs.trending, {p:1}).then(d => {
       const list = (d.data?.Page?.media||[]).map(mapA).filter(a=>a.banner||a.image);
       if (list.length) setHero(list[Math.floor(Math.random()*Math.min(list.length,5))]);
     }).catch(()=>{});
@@ -2174,9 +2202,9 @@ function App() {
 
   // Boot: if URL had ?a= or #watch/ load that anime
   useEffect(() => {
-    const init2 = readHash();
+    const init2 = readPath();
     if (init2.view==='watch' && init2.animeId) {
-      gql(Qs.anime, {id: parseInt(init2.animeId)}).then(d => {
+      gql(Qs.detail, {id: parseInt(init2.animeId)}).then(d => {
         const a = d.data?.Media;
         if (a) openWatch(mapA(a), init2.wTab||'watch');
       }).catch(()=>{});
@@ -2185,7 +2213,7 @@ function App() {
 
   useEffect(() => {
     const onPop = () => {
-      const h = readHash();
+      const h = readPath();
       if (h.view==='home')    { setView('home'); setWatching(null); }
       if (h.view==='contact') { setView('contact'); setWatching(null); }
       if (h.view==='dmca')    { setView('dmca'); setWatching(null); }
@@ -2211,15 +2239,15 @@ function App() {
   function openWatch(anime, startTab='watch') {
     setWatching(anime); setWTab(startTab); setView('watch');
     updateOGTags({title:anime.title,image:anime.banner||anime.image,desc:anime.desc,
-      url:`https://jsanime.site/share?a=${anime.id}`});
+      url:`https://jsanime.site/anime/${anime.id}/${makeSlug(anime.title)}`});
     injectAnimeSchema(anime, 1);
-    writeHash('watch', {id:anime.id, wTab:startTab});
+    writePath('watch', {id:anime.id, slug:makeSlug(anime.title), wTab:startTab});
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
   function goHome() {
     setView('home'); setWatching(null); setSrView(false);
-    resetOGTags(); writeHash('home',{tab,page});
+    resetOGTags(); writePath('home',{tab,page});
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
@@ -2230,7 +2258,7 @@ function App() {
   }
 
   function chPg(n) {
-    setPage(n); writeHash('home',{tab,page:n});
+    setPage(n); writePath('home',{tab,page:n});
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
@@ -2288,7 +2316,7 @@ function App() {
                 <div className="tabs">
                   {TABS.map(t=>(
                     <button key={t.id} className={'tab'+(tab===t.id?' on':'')}
-                      onClick={()=>{ setTab(t.id); setPage(1); setGenre('All'); writeHash('home',{tab:t.id,page:1}); }}>
+                      onClick={()=>{ setTab(t.id); setPage(1); setGenre('All'); writePath('home',{tab:t.id,page:1}); }}>
                       {t.label}
                     </button>
                   ))}
@@ -2331,11 +2359,11 @@ function App() {
                     <a href="https://x.com/juststreamanime" target="_blank" rel="noopener noreferrer" className="footer-soc footer-soc-tw" aria-label="Twitter/X"><TwitterXIcon/></a>
                   </div>
                   <div className="footer-policy">
-                    <button onClick={()=>{ setView('dmca');    writeHash('dmca'); }}   className="footer-link">DMCA &amp; Copyright</button>
+                    <button onClick={()=>{ setView('dmca');    writePath('dmca'); }}   className="footer-link">DMCA &amp; Copyright</button>
                     <span className="footer-dot">·</span>
-                    <button onClick={()=>{ setView('privacy'); writeHash('privacy'); }} className="footer-link">Privacy Policy</button>
+                    <button onClick={()=>{ setView('privacy'); writePath('privacy'); }} className="footer-link">Privacy Policy</button>
                     <span className="footer-dot">·</span>
-                    <button onClick={()=>{ setView('contact'); writeHash('contact'); }} className="footer-link">Contact</button>
+                    <button onClick={()=>{ setView('contact'); writePath('contact'); }} className="footer-link">Contact</button>
                   </div>
                   <p className="footer-copy">© {new Date().getFullYear()} JustStreamAnime. For entertainment purposes only.</p>
                 </div>
