@@ -141,8 +141,7 @@ function sitemapIndex() {
 }
 
 module.exports = async function handler(req, res) {
-  const type = (req.query?.type || (req.url?.includes('type=anime') ? 'anime'
-              : req.url?.includes('type=index') ? 'index' : 'static'));
+  const type = req.query?.type || (req.url?.includes('type=anime') ? 'anime' : req.url?.includes('type=index') ? 'index' : 'static');
 
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
