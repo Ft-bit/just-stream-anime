@@ -32,7 +32,7 @@
   <meta property="og:site_name" content="JustStreamAnime"/>
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:url" content="https://jsanime.site/"/>
-  <meta id="tw-title" name="twitter:title" content="JustStreamAnime – Watch &amp; Stream Anime Free Online"/>
+  <meta name="twitter:title" content="JustStreamAnime – Watch &amp; Stream Anime Free Online"/>
   <meta name="twitter:description" content="Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed."/>
   <meta id="tw-image" name="twitter:image" content="https://jsanime.site/og-image.jpg"/>
   <script type="application/ld+json">
@@ -1100,14 +1100,7 @@ function WatchPage({anime, startTab, onBack}) {
 
               {/* Skip Intro/Outro button */}
               {tab==='watch'&&showSkip&&(
-                <button onClick={()=>{
-                  const ifr = document.querySelector('.player-iframe');
-                  if(ifr && ifr.contentWindow) {
-                    // Try to send postMessage to player to seek (if supported)
-                    ifr.contentWindow.postMessage({cmd:'seek', time: skipTimes[showSkip].end}, '*');
-                  }
-                  setShowSkip(null);
-                }} style={{
+                <button onClick={()=>setShowSkip(null)} style={{
                   position:'absolute',bottom:60,right:16,
                   background:'rgba(14,14,27,.92)',border:'1px solid rgba(255,255,255,.25)',
                   color:'#fff',fontFamily:'var(--mono)',fontSize:13,fontWeight:700,
@@ -1484,34 +1477,6 @@ function EmptyState({query, onClear}) {
 }
 
 const CW_KEY = 'jsa_continue_watching';
-
-// ── STORAGE & SKIP TIMES ───────────────────────────────────────────────────────
-function getWatched(animeId) {
-  try { return JSON.parse(localStorage.getItem('jsa_watched_'+animeId)||'[]'); } catch { return []; }
-}
-function markWatched(animeId, ep) {
-  const w = getWatched(animeId);
-  if (!w.includes(ep)) {
-    w.push(ep);
-    try { localStorage.setItem('jsa_watched_'+animeId, JSON.stringify(w)); } catch {}
-  }
-}
-async function fetchSkipTimes(malId, ep) {
-  try {
-    const r = await fetch(`https://api.aniskip.com/v2/skip-times/${malId}/${ep}?types=op&types=ed`);
-    if (!r.ok) return null;
-    const d = await r.json();
-    const res = {};
-    if (d.results) {
-      for (const t of d.results) {
-        if (t.skipType === 'op') res.op = { start: t.interval.startTime, end: t.interval.endTime };
-        if (t.skipType === 'ed') res.ed = { start: t.interval.startTime, end: t.interval.endTime };
-      }
-    }
-    return res;
-  } catch { return null; }
-}
-
 function loadCW() {
   try { return JSON.parse(localStorage.getItem(CW_KEY)||'[]'); } catch { return []; }
 }
@@ -1730,8 +1695,8 @@ function updateOGTags({title, image, desc, url}) {
   set('og-image-w', 'content', '460');
   set('og-image-h', 'content', '650');
   set('og-url',     'content', pageUrl);
-  set('twitter:title',   'content', siteTitle);
-  set('twitter:image',   'content', imgUrl);
+  set('tw-title',   'content', siteTitle);
+  set('tw-image',   'content', imgUrl);
   document.title = siteTitle;
 }
 
@@ -2300,7 +2265,7 @@ function App() {
   function doSearch(q) {
     if (!q.trim()) { setSrView(false); return; }
     setSrView(true); setSrQuery(q); setSrItems([]); setSrLoading(true);
-    gql(Qs.search, {s:q}).then(d => {
+    gql(Qs.search, {q}).then(d => {
       setSrItems((d.data?.Page?.media||[]).map(mapA));
       setSrLoading(false);
     }).catch(()=>setSrLoading(false));
