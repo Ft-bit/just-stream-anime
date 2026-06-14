@@ -1,21 +1,8 @@
 {
-  "functions": {
-    "api/proxy.js":   { "maxDuration": 30 },
-    "api/sitemap.js": { "maxDuration": 60 }
-  },
   "rewrites": [
-    { "source": "/sitemap.xml",                    "destination": "/api/sitemap" },
-    { "source": "/sitemap-anime.xml",              "destination": "/api/sitemap?type=anime" },
-    { "source": "/sitemap-index.xml",              "destination": "/api/sitemap?type=index" },
-    { "source": "/((?!api|sitemap|robots\\.txt).*)", "destination": "/index.html" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy",        "value": "strict-origin-when-cross-origin" }
-      ]
-    }
+    { "source": "/sitemap.xml",       "destination": "/api/sitemap" },
+    { "source": "/sitemap-anime.xml", "destination": "/api/sitemap?type=anime" },
+    { "source": "/sitemap-index.xml", "destination": "/api/sitemap?type=index" },
+    { "source": "/(.*)",              "destination": "/index.html" }
   ]
 }
