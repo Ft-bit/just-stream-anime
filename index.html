@@ -123,7 +123,6 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mux.js@6.3.0/dist/mux.min.js"></script>
   <style>
     :root{
       --red:#e11d48;--red2:#9f1239;--glow:rgba(225,29,72,.28);
@@ -1404,7 +1403,7 @@ function SchedulePage({onPlay}) {
         {WEEK_DAYS.map(function(name,i){return(<button key={i} className={'sched-day-btn'+(day===i?' on':'')} onClick={function(){setDay(i);}}>{name}{i===todayIdx&&<span className="sched-today">TODAY</span>}</button>);})}
       </div>
       <div className="sched-list">
-        {loading&&Array(5).fill(0).map(function(_,i){return<div key={i} className="sched-sk"/>;})};
+        {loading&&Array(5).fill(0).map(function(_,i){return<div key={i} className="sched-sk"/>;})}
         {!loading&&entries.length===0&&(<div className="sched-empty"><div style={{fontSize:'2.2rem',opacity:.25}}>📭</div><div>No anime scheduled for {WEEK_DAYS[day]}</div></div>)}
         {!loading&&entries.map(function(a,i){var aired=a.airingAt<=nowTs;return(<div key={i} className="sched-item" onClick={function(){onPlay(a,'watch');}}><img className="sched-item-img" src={a.image} alt={a.title} onError={function(e){e.target.style.opacity='0';}}/><div className="sched-item-info"><div className="sched-item-title">{a.title}</div><div className="sched-item-meta"><span>EP {a.airingEp}</span>{a.genres[0]&&<span>· {a.genres[0]}</span>}{a.format&&<span>· {a.format}</span>}</div></div><div style={{textAlign:'right',flexShrink:0}}><div className="sched-time">{fmtTime(a.airingAt)}</div><div className={'sched-badge '+(aired?'aired':'airing')}>{aired?'AIRED':'TODAY'}</div></div></div>);})}
       </div>
