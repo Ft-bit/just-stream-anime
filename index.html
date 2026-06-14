@@ -2164,7 +2164,7 @@ class ErrorBoundary extends React.Component {
           <div style={{fontSize:'3rem',marginBottom:'1rem'}}>⚠️</div>
           <h2 style={{color:'var(--txt)',fontWeight:800,fontSize:'1.4rem',marginBottom:'.5rem'}}>Something went wrong</h2>
           <p style={{color:'var(--txt3)',fontFamily:'var(--mono)',fontSize:12,marginBottom:'1.5rem',maxWidth:400}}>A page error occurred. Try refreshing, or go back to home.</p>
-          <button className="btn-play" onClick={()=>{ this.setState({hasError:false,error:null}); // hash routing removed }}>← Go Home</button>
+          <button className="btn-play" onClick={()=>{ this.setState({hasError:false,error:null}); }}>← Go Home</button>
         </div>
       );
     }
