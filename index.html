@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <!-- already has preconnect -->
   <link rel="preconnect" href="https://s4.anilist.co"/>
   <link rel="preconnect" href="https://img.anili.st"/>
   <link rel="preconnect" href="https://graphql.anilist.co"/>
@@ -158,7 +159,7 @@
     .s-meta{font-family:var(--mono);font-size:10px;color:var(--txt3);margin-top:2px}
     .hero{position:relative;min-height:clamp(480px,85vh,780px);display:flex;align-items:flex-end;overflow:hidden}
     .hero-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:var(--bg2)}
-    .hero-progress{position:absolute;bottom:0;left:0;height:3px;background:linear-gradient(to right,var(--red),#ff6b8a);z-index:20;border-radius:0}
+    
     .hero-img-desk{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;filter:brightness(.78) saturate(1.05);transition:opacity .75s ease}
     .hero-img-mob{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center;filter:brightness(.82) saturate(1.05);transition:opacity .75s ease;display:none}
     @media(max-width:768px){
@@ -570,6 +571,16 @@
     .gpill:hover{color:var(--txt);border-color:var(--red)}
     .gpill.on{background:var(--red);border-color:var(--red);color:#fff}
 
+    
+    /* ── PERFORMANCE ───────────────────────────────────────────────────────── */
+    .section{content-visibility:auto;contain-intrinsic-size:0 800px}
+    .ra-section{content-visibility:auto;contain-intrinsic-size:0 300px}
+    .cw-section{content-visibility:auto;contain-intrinsic-size:0 280px}
+    img{image-rendering:auto}
+    .hero-img-desk,.hero-img-mob,.ra-img,.cw-img,.hist-card-img,.sched-item-img{
+      will-change:transform;transform:translateZ(0)
+    }
+
     </style>
 </head>
 <body>
@@ -837,9 +848,9 @@ function Hero({items, onPlay}) {
   return (
     <div className="hero" onTouchStart={onTS} onTouchEnd={onTE}>
       <div className="hero-bg">
-        <div className="hero-progress" style={{width:Math.min((prog/IV)*100,100)+'%'}}/>
-        <img className="hero-img-desk" key={'d-'+a.id} src={a.banner||a.image} alt="" fetchpriority="high" loading="eager" style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
-        <img className="hero-img-mob"  key={'m-'+a.id} src={a.image} alt="" fetchpriority="high" loading="eager" style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
+        
+        <img className="hero-img-desk" loading="eager" fetchPriority="high" key={'d-'+a.id} src={a.banner||a.image} alt="" fetchpriority="high" loading="eager" style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
+        <img className="hero-img-mob" loading="eager" fetchPriority="high"  key={'m-'+a.id} src={a.image} alt="" fetchpriority="high" loading="eager" style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
         <div className="hero-grad"/>
         <div className="hero-nav-fade"/>
       </div>
@@ -1921,6 +1932,8 @@ function RecentlyAired({onPlay}) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Defer RecentlyAired load by 800ms so hero and ContinueWatching load first
+    const timer = setTimeout(() => {
     const now  = Math.floor(Date.now() / 1000);
     const from = now - 72 * 3600; // last 72 hours
     gql(Qs.recentAired, {from, to: now}).then(d => {
@@ -1932,6 +1945,8 @@ function RecentlyAired({onPlay}) {
       setItems(list);
       setLoading(false);
     }).catch(() => setLoading(false));
+    }, 800);
+    return () => clearTimeout(timer);
   }, []);
 
   function timeAgo(ts) {
@@ -2216,7 +2231,7 @@ function App() {
   useEffect(() => {
     gql(Qs.trending, {p:1}).then(d => {
       const list = (d.data?.Page?.media||[]).map(mapA).filter(a=>a.banner||a.image);
-      if (list.length) setHero(list.slice(0,8));
+      if (list.length) setHero(list.slice(0,5));
     }).catch(()=>{});
   }, []);
 
