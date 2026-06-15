@@ -1,4 +1,4 @@
-// api/sitemap.js
+// api/sitemap.xml
 // Dynamic sitemap generator — fetches top anime from AniList
 // Routes: /sitemap.xml (index) | /sitemap-anime.xml (all anime) | /sitemap-index.xml
 
