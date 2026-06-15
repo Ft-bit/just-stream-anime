@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Disallow: /api/
+Allow: /api/
 
 Sitemap: https://jsanime.site/sitemap-index.xml
 Sitemap: https://jsanime.site/sitemap.xml
