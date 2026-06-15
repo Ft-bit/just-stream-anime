@@ -40,27 +40,16 @@ module.exports = function handler(req, res) {
     headers: {
       'Referer':    ref,
       'Origin':     origin,
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36',
+      'User-Agent': 'Mozilla/5.0',
       'Accept':     '*/*',
     },
   };
 
   const proxyReq = lib.request(options, (upstream) => {
-    if (upstream.statusCode !== 200) {
-      res.statusCode = upstream.statusCode;
-      res.end('Upstream ' + upstream.statusCode);
-      return;
-    }
-    res.setHeader('Content-Type',  upstream.headers['content-type'] || 'application/octet-stream');
+    res.statusCode = upstream.statusCode;
+    res.setHeader('Content-Type', upstream.headers['content-type'] || 'application/octet-stream');
     res.setHeader('Cache-Control', 'public, max-age=3600');
-    const chunks = [];
-    upstream.on('data',  chunk => chunks.push(chunk));
-    upstream.on('end',   ()    => {
-      const buf = Buffer.concat(chunks);
-      res.setHeader('Content-Length', buf.length);
-      res.end(buf);
-    });
-    upstream.on('error', err  => { res.statusCode = 502; res.end(err.message); });
+    upstream.pipe(res);
   });
 
   proxyReq.on('error', err => { res.statusCode = 500; res.end('Proxy error: ' + err.message); });
