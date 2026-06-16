@@ -1,5 +1,4 @@
 // api/sitemap.js
-// Generates three outputs depending on query: static (default), anime, index
 const BASE = 'https://jsanime.site';
 const ANILIST = 'https://graphql.anilist.co';
 
@@ -17,11 +16,7 @@ const STATIC_PAGES = [
 ];
 
 function escapeXml(str) {
-  return (str || '').toString()
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function staticXml() {
@@ -47,68 +42,53 @@ function sitemapIndexXml() {
   ].join('\n');
 }
 
-// Minimal, rate-friendly AniList fetcher with pagination and safe defaults
-async function fetchAnimePage(sort, page = 1, perPage = 50, status = null) {
+// simplified AniList fetcher
+async function fetchAnimePage(sort, page = 1) {
   const query = `
-    query($page:Int,$perPage:Int,$sort:[MediaSort],$status:MediaStatus){
-      Page(page:$page,perPage:$perPage){
+    query($page:Int,$perPage:Int,$sort:[MediaSort]){
+      Page(page:$page,perPage:50){
         pageInfo{hasNextPage}
-        media(type:ANIME,sort:$sort,status:$status,isAdult:false){
-          id title { english romaji } popularity status updatedAt coverImage { large }
+        media(type:ANIME,sort:$sort,isAdult:false){
+          id title{english romaji} updatedAt popularity status coverImage{large}
         }
       }
     }
   `;
-  const variables = { page, perPage, sort: [sort], ...(status ? { status } : {}) };
   try {
     const r = await fetch(ANILIST, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ query, variables })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, variables: { page, perPage: 50, sort: [sort] } })
     });
-    if (!r.ok) return { media: [], pageInfo: { hasNextPage: false } };
     const json = await r.json();
     return json.data?.Page || { media: [], pageInfo: { hasNextPage: false } };
-  } catch (err) {
+  } catch {
     return { media: [], pageInfo: { hasNextPage: false } };
   }
 }
 
 function animeUrl(id, title) {
-  const slug = (title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const slug = (title || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
   return slug ? `${BASE}/anime/${id}/${slug}` : `${BASE}/anime/${id}`;
 }
 
 function animeXmlEntry(a) {
-  const title = escapeXml(a.title?.english || a.title?.romaji || '');
   const loc = escapeXml(animeUrl(a.id, a.title?.english || a.title?.romaji || ''));
   const lastmod = a.updatedAt ? new Date(a.updatedAt * 1000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
-  const image = a.coverImage?.large ? escapeXml(a.coverImage.large) : null;
-
-  const parts = [
+  return [
     '  <url>',
     `    <loc>${loc}</loc>`,
     `    <lastmod>${lastmod}</lastmod>`,
-    `    <changefreq>${a.status === 'RELEASING' ? 'daily' : 'weekly'}</changefreq>`,
-    `    <priority>${a.popularity > 50000 ? '0.9' : a.popularity > 10000 ? '0.8' : a.popularity > 1000 ? '0.7' : '0.6'}</priority>`
-  ];
-  if (image) {
-    parts.push('    <image:image>');
-    parts.push(`      <image:loc>${image}</image:loc>`);
-    parts.push(`      <image:title>${title}</image:title>`);
-    parts.push('    </image:image>');
-  }
-  parts.push('  </url>');
-  return parts.join('\n');
+    '  </url>'
+  ].join('\n');
 }
 
 module.exports = async function handler(req, res) {
-  // determine type from query string
-  const url = require('url').parse(req.url, true);
-  const type = url.query?.type || (req.url.includes('type=anime') ? 'anime' : req.url.includes('type=index') ? 'index' : 'static');
+  const url = new URL(req.url, 'http://localhost');
+  const type = url.searchParams.get('type') || 'static';
 
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');
-  res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
 
   try {
     if (type === 'index') {
@@ -118,53 +98,42 @@ module.exports = async function handler(req, res) {
     }
 
     if (type === 'anime') {
-      // Controlled fetch: small number of pages to avoid rate limits
-      const jobs = [
-        { sort: 'POPULARITY_DESC', pages: 3 },
-        { sort: 'TRENDING_DESC', pages: 2 }
-      ];
       const seen = new Set();
       const entries = [];
-
-      for (const job of jobs) {
-        for (let p = 1; p <= job.pages; p++) {
-          const data = await fetchAnimePage(job.sort, p, 50, job.status || null);
-          for (const a of data.media || []) {
-            if (!seen.has(a.id)) {
-              seen.add(a.id);
-              entries.push(animeXmlEntry(a));
-            }
+      for (let p = 1; p <= 3; p++) {
+        const data = await fetchAnimePage('POPULARITY_DESC', p);
+        for (const a of data.media || []) {
+          if (!seen.has(a.id)) {
+            seen.add(a.id);
+            entries.push(animeXmlEntry(a));
           }
-          if (!data.pageInfo?.hasNextPage) break;
-          // gentle delay
-          await new Promise(r => setTimeout(r, 250));
         }
+        if (!data.pageInfo?.hasNextPage) break;
+        await new Promise(r => setTimeout(r, 250));
       }
-
       const xml = [
         '<?xml version="1.0" encoding="UTF-8"?>',
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
         entries.join('\n'),
         '</urlset>'
       ].join('\n');
-
       res.statusCode = 200;
       res.end(xml);
       return;
     }
 
-    // default static sitemap
+    // default: static sitemap
     const xml = [
       '<?xml version="1.0" encoding="UTF-8"?>',
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
       staticXml(),
       '</urlset>'
     ].join('\n');
-
     res.statusCode = 200;
     res.end(xml);
+
   } catch (err) {
-    console.error('Sitemap error:', err && err.message ? err.message : err);
+    console.error('Sitemap error:', err.message);
     res.statusCode = 500;
     res.end('<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
   }
