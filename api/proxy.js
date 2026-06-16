@@ -1,6 +1,6 @@
-// api/proxy.js
+// api/proxy.js — Referer proxy for HLS streaming (no fetch, uses native https)
 const https = require('https');
-const http = require('http');
+const http  = require('http');
 const { URL } = require('url');
 
 const ALLOWED = [
@@ -10,87 +10,60 @@ const ALLOWED = [
 ];
 
 module.exports = function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin',  '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', '*');
+  if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
-  if (req.method === 'OPTIONS') {
-    res.statusCode = 200;
-    res.end();
-    return;
-  }
-
-  const qs = require('url').parse(req.url, true).query;
-  const target = qs.url || '';
+  const qs  = require('url').parse(req.url, true).query;
+  const url = qs.url || '';
   const ref = qs.referer || 'https://kwik.si/';
 
-  if (!target) {
-    res.statusCode = 400;
-    res.end('url required');
-    return;
+  if (!url) { res.statusCode = 400; res.end('url required'); return; }
+  if (!ALLOWED.some(s => url.includes(s))) {
+    res.statusCode = 403; res.end('domain not allowed'); return;
   }
 
-  if (!ALLOWED.some(s => target.includes(s))) {
-    res.statusCode = 403;
-    res.end('domain not allowed');
-    return;
+  let origin = 'https://kwik.si';
+  try { origin = new URL(ref).origin; } catch (_) {}
+
+  let parsedUrl;
+  try { parsedUrl = new URL(url); } catch (_) {
+    res.statusCode = 400; res.end('invalid url'); return;
   }
 
-  let parsed;
-  try {
-    parsed = new URL(target);
-  } catch (err) {
-    res.statusCode = 400;
-    res.end('invalid url');
-    return;
-  }
-
-  const lib = parsed.protocol === 'https:' ? https : http;
+  const lib = parsedUrl.protocol === 'https:' ? https : http;
   const options = {
-    hostname: parsed.hostname,
-    port: parsed.port || (parsed.protocol === 'https:' ? 443 : 80),
-    path: parsed.pathname + (parsed.search || ''),
-    method: 'GET',
+    hostname: parsedUrl.hostname,
+    port:     parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
+    path:     parsedUrl.pathname + (parsedUrl.search || ''),
+    method:   'GET',
     headers: {
-      'Referer': ref,
-      'Origin': (() => { try { return new URL(ref).origin } catch { return 'https://kwik.si' } })(),
-      'User-Agent': 'Mozilla/5.0 (compatible)',
-      'Accept': '*/*'
+      'Referer':    ref,
+      'Origin':     origin,
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36',
+      'Accept':     '*/*',
     },
-    timeout: 15000
   };
 
-  const upstreamReq = lib.request(options, upstreamRes => {
-    // forward status and headers
-    res.statusCode = upstreamRes.statusCode || 502;
-    // copy content-type if present
-    if (upstreamRes.headers['content-type']) {
-      res.setHeader('Content-Type', upstreamRes.headers['content-type']);
-    } else {
-      res.setHeader('Content-Type', 'application/octet-stream');
+  const proxyReq = lib.request(options, (upstream) => {
+    if (upstream.statusCode !== 200) {
+      res.statusCode = upstream.statusCode;
+      res.end('Upstream ' + upstream.statusCode);
+      return;
     }
+    res.setHeader('Content-Type',  upstream.headers['content-type'] || 'application/octet-stream');
     res.setHeader('Cache-Control', 'public, max-age=3600');
-
-    // stream directly to client to avoid buffering large media
-    upstreamRes.pipe(res);
-    upstreamRes.on('error', err => {
-      if (!res.writableEnded) {
-        res.statusCode = 502;
-        res.end('Upstream error');
-      }
+    const chunks = [];
+    upstream.on('data',  chunk => chunks.push(chunk));
+    upstream.on('end',   ()    => {
+      const buf = Buffer.concat(chunks);
+      res.setHeader('Content-Length', buf.length);
+      res.end(buf);
     });
+    upstream.on('error', err  => { res.statusCode = 502; res.end(err.message); });
   });
 
-  upstreamReq.on('timeout', () => {
-    upstreamReq.destroy(new Error('upstream timeout'));
-  });
-
-  upstreamReq.on('error', err => {
-    if (!res.writableEnded) {
-      res.statusCode = 500;
-      res.end('Proxy error: ' + (err && err.message ? err.message : 'unknown'));
-    }
-  });
-
-  upstreamReq.end();
+  proxyReq.on('error', err => { res.statusCode = 500; res.end('Proxy error: ' + err.message); });
+  proxyReq.end();
 };
