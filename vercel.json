@@ -1,12 +1,9 @@
 {
-  "functions": {
-    "api/proxy.js":   { "runtime": "nodejs18.x", "maxDuration": 30 },
-    "api/sitemap.js": { "runtime": "nodejs18.x", "maxDuration": 60 }
-  },
   "rewrites": [
     { "source": "/sitemap.xml",       "destination": "/api/sitemap" },
     { "source": "/sitemap-anime.xml", "destination": "/api/sitemap?type=anime" },
     { "source": "/sitemap-index.xml", "destination": "/api/sitemap?type=index" },
+    { "source": "/robots.txt",        "destination": "/public/robots.txt" },
     { "source": "/(.*)",              "destination": "/index.html" }
   ]
 }
