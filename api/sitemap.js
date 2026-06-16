@@ -43,25 +43,34 @@ function indexXml() {
   ].join('\n');
 }
 
-async function fetchPage(sort, page, perPage, status) {
-  const query = `query($page:Int,$perPage:Int,$sort:[MediaSort],$status:MediaStatus){
+// Fetch with a hard timeout so a slow/hanging AniList response can never
+// hang the whole serverless function past Vercel's limit.
+async function fetchPage(sort, page, perPage) {
+  const query = `query($page:Int,$perPage:Int,$sort:[MediaSort]){
     Page(page:$page,perPage:$perPage){
       pageInfo{hasNextPage}
-      media(type:ANIME,sort:$sort,status:$status,isAdult:false){
+      media(type:ANIME,sort:$sort,isAdult:false){
         id title{english romaji} popularity status updatedAt coverImage{large}
       }
     }
   }`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 6000);
   try {
     const r = await fetch(ANILIST, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ query, variables: { page, perPage, sort: [sort], ...(status?{status}:{}) } }),
+      body: JSON.stringify({ query, variables: { page, perPage, sort: [sort] } }),
+      signal: controller.signal,
     });
+    clearTimeout(timer);
     if (!r.ok) return { media: [], pageInfo: { hasNextPage: false } };
     const d = await r.json();
     return d.data?.Page || { media: [], pageInfo: { hasNextPage: false } };
-  } catch { return { media: [], pageInfo: { hasNextPage: false } }; }
+  } catch {
+    clearTimeout(timer);
+    return { media: [], pageInfo: { hasNextPage: false } };
+  }
 }
 
 function animeEntry(a) {
@@ -87,34 +96,41 @@ module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
 
   try {
-    if (type === 'index') { res.statusCode=200; res.end(indexXml()); return; }
+    if (type === 'index') { res.statusCode = 200; res.end(indexXml()); return; }
 
     if (type === 'anime') {
-      const seen=new Set(), entries=[];
-      for (const [sort,pages] of [['POPULARITY_DESC',3],['TRENDING_DESC',2]]) {
-        for (let p=1;p<=pages;p++) {
-          const data = await fetchPage(sort,p,50,null);
-          for (const a of data.media||[]) {
-            if (!seen.has(a.id)) { seen.add(a.id); entries.push(animeEntry(a)); }
-          }
-          if (!data.pageInfo?.hasNextPage) break;
-          await new Promise(r=>setTimeout(r,250));
+      // Run both sort jobs' first pages in PARALLEL instead of sequential —
+      // far less likely to hit a function timeout.
+      const jobs = [
+        fetchPage('POPULARITY_DESC', 1, 50),
+        fetchPage('POPULARITY_DESC', 2, 50),
+        fetchPage('TRENDING_DESC',   1, 50),
+      ];
+      const results = await Promise.all(jobs);
+
+      const seen = new Set(), entries = [];
+      for (const data of results) {
+        for (const a of data.media || []) {
+          if (!seen.has(a.id)) { seen.add(a.id); entries.push(animeEntry(a)); }
         }
       }
-      res.statusCode=200;
+
+      res.statusCode = 200;
       res.end(['<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">',
-        entries.join('\n'),'</urlset>'].join('\n'));
+        entries.join('\n'), '</urlset>'].join('\n'));
       return;
     }
 
-    res.statusCode=200;
+    res.statusCode = 200;
     res.end(['<?xml version="1.0" encoding="UTF-8"?>',
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-      staticXml(),'</urlset>'].join('\n'));
-  } catch(err) {
-    console.error('Sitemap error:',err?.message);
-    res.statusCode=500;
+      staticXml(), '</urlset>'].join('\n'));
+
+  } catch (err) {
+    console.error('Sitemap error:', err?.message);
+    // Never 500 — always return valid (if empty) XML so Google doesn't see an error
+    res.statusCode = 200;
     res.end('<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
   }
 };
