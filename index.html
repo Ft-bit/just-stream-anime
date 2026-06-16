@@ -962,6 +962,40 @@ function SearchBar({onSel, onSearch}) {
 
 // ── HLS DOWNLOADER HELPERS ────────────────────────────────────────────────────
 
+
+// ── ANISKIP — free skip-times API ──────────────────────────────────────────
+async function fetchSkipTimes(malId, epNum) {
+  if (!malId) return null;
+  try {
+    const r = await fetch(
+      `https://api.aniskip.com/v2/skip-times/${malId}/${epNum}?types[]=op&types[]=ed&episodeLength=0`
+    );
+    if (!r.ok) return null;
+    const d = await r.json();
+    if (!d.found) return null;
+    const out = {};
+    for (const item of (d.results || [])) {
+      out[item.skipType] = { start: item.interval.startTime, end: item.interval.endTime };
+    }
+    return out;
+  } catch { return null; }
+}
+
+// ── WATCHED EPISODES (localStorage) ─────────────────────────────────────────
+const WEP_KEY = id => `jsa_watched_${id}`;
+function getWatched(animeId) {
+  try { return JSON.parse(localStorage.getItem(WEP_KEY(animeId)) || '[]'); }
+  catch { return []; }
+}
+function markWatched(animeId, ep) {
+  const list = getWatched(animeId);
+  if (!list.includes(ep)) {
+    list.push(ep);
+    try { localStorage.setItem(WEP_KEY(animeId), JSON.stringify(list)); } catch {}
+  }
+}
+
+
 function WatchPage({anime, startTab, onBack}) {
   const toast    = useToast();
   const totalEps = anime.airedEps || anime.eps || 12;
