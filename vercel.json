@@ -1,4 +1,8 @@
 {
+  "functions": {
+    "api/proxy.js":   { "maxDuration": 30 },
+    "api/sitemap.js": { "maxDuration": 30 }
+  },
   "rewrites": [
     { "source": "/sitemap.xml",       "destination": "/api/sitemap" },
     { "source": "/sitemap-anime.xml", "destination": "/api/sitemap?type=anime" },
