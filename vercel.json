@@ -3,7 +3,6 @@
     { "source": "/sitemap.xml",       "destination": "/api/sitemap" },
     { "source": "/sitemap-anime.xml", "destination": "/api/sitemap?type=anime" },
     { "source": "/sitemap-index.xml", "destination": "/api/sitemap?type=index" },
-    { "source": "/robots.txt",        "destination": "/public/robots.txt" },
     { "source": "/(.*)",              "destination": "/index.html" }
   ]
 }
