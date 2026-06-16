@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+    // Auto-cleanup: remove any stale service worker / cache from old deployments
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(reg => reg.unregister());
+      }).catch(()=>{});
+    }
+    if ('caches' in window) {
+      caches.keys().then(names => {
+        names.forEach(name => caches.delete(name));
+      }).catch(()=>{});
+    }
+  </script>
+
   <meta charset="UTF-8"/>
   <!-- already has preconnect -->
   <link rel="preconnect" href="https://s4.anilist.co"/>
