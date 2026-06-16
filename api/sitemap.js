@@ -16,7 +16,10 @@ const STATIC_PAGES = [
 ];
 
 function escapeXml(str) {
-  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return (str || '').replace(/&/g,'&amp;')
+                    .replace(/</g,'&lt;')
+                    .replace(/>/g,'&gt;')
+                    .replace(/"/g,'&quot;');
 }
 
 function staticXml() {
@@ -42,7 +45,7 @@ function sitemapIndexXml() {
   ].join('\n');
 }
 
-// simplified AniList fetcher
+// AniList fetcher
 async function fetchAnimePage(sort, page = 1) {
   const query = `
     query($page:Int,$perPage:Int,$sort:[MediaSort]){
@@ -111,12 +114,24 @@ module.exports = async function handler(req, res) {
         if (!data.pageInfo?.hasNextPage) break;
         await new Promise(r => setTimeout(r, 250));
       }
+
+      // ✅ Fallback if no entries
+      if (entries.length === 0) {
+        entries.push([
+          '  <url>',
+          `    <loc>${BASE}/</loc>`,
+          `    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>`,
+          '  </url>'
+        ].join('\n'));
+      }
+
       const xml = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
         entries.join('\n'),
         '</urlset>'
       ].join('\n');
+
       res.statusCode = 200;
       res.end(xml);
       return;
