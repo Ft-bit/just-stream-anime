@@ -106,7 +106,7 @@ function buildItem(a) {
     : (a.seasonYear || '');
   const desc   = (a.description || '').replace(/<[^>]+>/g, '').trim().slice(0, 400);
   const image  = a.coverImage?.extraLarge || '';
-  const url    = `${SITE_URL}/#watch/${a.id}/watch`;
+  const url    = `${SITE_URL}/anime/${a.id}`;
   const score  = a.averageScore ? `${a.averageScore}%` : '';
   const genres = (a.genres || []).slice(0, 4).join(', ');
   const status = a.status || '';
@@ -167,7 +167,7 @@ function buildItem(a) {
     </item>`;
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // CORS headers so feed readers can access it
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 's-maxage=1800, stale-while-revalidate=3600'); // cache 30 min
