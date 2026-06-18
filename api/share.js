@@ -23,7 +23,7 @@ function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   const animeId = parseInt(req.query.a || '0');
 
   if (!animeId) {
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const watchUrl = `${SITE_URL}/#watch/${animeId}/watch`;
+  const watchUrl = `${SITE_URL}/anime/${animeId}`;
   const shareUrl = `${SITE_URL}/share?a=${animeId}`;
 
   // Fetch anime data from AniList
