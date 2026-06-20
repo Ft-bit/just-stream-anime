@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <script>
+    // Auto-cleanup: remove any stale service worker / cache from old deployments
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(regs => {
         regs.forEach(reg => reg.unregister());
@@ -15,6 +16,7 @@
   </script>
 
   <meta charset="UTF-8"/>
+  <!-- already has preconnect -->
   <link rel="preconnect" href="https://s4.anilist.co"/>
   <link rel="preconnect" href="https://img.anili.st"/>
   <link rel="preconnect" href="https://graphql.anilist.co"/>
@@ -59,7 +61,10 @@
     "inLanguage": "en",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": { "@type": "EntryPoint", "urlTemplate": "https://jsanime.site/?q={search_term_string}" },
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://jsanime.site/?q={search_term_string}"
+      },
       "query-input": "required name=search_term_string"
     }
   }
@@ -70,11 +75,25 @@
     "@type": "Organization",
     "name": "JustStreamAnime",
     "url": "https://jsanime.site/",
-    "logo": { "@type": "ImageObject", "url": "https://jsanime.site/favicon-512.png", "width": 512, "height": 512 },
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://jsanime.site/favicon-512.png",
+      "width": 512,
+      "height": 512
+    },
     "image": "https://jsanime.site/og-image.jpg",
     "description": "Free anime streaming platform. Watch subbed and dubbed anime online with no account required.",
-    "sameAs": ["https://t.me/juststreamanime","https://x.com/juststreamanime","https://discord.gg/Upyq7cYcPa"],
-    "contactPoint": { "@type": "ContactPoint", "email": "fredbv22@gmail.com", "contactType": "customer support", "availableLanguage": "English" }
+    "sameAs": [
+      "https://t.me/juststreamanime",
+      "https://x.com/juststreamanime",
+      "https://discord.gg/Upyq7cYcPa"
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "fredbv22@gmail.com",
+      "contactType": "customer support",
+      "availableLanguage": "English"
+    }
   }
   </script>
   <script type="application/ld+json">
@@ -85,7 +104,11 @@
     "description": "Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub.",
     "url": "https://jsanime.site/",
     "isPartOf": { "@type": "WebSite", "url": "https://jsanime.site/" },
-    "about": { "@type": "Thing", "name": "Anime Streaming", "description": "Free online anime streaming with subtitles and English dub" },
+    "about": {
+      "@type": "Thing",
+      "name": "Anime Streaming",
+      "description": "Free online anime streaming with subtitles and English dub"
+    },
     "breadcrumb": {
       "@type": "BreadcrumbList",
       "itemListElement": [
@@ -94,13 +117,27 @@
         { "@type": "ListItem", "position": 3, "name": "Popular Anime", "item": "https://jsanime.site/popular" }
       ]
     },
-    "speakable": { "@type": "SpeakableSpecification", "cssSelector": [".hero-title",".hero-desc",".sec-title"] }
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": [".hero-title", ".hero-desc", ".sec-title"]
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Trending Anime",
+    "description": "Currently trending anime on JustStreamAnime",
+    "url": "https://jsanime.site/trending",
+    "itemListOrder": "https://schema.org/ItemListOrderDescending",
+    "numberOfItems": 30
   }
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.23.10/babel.min.js"></script>
   <style>
     :root{
       --red:#e11d48;--red2:#9f1239;--glow:rgba(225,29,72,.28);
@@ -118,27 +155,7 @@
     ::-webkit-scrollbar{width:4px;height:4px}
     ::-webkit-scrollbar-track{background:var(--bg)}
     ::-webkit-scrollbar-thumb{background:#e11d4840;border-radius:2px}
-
-    /* ── FIX 1: Missing layout CSS that caused the blank page ── */
-    .layout{display:flex;min-height:100vh}
-    /* FIX: padding-top pushes ALL content below the fixed nav bar */
-    .main{flex:1;min-width:0;display:flex;flex-direction:column;padding-top:var(--nav)}
-
-    /* FIX: Nav border boosted from .07 to .18 opacity so it's visible against dark background */
-    .nav{position:fixed;top:0;left:0;right:0;z-index:500;height:var(--nav);display:flex;align-items:center;gap:14px;padding:0 clamp(1rem,4vw,2.5rem);background:rgba(7,7,14,.97);backdrop-filter:blur(20px) saturate(160%);border-bottom:1px solid rgba(255,255,255,.18)}
-    /* Hero skeleton shown while API is loading */
-    .hero-sk{position:relative;min-height:clamp(320px,62vh,520px);background:linear-gradient(135deg,#0d0d22 0%,#12122a 50%,#0d0d22 100%);display:flex;align-items:flex-end;overflow:hidden;margin-top:calc(-1 * var(--nav))}
-    .hero-sk-inner{position:absolute;inset:0;background:linear-gradient(90deg,#111128 25%,#1c1c38 50%,#111128 75%);background-size:200% 100%;animation:shimmer 2s infinite}
-    .hero-sk-content{position:relative;z-index:2;padding:clamp(3rem,7vw,5rem) clamp(1rem,4vw,3.5rem) clamp(2rem,5vw,3.5rem);padding-left:clamp(72px,7vw,100px);max-width:460px}
-    .hero-sk-badge{width:90px;height:10px;border-radius:5px;background:rgba(225,29,72,.22);margin-bottom:14px}
-    .hero-sk-title{width:70%;height:20px;border-radius:8px;background:rgba(255,255,255,.1);margin-bottom:10px}
-    .hero-sk-title2{width:50%;height:20px;border-radius:8px;background:rgba(255,255,255,.07);margin-bottom:16px}
-    .hero-sk-meta{width:40%;height:10px;border-radius:5px;background:rgba(255,255,255,.06);margin-bottom:18px}
-    .hero-sk-btns{display:flex;gap:9px}
-    .hero-sk-btn{height:40px;border-radius:10px;background:rgba(225,29,72,.25)}
-    .hero-sk-btn:first-child{width:100px}
-    .hero-sk-btn:last-child{width:80px;background:rgba(255,255,255,.07)}
-    @media(max-width:768px){.hero-sk-content{display:none}}
+    .nav{position:fixed;top:0;left:0;right:0;z-index:500;height:var(--nav);display:flex;align-items:center;gap:14px;padding:0 clamp(1rem,4vw,2.5rem);background:rgba(7,7,14,.96);backdrop-filter:blur(20px) saturate(160%);border-bottom:1px solid var(--border)}
     .logo{display:flex;align-items:center;gap:9px;flex-shrink:0;cursor:pointer}
     .logo-mark{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px var(--glow)}
     .logo-name{font-size:clamp(13px,3.5vw,16px);font-weight:900;letter-spacing:-.025em;white-space:nowrap}
@@ -154,8 +171,9 @@
     .s-row img{width:36px;height:52px;border-radius:6px;object-fit:cover;flex-shrink:0}
     .s-title{font-weight:700;font-size:13px;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .s-meta{font-family:var(--mono);font-size:10px;color:var(--txt3);margin-top:2px}
-    .hero{position:relative;min-height:clamp(480px,85vh,780px);display:flex;align-items:flex-end;overflow:hidden;margin-top:calc(-1 * var(--nav))}
+    .hero{position:relative;min-height:clamp(480px,85vh,780px);display:flex;align-items:flex-end;overflow:hidden}
     .hero-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:var(--bg2)}
+    
     .hero-img-desk{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;filter:brightness(.78) saturate(1.05);transition:opacity .75s ease}
     .hero-img-mob{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center;filter:brightness(.82) saturate(1.05);transition:opacity .75s ease;display:none}
     @media(max-width:768px){
@@ -334,34 +352,13 @@
     .contact-link-wa:active{transform:scale(.95)}
     .contact-icon{width:22px;height:22px;flex-shrink:0;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
     .contact-link:hover .contact-icon{transform:scale(1.15) rotate(-6deg)}
-    footer{border-top:1px solid var(--border)}
-    .footer{margin-top:auto;padding:2.5rem clamp(.75rem,3.5vw,2.5rem) 5rem;border-top:1px solid var(--border);display:block}
-    .footer-inner{max-width:900px}
-    .footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-    .footer-name{font-size:1.1rem;font-weight:900;color:var(--txt);letter-spacing:-.01em}
-    .footer-disc{font-size:12px;color:var(--txt3);line-height:1.7;max-width:620px;margin-bottom:16px}
-    .footer-links{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-    .footer-soc{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;border:1px solid var(--border2);background:var(--bg2);color:var(--txt2);text-decoration:none;transition:all .18s}
-    .footer-soc:hover{border-color:var(--red);color:var(--red);background:rgba(225,29,72,.08)}
-    .footer-soc svg{width:16px;height:16px}
-    .footer-policy{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-    .footer-link{background:none;border:none;color:var(--txt3);font-size:11px;cursor:pointer;padding:0;font-family:inherit;transition:color .15s;text-decoration:none}
-    .footer-link:hover{color:var(--red)}
-    .footer-dot{color:var(--border2);font-size:11px}
-    .footer-copy{font-size:11px;color:var(--txt3);font-family:var(--mono)}
-    @media(max-width:640px){.footer{padding-bottom:6rem}}
+    footer{border-top:1px solid var(--border);padding:clamp(1.1rem,3.5vw,1.8rem) clamp(1rem,4vw,2.5rem);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
     .ft-logo{font-size:clamp(12px,2.5vw,14px);font-weight:900;letter-spacing:-.02em}
     .ft-logo em{color:var(--red);font-style:normal}
     .ft-links{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .ft-link{font-family:var(--mono);font-size:clamp(9px,1.8vw,10px);color:var(--txt2);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:2px;padding:0;transition:color .15s}
     .ft-link:hover{color:var(--txt)}
     .ft-sep{font-family:var(--mono);font-size:10px;color:var(--txt3)}
-    .ft-socials{display:flex;align-items:center;gap:8px}
-    .ft-social{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--txt2);text-decoration:none;transition:all .18s;-webkit-tap-highlight-color:transparent;flex-shrink:0}
-    .ft-social:hover{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);transform:translateY(-2px)}
-    .ft-social.tg:hover{background:rgba(44,165,224,.15);border-color:rgba(44,165,224,.4);color:#2CA5E0}
-    .ft-social.tw:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);color:#fff}
-    .ft-social.dc:hover{background:rgba(88,101,242,.18);border-color:rgba(88,101,242,.5);color:#5865F2}
     @media(max-width:480px){footer{padding:1rem .75rem;flex-direction:column;gap:.5rem}.ft-links{justify-content:flex-start}.nav{gap:8px;padding:0 .85rem}.pag{gap:4px;padding:.7rem .75rem 2rem}.pgb{min-width:28px;height:28px;font-size:10px}.wp-wrap{padding:0 .75rem 3rem}}
     @media(max-width:380px){.logo-name{font-size:12px}.logo-mark{width:26px;height:26px}}
     .toast-wrap{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
@@ -374,12 +371,12 @@
     .btt:hover{box-shadow:0 6px 28px var(--glow);filter:brightness(1.15);transform:translateY(-2px) scale(1.08)!important}
     .btt:active{transform:scale(.92)!important}
     @media(max-width:768px){.btt{bottom:calc(58px + max(6px,env(safe-area-inset-bottom)) + 16px);right:14px;width:38px;height:38px;font-size:18px}}
-    .genre-wrap{overflow-x:auto;scrollbar-width:none;padding:0 clamp(.75rem,3.5vw,2.5rem);margin-bottom:.75rem;position:relative}
+    .genre-wrap{padding:0 clamp(.75rem,3.5vw,2.5rem) clamp(.5rem,1.5vw,.9rem);position:relative}
     .genre-wrap::after{content:'';position:absolute;right:0;top:0;bottom:0;width:40px;background:linear-gradient(to right,transparent,var(--bg));pointer-events:none}
-    .genre-wrap::-webkit-scrollbar{display:none}
-    .genre-bar{display:flex;gap:6px;padding:.6rem 0}
-    .gpill{padding:5px 14px;border-radius:999px;border:1px solid var(--border2);background:none;color:var(--txt2);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .15s;flex-shrink:0;user-select:none;letter-spacing:.02em}
-    .gpill:hover{color:var(--txt);border-color:var(--red);transform:translateY(-1px)}
+    .genre-bar{display:flex;gap:7px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .genre-bar::-webkit-scrollbar{display:none}
+    .gpill{font-family:var(--mono);font-size:11px;font-weight:700;padding:6px 16px;border-radius:20px;flex-shrink:0;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--txt2);cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;letter-spacing:.02em;user-select:none;white-space:nowrap}
+    .gpill:hover{background:rgba(255,255,255,.1);color:var(--txt);border-color:rgba(255,255,255,.22);transform:translateY(-1px)}
     .gpill.on{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;color:#fff;box-shadow:0 3px 14px var(--glow);transform:translateY(-1px)}
     .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 1rem;gap:14px;text-align:center}
     .empty-ico{font-size:3rem;opacity:.35}
@@ -438,6 +435,12 @@
     .share-copy-btn:active{transform:scale(.94)}
     .share-trigger{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.13);color:var(--txt2);background:rgba(255,255,255,.05);transition:all .15s;cursor:pointer;-webkit-tap-highlight-color:transparent}
     .share-trigger:hover{background:rgba(255,255,255,.1);color:var(--txt);border-color:rgba(255,255,255,.22)}
+    .ft-socials{display:flex;align-items:center;gap:8px}
+    .ft-social{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--txt2);text-decoration:none;transition:all .18s;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+    .ft-social:hover{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);transform:translateY(-2px)}
+    .ft-social.tg:hover{background:rgba(44,165,224,.15);border-color:rgba(44,165,224,.4);color:#2CA5E0}
+    .ft-social.tw:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);color:#fff}
+    .ft-social.dc:hover{background:rgba(88,101,242,.18);border-color:rgba(88,101,242,.5);color:#5865F2}
     .sched-wrap{padding-top:calc(var(--nav) + .75rem)}
     .sched-days{display:flex;gap:4px;overflow-x:auto;padding:0 clamp(.75rem,3.5vw,2.5rem) .8rem;scrollbar-width:none}
     .sched-days::-webkit-scrollbar{display:none}
@@ -485,6 +488,8 @@
     .ra-body{padding:6px 7px 8px}
     .ra-title{font-size:10px;font-weight:700;color:var(--txt);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .ra-sk{flex-shrink:0;width:clamp(100px,20vw,130px);border-radius:10px;background:linear-gradient(90deg,#1a1a2e 25%,#20203a 50%,#1a1a2e 75%);background-size:200% 100%;animation:shimmer 1.7s infinite;height:clamp(170px,32vw,220px)}
+    .dl-source{display:flex;align-items:center;gap:14px;padding:13px 16px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--txt);transition:all .2s;cursor:pointer;-webkit-tap-highlight-color:transparent;margin-bottom:8px}
+    .dl-source:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.18);transform:translateX(4px)}
     .contact-page{min-height:100vh;background:var(--bg);padding-top:var(--nav)}
     .contact-inner{max-width:680px;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem) 5rem}
     .contact-hero{text-align:center;padding:clamp(2rem,6vw,4rem) 0 clamp(1.5rem,4vw,2.5rem)}
@@ -559,20 +564,66 @@
     .hist-empty-ico{font-size:3rem;opacity:.25}
     .hist-empty-txt{font-size:13px;color:var(--txt2)}
     .hist-empty-sub{font-family:var(--mono);font-size:11px;color:var(--txt3)}
+  
+    /* ── TABS ──────────────────────────────────────────────────────────────── */
     .tabs-wrap{padding:0 clamp(.75rem,3.5vw,2.5rem);padding-top:1.1rem;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
     .tabs-wrap::-webkit-scrollbar{display:none}
     .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);padding-bottom:0}
-    .tab{padding:9px 18px;background:none;border:none;border-bottom:2px solid transparent;color:var(--txt2);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:-1px;transition:color .18s,border-color .18s;white-space:nowrap;font-family:inherit;outline:none}
+    .tab{padding:9px 18px;background:none;border:none;border-bottom:2px solid transparent;
+         color:var(--txt2);font-size:13px;font-weight:700;cursor:pointer;
+         margin-bottom:-1px;transition:color .18s,border-color .18s;
+         white-space:nowrap;font-family:inherit;outline:none}
     .tab:hover{color:var(--txt)}
     .tab.on{color:var(--txt);border-bottom-color:var(--red)}
-    .dl-source{display:flex;align-items:center;gap:14px;padding:13px 16px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--txt);transition:all .2s;cursor:pointer;-webkit-tap-highlight-color:transparent;margin-bottom:8px}
-    .dl-source:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.18);transform:translateX(4px)}
-    .section{content-visibility:auto;contain-intrinsic-size:0 800px;padding:0 clamp(.75rem,3.5vw,2.5rem) clamp(1rem,3vw,2.5rem)}
+    /* ── GENRE BAR ─────────────────────────────────────────────────────────── */
+    .genre-wrap{overflow-x:auto;scrollbar-width:none;padding:0 clamp(.75rem,3.5vw,2.5rem);margin-bottom:.75rem}
+    .genre-wrap::-webkit-scrollbar{display:none}
+    .genre-bar{display:flex;gap:6px;padding:.6rem 0}
+    .gpill{padding:5px 14px;border-radius:999px;border:1px solid var(--border2);background:none;
+           color:var(--txt2);font-size:11px;font-weight:600;cursor:pointer;
+           white-space:nowrap;font-family:inherit;transition:all .15s}
+    .gpill:hover{color:var(--txt);border-color:var(--red)}
+    .gpill.on{background:var(--red);border-color:var(--red);color:#fff}
+
+    
+    /* ── PERFORMANCE ───────────────────────────────────────────────────────── */
+    .section{content-visibility:auto;contain-intrinsic-size:0 800px}
     .ra-section{content-visibility:auto;contain-intrinsic-size:0 300px}
     .cw-section{content-visibility:auto;contain-intrinsic-size:0 280px}
     img{image-rendering:auto}
-    .hero-img-desk,.hero-img-mob,.ra-img,.cw-img,.hist-card-img,.sched-item-img{will-change:transform;transform:translateZ(0)}
-  </style>
+    .hero-img-desk,.hero-img-mob,.ra-img,.cw-img,.hist-card-img,.sched-item-img{
+      will-change:transform;transform:translateZ(0)
+    }
+
+    
+    /* ── FOOTER ──────────────────────────────────────────────────────────── */
+    .footer{margin-top:auto;padding:2.5rem clamp(.75rem,3.5vw,2.5rem) 5rem;border-top:1px solid var(--border)}
+    .footer-inner{max-width:900px}
+    .footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .footer-name{font-size:1.1rem;font-weight:900;color:var(--txt);letter-spacing:-.01em}
+    .footer-disc{font-size:12px;color:var(--txt3);line-height:1.7;max-width:620px;margin-bottom:16px}
+    .footer-links{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+    .footer-soc{display:inline-flex;align-items:center;justify-content:center;
+      width:34px;height:34px;border-radius:10px;
+      border:1px solid var(--border2);background:var(--bg2);
+      color:var(--txt2);text-decoration:none;transition:all .18s}
+    .footer-soc:hover{border-color:var(--red);color:var(--red);background:rgba(225,29,72,.08)}
+    .footer-soc svg{width:16px;height:16px}
+    .footer-policy{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+    .footer-link{background:none;border:none;color:var(--txt3);font-size:11px;
+      cursor:pointer;padding:0;font-family:inherit;transition:color .15s;text-decoration:none}
+    .footer-link:hover{color:var(--red)}
+    .footer-dot{color:var(--border2);font-size:11px}
+    .footer-copy{font-size:11px;color:var(--txt3);font-family:var(--mono)}
+    @media(max-width:640px){.footer{padding-bottom:6rem}}
+
+    
+    /* ── LAYOUT SHELL ──────────────────────────────────────────────────────── */
+    .layout{display:flex;min-height:100vh}
+    .main{flex:1;min-width:0;padding-top:0}
+    @media(min-width:769px){.main{padding-left:0}}
+
+    </style>
 </head>
 <body>
 <div id="root"></div>
@@ -619,13 +670,8 @@ const Qs = {
   explore: `query($p:Int,$format:MediaFormat,$genre:String,$status:MediaStatus,$year:Int,$sort:[MediaSort]){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,sort:$sort,isAdult:false,format:$format,genre:$genre,status:$status,seasonYear:$year){${FL}}}}`,
   recent:  `query($from:Int,$to:Int){Page(perPage:30){airingSchedules(airingAt_greater:$from,airingAt_lesser:$to,sort:TIME_DESC){airingAt episode media{id title{english romaji}coverImage{extraLarge}averageScore format nextAiringEpisode{episode}}}}}`,
   schedule:`query($from:Int,$to:Int){Page(perPage:50){airingSchedules(airingAt_greater:$from,airingAt_lesser:$to,sort:TIME){airingAt episode media{${FL}}}}}`,
-  browse:  `query($p:Int,$format:MediaFormat,$genres:[String],$status:MediaStatus,$year:Int,$sort:[MediaSort]){Page(page:$p,perPage:28){pageInfo{lastPage}media(type:ANIME,format:$format,genre_in:$genres,status:$status,seasonYear:$year,sort:$sort,isAdult:false){${FL}}}}`,
+  browse:`query($p:Int,$format:MediaFormat,$genres:[String],$status:MediaStatus,$year:Int,$sort:[MediaSort]){Page(page:$p,perPage:28){pageInfo{lastPage}media(type:ANIME,format:$format,genre_in:$genres,status:$status,seasonYear:$year,sort:$sort,isAdult:false){${FL}}}}`,
   recentAired:`query($from:Int,$to:Int){Page(perPage:30){airingSchedules(airingAt_greater:$from,airingAt_lesser:$to,sort:TIME_DESC){airingAt episode media{${FL}}}}}`,
-};
-
-/* FIX: Sort map outside component so it doesn't recreate on every render */
-const TAB_SORT_MAP = {
-  trending:'TRENDING_DESC', popular:'POPULARITY_DESC', top:'SCORE_DESC', airing:'TRENDING_DESC'
 };
 
 function mapA(a) {
@@ -670,8 +716,8 @@ function mapA(a) {
 }
 
 const SERVER_DEFS = [
-  { n:'1', hasDub:true,  url:(a,e,L)=>`https://vidnest.fun/animepahe/${a}/${e}/${L}` },
-  { n:'2', hasDub:true,  url:(a,e,L)=>`https://megaplay.buzz/stream/ani/${a}/${e}/${L}` },
+  { n:'1', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/animepahe/${a}/${e}/${L}` },
+  { n:'2', hasDub:true,  url:(a,e,L,m)=>`https://megaplay.buzz/stream/ani/${a}/${e}/${L}` },
   { n:'3', hasDub:true,  url:(a,e,L,m)=>m?`https://megaplay.buzz/stream/mal/${m}/${e}/${L}`:null },
   { n:'4', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.cc/v2/embed/anime/${m}/${e}/`:null },
   { n:'5', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.xyz/embed/anime?mal=${m}&ep=${e}`:null },
@@ -732,26 +778,6 @@ function AnimeCard({a, onPlay}) {
 const HeroChevL = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{width:22,height:22}}><polyline points="15 18 9 12 15 6"/></svg>);
 const HeroChevR = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{width:22,height:22}}><polyline points="9 18 15 12 9 6"/></svg>);
 const HeroPlayTri = ({s=11}) => (<svg viewBox="0 0 20 20" fill="currentColor" style={{width:s,height:s}}><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>);
-
-/* HeroSkeleton: visible placeholder shown while the AniList API loads hero data */
-function HeroSkeleton() {
-  return (
-    <div className="hero-sk">
-      <div className="hero-sk-inner"/>
-      <div className="hero-nav-fade"/>
-      <div className="hero-sk-content">
-        <div className="hero-sk-badge"/>
-        <div className="hero-sk-title"/>
-        <div className="hero-sk-title2"/>
-        <div className="hero-sk-meta"/>
-        <div className="hero-sk-btns">
-          <div className="hero-sk-btn"/>
-          <div className="hero-sk-btn"/>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function Hero({items, onPlay}) {
   const IV = 10000;
@@ -864,29 +890,9 @@ function Hero({items, onPlay}) {
   return (
     <div className="hero" onTouchStart={onTS} onTouchEnd={onTE}>
       <div className="hero-bg">
-        {/* FIX 2: Removed duplicate loading="eager" and duplicate fetchpriority attrs that caused Babel parse error */}
-        <img
-          className="hero-img-desk"
-          key={'d-'+a.id}
-          src={a.banner||a.image}
-          alt=""
-          fetchPriority="high"
-          loading="eager"
-          style={{opacity:loaded?1:0}}
-          onLoad={()=>setLoad(true)}
-          onError={()=>setLoad(true)}
-        />
-        <img
-          className="hero-img-mob"
-          key={'m-'+a.id}
-          src={a.image}
-          alt=""
-          fetchPriority="high"
-          loading="eager"
-          style={{opacity:loaded?1:0}}
-          onLoad={()=>setLoad(true)}
-          onError={()=>setLoad(true)}
-        />
+        
+        <img className="hero-img-desk" loading="eager" fetchPriority="high" key={'d-'+a.id} src={a.banner||a.image} alt="" fetchpriority="high" loading="eager" style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
+        <img className="hero-img-mob" loading="eager" fetchPriority="high"  key={'m-'+a.id} src={a.image} alt="" fetchpriority="high" loading="eager" style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
         <div className="hero-grad"/>
         <div className="hero-nav-fade"/>
       </div>
@@ -949,7 +955,6 @@ function Hero({items, onPlay}) {
   );
 }
 
-/* FIX 3: SearchBar now properly receives and uses onSel prop */
 function SearchBar({onSel, onSearch}) {
   const [q,setQ] = useState(''), [res,setRes] = useState([]), [open,setO] = useState(false);
   const tmr = useRef(null), closeTimer = useRef(null), ref = useRef(null);
@@ -957,7 +962,6 @@ function SearchBar({onSel, onSearch}) {
   const closeDrop = () => { closeTimer.current = setTimeout(() => setO(false), 160); };
   const run = useCallback(async v => {
     if (!v.trim()) { setRes([]); setO(false); return; }
-    /* FIX 4: Use {s:v} to match the GraphQL query variable $s */
     const d = await gql(Qs.search, {s:v});
     setRes((d.data?.Page?.media||[]).map(mapA)); setO(true);
   }, []);
@@ -980,7 +984,7 @@ function SearchBar({onSel, onSearch}) {
       {open && res.length > 0 && (
         <div className="search-drop">
           {res.map(a=>(
-            <div key={a.id} className="s-row" onMouseDown={e=>e.preventDefault()} onClick={()=>{ setO(false); setQ(''); if(onSel) onSel(a); }}>
+            <div key={a.id} className="s-row" onMouseDown={e=>e.preventDefault()} onClick={()=>{ setO(false); setQ(''); onSel(a); }}>
               <img src={a.image} alt={a.title} onError={e=>e.target.style.display='none'}/>
               <div style={{minWidth:0}}>
                 <div className="s-title">{a.title}</div>
@@ -998,6 +1002,10 @@ function SearchBar({onSel, onSearch}) {
   );
 }
 
+// ── HLS DOWNLOADER HELPERS ────────────────────────────────────────────────────
+
+
+// ── ANISKIP — free skip-times API ──────────────────────────────────────────
 async function fetchSkipTimes(malId, epNum) {
   if (!malId) return null;
   try {
@@ -1015,6 +1023,7 @@ async function fetchSkipTimes(malId, epNum) {
   } catch { return null; }
 }
 
+// ── WATCHED EPISODES (localStorage) ─────────────────────────────────────────
 const WEP_KEY = id => `jsa_watched_${id}`;
 function getWatched(animeId) {
   try { return JSON.parse(localStorage.getItem(WEP_KEY(animeId)) || '[]'); }
@@ -1027,6 +1036,7 @@ function markWatched(animeId, ep) {
     try { localStorage.setItem(WEP_KEY(animeId), JSON.stringify(list)); } catch {}
   }
 }
+
 
 function WatchPage({anime, startTab, onBack}) {
   const toast    = useToast();
@@ -1044,13 +1054,16 @@ function WatchPage({anime, startTab, onBack}) {
   const [jikanEps, setJikanEps]  = useState({});
   const [jikanDone,setJikanDone] = useState(false);
   const [jikanDesc,setJikanDesc] = useState('');
-  const [skipTimes,   setSkipTimes]   = useState(null);
-  const [showSkip,    setShowSkip]    = useState(null);
-  const [autoplayCD,  setAutoplayCD]  = useState(null);
+
+  // ── new features ──
+  const [skipTimes,   setSkipTimes]   = useState(null);  // {op,ed}
+  const [showSkip,    setShowSkip]    = useState(null);   // 'op'|'ed'|null
+  const [autoplayCD,  setAutoplayCD]  = useState(null);   // countdown number
   const [watched,     setWatched]     = useState(()=>getWatched(anime.id));
   const autoRef = useRef(null);
   const skipRef = useRef(null);
 
+  // Jikan description
   useEffect(() => {
     if (!anime.descIsStub || !anime.malId) return;
     const k = String(anime.malId);
@@ -1074,6 +1087,7 @@ function WatchPage({anime, startTab, onBack}) {
     })();
   }, [anime.malId, anime.descIsStub]);
 
+  // Jikan episode titles
   useEffect(()=>{
     if (!anime.malId||jikanDone) return;
     (async()=>{
@@ -1098,16 +1112,16 @@ function WatchPage({anime, startTab, onBack}) {
     setSrvs(buildServers(anime.id, ep, L, anime.malId));
     setSi(0); setKey(k=>k+1); setSpin(true); setCurEp(ep);
     setShowSkip(null); setAutoplayCD(null);
-    /* FIX 5: Clear both timeout and interval to handle both use cases of autoRef */
-    clearTimeout(autoRef.current);
-    clearInterval(autoRef.current);
-    clearTimeout(skipRef.current);
+    clearInterval(autoRef.current); clearTimeout(skipRef.current);
+    // mark watched
     markWatched(anime.id, ep);
     setWatched(getWatched(anime.id));
+    // fetch skip times
     if (anime.malId) {
       fetchSkipTimes(anime.malId, ep).then(times => {
         setSkipTimes(times);
         if (times?.op) {
+          // Show skip intro button after op.start seconds
           skipRef.current = setTimeout(()=>{
             setShowSkip('op');
             setTimeout(()=>setShowSkip(s=>s==='op'?null:s), (times.op.end - times.op.start)*1000);
@@ -1115,6 +1129,7 @@ function WatchPage({anime, startTab, onBack}) {
         }
       });
     }
+    // Auto-play countdown: start at ep duration − 30s (default 22min episodes)
     const epDuration = (anime.duration ? parseInt(anime.duration)*60 : 22*60) - 30;
     autoRef.current = setTimeout(()=>{
       if (ep < totalEps) startAutoplay(ep);
@@ -1136,14 +1151,12 @@ function WatchPage({anime, startTab, onBack}) {
     autoRef.current = iv;
   }
   function cancelAutoplay() {
-    clearTimeout(autoRef.current);
     clearInterval(autoRef.current);
     setAutoplayCD(null);
   }
 
-  useEffect(()=>{ loadEp(1,'sub'); return ()=>{ clearTimeout(autoRef.current); clearInterval(autoRef.current); clearTimeout(skipRef.current); }; }, []);
-  /* FIX 6: Added anime to dependency array */
-  useEffect(()=>{ recordCW(anime, curEp); }, [curEp, anime]);
+  useEffect(()=>{ loadEp(1,'sub'); return ()=>{ clearInterval(autoRef.current); clearTimeout(skipRef.current); }; }, []);
+  useEffect(()=>{ recordCW(anime, curEp); }, [curEp]);
 
   useEffect(()=>{
     const onKey = e => {
@@ -1181,6 +1194,8 @@ function WatchPage({anime, startTab, onBack}) {
               <button className={`vtab${tab==='watch'?' on':''}`} onClick={()=>switchTab('watch')}><PIco s={11}/>&nbsp;Watch</button>
               {anime.trailerUrl&&<button className={`vtab${tab==='trailer'?' on':''}`} onClick={()=>switchTab('trailer')}><FilmIco/>&nbsp;Trailer</button>}
             </div>
+
+            {/* ── PLAYER with overlays ── */}
             <div className="player-wrap" style={{position:'relative'}}>
               {spin&&<div className="player-loading"><div className="spin-ring"/><p className="spin-txt">{tab==='trailer'?'Loading trailer…':'Loading stream…'}</p></div>}
               {src&&<iframe key={`${tab}-${key}`} className="player-iframe" src={src}
@@ -1189,6 +1204,8 @@ function WatchPage({anime, startTab, onBack}) {
                 referrerPolicy={isYT?"strict-origin-when-cross-origin":"no-referrer"}
                 scrolling="no" style={{touchAction:'manipulation'}}
                 onLoad={()=>setSpin(false)}/>}
+
+              {/* Skip Intro/Outro button */}
               {tab==='watch'&&showSkip&&(
                 <button onClick={()=>setShowSkip(null)} style={{
                   position:'absolute',bottom:60,right:16,
@@ -1202,6 +1219,8 @@ function WatchPage({anime, startTab, onBack}) {
                   {showSkip==='op'?'⏭ Skip Intro':'⏭ Skip Outro'}
                 </button>
               )}
+
+              {/* Auto-play next episode countdown */}
               {tab==='watch'&&autoplayCD!==null&&curEp<totalEps&&(
                 <div style={{
                   position:'absolute',inset:0,background:'rgba(0,0,0,.72)',
@@ -1213,6 +1232,7 @@ function WatchPage({anime, startTab, onBack}) {
                   <div style={{fontWeight:900,fontSize:'1.3rem',color:'#fff',maxWidth:280,textAlign:'center',lineHeight:1.3}}>
                     {anime.title} — EP {curEp+1}
                   </div>
+                  {/* Circular countdown */}
                   <div style={{position:'relative',width:72,height:72}}>
                     <svg viewBox="0 0 72 72" style={{width:72,height:72,transform:'rotate(-90deg)'}}>
                       <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,.15)" strokeWidth="4"/>
@@ -1240,6 +1260,8 @@ function WatchPage({anime, startTab, onBack}) {
                 </div>
               )}
             </div>
+
+            {/* Servers panel */}
             {tab==='watch'&&(
               <div className="srv-panel">
                 <div className="srv-head">
@@ -1264,6 +1286,8 @@ function WatchPage({anime, startTab, onBack}) {
                 </p>
               </div>
             )}
+
+            {/* Anime info */}
             <div className="winfo">
               <h1 className="winfo-title">{anime.title}</h1>
               <div className="winfo-meta">
@@ -1291,6 +1315,7 @@ function WatchPage({anime, startTab, onBack}) {
                   </svg>
                   Share
                 </button>
+                {/* Previous / Next quick buttons */}
                 {curEp > 1 && (
                   <button className="share-trigger" onClick={()=>loadEp(curEp-1,lang)}>
                     ← EP {curEp-1}
@@ -1305,6 +1330,8 @@ function WatchPage({anime, startTab, onBack}) {
               </div>
             </div>
           </div>
+
+          {/* Episode panel */}
           <div className="ep-panel">
             <div className="ep-panel-hdr">
               <span className="ep-panel-title">Episodes ({totalEps})</span>
@@ -1336,6 +1363,7 @@ function WatchPage({anime, startTab, onBack}) {
     </div>
   );
 }
+
 
 function PolicyPage({type, onBack}) {
   const isDmca = type === 'dmca';
@@ -1380,17 +1408,21 @@ function PolicyPage({type, onBack}) {
   );
 }
 
+// ── CLEAN URL ROUTING (no # hashes) ─────────────────────────────────────────
 function makeSlug(title) {
   return (title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 }
 
 function readPath() {
   try {
+    // Legacy ?a= share links still work
     const qp = new URLSearchParams(window.location.search);
     const legacyId = qp.get('a');
     if (legacyId) return {view:'watch', animeId:legacyId, wTab:'watch'};
+
     const segs = window.location.pathname.split('/').filter(Boolean);
     if (!segs.length) return {view:'home', tab:'trending', page:1};
+
     const [s0, s1, s2] = segs;
     if (s0==='anime' && s1)  return {view:'watch', animeId:s1, wTab:s2||'watch'};
     if (s0==='contact')      return {view:'contact'};
@@ -1399,6 +1431,7 @@ function readPath() {
     if (s0==='explore')      return {view:'explore'};
     if (s0==='schedule')     return {view:'schedule'};
     if (s0==='history')      return {view:'history'};
+
     const TABS = ['trending','popular','top','airing'];
     if (TABS.includes(s0)) return {view:'home', tab:s0, page:Math.max(1,parseInt(s1)||1)};
   } catch(e) {}
@@ -1424,6 +1457,9 @@ function writePath(view, extra={}) {
   }
   try { history.pushState(null, '', path); } catch(e) {}
 }
+// Alias for any old references still in the file
+const readHash = readPath;
+const writeHash = (view, extra) => writePath(view, extra);
 
 const TABS = [
   {id:'trending', label:'🔥 Trending'},
@@ -1483,6 +1519,7 @@ function SchedulePage({onPlay}) {
   );
 }
 
+// ── TOAST SYSTEM ──────────────────────────────────────────────────────────────
 const ToastCtx = React.createContext(null);
 function ToastProvider({children}) {
   const [toasts, setToasts] = useState([]);
@@ -1645,31 +1682,80 @@ function SearchResultsPage({query, results, loading, onPlay, onBack}) {
   );
 }
 
+// ── SHARE MODAL ───────────────────────────────────────────────────────────────
 const ShareIcons = {
-  WhatsApp: () => (<svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}><rect width="32" height="32" rx="8" fill="#25D366"/><path fill="#fff" d="M16 7C11.03 7 7 11.03 7 16c0 1.6.42 3.1 1.14 4.4L7 25l4.72-1.1A9 9 0 0016 25c4.97 0 9-4.03 9-9s-4.03-9-9-9zm4.45 12.3c-.19.53-1.1 1.02-1.52 1.08-.4.06-.9.08-1.45-.09-.33-.11-.77-.25-1.32-.49-2.32-1-3.83-3.34-3.95-3.5-.12-.15-.96-1.28-.96-2.44 0-1.16.6-1.72.82-1.96.21-.23.46-.29.62-.29h.44c.14 0 .34-.06.52.4l.75 1.88c.06.16.03.34-.05.48l-.42.6-.2.24c.13.21.64.9 1.38 1.52.95.8 1.75 1.05 2 1.16.2.09.45.07.6-.1l.44-.52c.16-.19.4-.23.62-.14l1.9.9c.22.1.22.3.02.82z"/></svg>),
-  Telegram: () => (<svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}><rect width="32" height="32" rx="8" fill="#2CA5E0"/><path fill="#fff" d="M23.5 9.3L6.8 15.6c-1.1.44-.1 1.07.7 1.22l4.3 1.35L20 12.4c.4-.25.78-.1.48.18l-7.13 6.43-.27 4.47c.4 0 .57-.18.78-.4l1.87-1.81 3.87 2.85c.7.4 1.2.19 1.38-.65l2.5-11.8c.27-1.05-.4-1.53-1.08-1.22z"/></svg>),
-  Twitter:  () => (<svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}><rect width="32" height="32" rx="8" fill="#000"/><path fill="#fff" d="M17.75 14.77L23.5 8h-1.37l-5 5.88L13.5 8H9l6.05 8.8L9 25h1.37l5.3-6.2 4.22 6.2H25l-7.25-10.23zm-1.87 2.19l-.62-.88L10.4 9.1h2.12l3.97 5.68.61.88 5.15 7.37h-2.12l-4.25-6.07z"/></svg>),
-  Facebook: () => (<svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}><rect width="32" height="32" rx="8" fill="#1877F2"/><path fill="#fff" d="M17.6 25v-8.05h2.7l.4-3.13H17.6V11.9c0-.9.25-1.52 1.56-1.52H21V7.12A21 21 0 0018.57 7c-2.38 0-4 1.46-4 4.13v2.7H12v3.12h2.57V25H17.6z"/></svg>),
-  Reddit:   () => (<svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}><rect width="32" height="32" rx="8" fill="#FF4500"/><path fill="#fff" d="M27 16.07a2.38 2.38 0 00-2.38-2.37c-.6 0-1.16.22-1.57.59A11.7 11.7 0 0017 12.4l1.1-5.12 3.5.74a1.67 1.67 0 101.68-1.77c-.64 0-1.2.37-1.5.9l-3.9-.82a.4.4 0 00-.47.3l-1.24 5.7a11.73 11.73 0 00-6.14 1.9A2.38 2.38 0 105.1 17.4c0 .13.01.25.04.37-.03.2-.04.4-.04.6C5.1 21.9 10.15 25 16.3 25c6.14 0 11.2-3.1 11.2-6.63 0-.2-.01-.4-.04-.6.42-.44.54-.93.54-.7zm-16.5 2.68a1.5 1.5 0 111.5 1.5 1.5 1.5 0 01-1.5-1.5zm8.35 3.97c-1.1.73-2.5.86-3.55.86-1.06 0-2.46-.13-3.55-.86a.26.26 0 01.3-.42c.94.63 2.23.76 3.25.76s2.31-.13 3.25-.76a.26.26 0 01.3.42zm-.1-2.47a1.5 1.5 0 111.5-1.5 1.5 1.5 0 01-1.5 1.5z"/></svg>),
-  Email:    () => (<svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}><rect width="32" height="32" rx="8" fill="#EA4335"/><path fill="#fff" d="M7 10.5h18a1 1 0 011 1v9a1 1 0 01-1 1H7a1 1 0 01-1-1v-9a1 1 0 011-1zm9 6.25l8-5.75H8l8 5.75z"/></svg>),
-  Discord:  () => (<svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}><rect width="32" height="32" rx="8" fill="#5865F2"/><path fill="#fff" d="M22.19 10.06A20.29 20.29 0 0017.68 9a.08.08 0 00-.08.04 14.18 14.18 0 00-.63 1.29 18.74 18.74 0 00-5.64 0 12.78 12.78 0 00-.64-1.29.08.08 0 00-.08-.04 20.25 20.25 0 00-4.51 1.06.07.07 0 00-.03.03C3.19 14.5 2.35 18.8 2.75 23.06c0 .02.01.04.03.05a20.4 20.4 0 006.16 3.11.08.08 0 00.09-.03c.47-.64.9-1.32 1.26-2.04a.08.08 0 00-.04-.11 13.43 13.43 0 01-1.93-.92.08.08 0 010-.13c.13-.1.26-.2.38-.3a.08.08 0 01.08-.01c4.04 1.84 8.41 1.84 12.4 0a.08.08 0 01.08.01c.12.1.25.2.38.3a.08.08 0 010 .13c-.61.36-1.26.67-1.93.92a.08.08 0 00-.04.11c.37.72.79 1.4 1.26 2.04a.08.08 0 00.09.03 20.35 20.35 0 006.17-3.11.08.08 0 00.03-.05c.51-5.32-.86-9.94-3.65-14.03a.06.06 0 00-.03-.02zM11.52 20.41c-1.21 0-2.21-1.12-2.21-2.49s.98-2.49 2.21-2.49c1.24 0 2.23 1.12 2.21 2.49 0 1.37-.97 2.49-2.21 2.49zm8.2 0c-1.21 0-2.21-1.12-2.21-2.49s.98-2.49 2.21-2.49c1.24 0 2.23 1.12 2.21 2.49 0 1.37-.97 2.49-2.21 2.49z"/></svg>),
-  CopyLink: () => (<svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}><rect width="32" height="32" rx="8" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.2)" strokeWidth="1"/><path stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M13 16a4 4 0 005.66 0l2.83-2.83a4 4 0 10-5.66-5.66l-1.41 1.41M19 16a4 4 0 00-5.66 0l-2.83 2.83a4 4 0 105.66 5.66l1.41-1.41"/></svg>),
+  WhatsApp: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="#25D366"/>
+      <path fill="#fff" d="M16 7C11.03 7 7 11.03 7 16c0 1.6.42 3.1 1.14 4.4L7 25l4.72-1.1A9 9 0 0016 25c4.97 0 9-4.03 9-9s-4.03-9-9-9zm4.45 12.3c-.19.53-1.1 1.02-1.52 1.08-.4.06-.9.08-1.45-.09-.33-.11-.77-.25-1.32-.49-2.32-1-3.83-3.34-3.95-3.5-.12-.15-.96-1.28-.96-2.44 0-1.16.6-1.72.82-1.96.21-.23.46-.29.62-.29h.44c.14 0 .34-.06.52.4l.75 1.88c.06.16.03.34-.05.48l-.42.6-.2.24c.13.21.64.9 1.38 1.52.95.8 1.75 1.05 2 1.16.2.09.45.07.6-.1l.44-.52c.16-.19.4-.23.62-.14l1.9.9c.22.1.22.3.02.82z"/>
+    </svg>
+  ),
+  Telegram: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="#2CA5E0"/>
+      <path fill="#fff" d="M23.5 9.3L6.8 15.6c-1.1.44-.1 1.07.7 1.22l4.3 1.35L20 12.4c.4-.25.78-.1.48.18l-7.13 6.43-.27 4.47c.4 0 .57-.18.78-.4l1.87-1.81 3.87 2.85c.7.4 1.2.19 1.38-.65l2.5-11.8c.27-1.05-.4-1.53-1.08-1.22z"/>
+    </svg>
+  ),
+  Twitter: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="#000"/>
+      <path fill="#fff" d="M17.75 14.77L23.5 8h-1.37l-5 5.88L13.5 8H9l6.05 8.8L9 25h1.37l5.3-6.2 4.22 6.2H25l-7.25-10.23zm-1.87 2.19l-.62-.88L10.4 9.1h2.12l3.97 5.68.61.88 5.15 7.37h-2.12l-4.25-6.07z"/>
+    </svg>
+  ),
+  Facebook: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="#1877F2"/>
+      <path fill="#fff" d="M17.6 25v-8.05h2.7l.4-3.13H17.6V11.9c0-.9.25-1.52 1.56-1.52H21V7.12A21 21 0 0018.57 7c-2.38 0-4 1.46-4 4.13v2.7H12v3.12h2.57V25H17.6z"/>
+    </svg>
+  ),
+  Reddit: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="#FF4500"/>
+      <path fill="#fff" d="M27 16.07a2.38 2.38 0 00-2.38-2.37c-.6 0-1.16.22-1.57.59A11.7 11.7 0 0017 12.4l1.1-5.12 3.5.74a1.67 1.67 0 101.68-1.77c-.64 0-1.2.37-1.5.9l-3.9-.82a.4.4 0 00-.47.3l-1.24 5.7a11.73 11.73 0 00-6.14 1.9A2.38 2.38 0 105.1 17.4c0 .13.01.25.04.37-.03.2-.04.4-.04.6C5.1 21.9 10.15 25 16.3 25c6.14 0 11.2-3.1 11.2-6.63 0-.2-.01-.4-.04-.6.42-.44.54-.93.54-.7zm-16.5 2.68a1.5 1.5 0 111.5 1.5 1.5 1.5 0 01-1.5-1.5zm8.35 3.97c-1.1.73-2.5.86-3.55.86-1.06 0-2.46-.13-3.55-.86a.26.26 0 01.3-.42c.94.63 2.23.76 3.25.76s2.31-.13 3.25-.76a.26.26 0 01.3.42zm-.1-2.47a1.5 1.5 0 111.5-1.5 1.5 1.5 0 01-1.5 1.5z"/>
+    </svg>
+  ),
+  Email: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="#EA4335"/>
+      <path fill="#fff" d="M7 10.5h18a1 1 0 011 1v9a1 1 0 01-1 1H7a1 1 0 01-1-1v-9a1 1 0 011-1zm9 6.25l8-5.75H8l8 5.75z"/>
+    </svg>
+  ),
+  Discord: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="#5865F2"/>
+      <path fill="#fff" d="M22.19 10.06A20.29 20.29 0 0017.68 9a.08.08 0 00-.08.04 14.18 14.18 0 00-.63 1.29 18.74 18.74 0 00-5.64 0 12.78 12.78 0 00-.64-1.29.08.08 0 00-.08-.04 20.25 20.25 0 00-4.51 1.06.07.07 0 00-.03.03C3.19 14.5 2.35 18.8 2.75 23.06c0 .02.01.04.03.05a20.4 20.4 0 006.16 3.11.08.08 0 00.09-.03c.47-.64.9-1.32 1.26-2.04a.08.08 0 00-.04-.11 13.43 13.43 0 01-1.93-.92.08.08 0 010-.13c.13-.1.26-.2.38-.3a.08.08 0 01.08-.01c4.04 1.84 8.41 1.84 12.4 0a.08.08 0 01.08.01c.12.1.25.2.38.3a.08.08 0 010 .13c-.61.36-1.26.67-1.93.92a.08.08 0 00-.04.11c.37.72.79 1.4 1.26 2.04a.08.08 0 00.09.03 20.35 20.35 0 006.17-3.11.08.08 0 00.03-.05c.51-5.32-.86-9.94-3.65-14.03a.06.06 0 00-.03-.02zM11.52 20.41c-1.21 0-2.22-1.12-2.22-2.49s.99-2.49 2.22-2.49c1.24 0 2.23 1.12 2.21 2.49 0 1.37-.98 2.49-2.21 2.49zm8.2 0c-1.21 0-2.21-1.12-2.21-2.49s.98-2.49 2.21-2.49c1.24 0 2.23 1.12 2.21 2.49 0 1.37-.97 2.49-2.21 2.49z"/>
+    </svg>
+  ),
+  CopyLink: () => (
+    <svg viewBox="0 0 32 32" fill="none" style={{width:30,height:30}}>
+      <rect width="32" height="32" rx="8" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.2)" strokeWidth="1"/>
+      <path stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M13 16a4 4 0 005.66 0l2.83-2.83a4 4 0 10-5.66-5.66l-1.41 1.41M19 16a4 4 0 00-5.66 0l-2.83 2.83a4 4 0 105.66 5.66l1.41-1.41"/>
+    </svg>
+  ),
 };
 
 function ShareModal({url, hashUrl, title, image, desc, onClose, toast}) {
   const shareUrl = url  || hashUrl || window.location.href;
-  const copyUrl  = url  || hashUrl || window.location.href;
+  const copyUrl  = url  || hashUrl || window.location.href; // always copy the /share?a= URL
   const shareText = `${title} — Watch on JustStreamAnime`;
   const onOverlay = e => { if (e.target===e.currentTarget) onClose(); };
   const apps = [
-    { label:'WhatsApp', Icon:ShareIcons.WhatsApp, href:`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareUrl)}` },
-    { label:'Telegram', Icon:ShareIcons.Telegram, href:`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}` },
-    { label:'Twitter',  Icon:ShareIcons.Twitter,  href:`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Watch ' + title + ' on JustStreamAnime 🎌')}` },
-    { label:'Facebook', Icon:ShareIcons.Facebook, href:`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
-    { label:'Reddit',   Icon:ShareIcons.Reddit,   href:`https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(title)}` },
-    { label:'Email',    Icon:ShareIcons.Email,    href:`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent('Watch ' + title + ' on JustStreamAnime:\n' + shareUrl)}` },
-    { label:'Discord',  Icon:ShareIcons.Discord,  action:()=>{ navigator.clipboard?.writeText(shareUrl).then(()=>{ toast('📋 Link copied! Paste it in your Discord server.'); window.open('https://discord.gg/Upyq7cYcPa','_blank','noopener'); }); onClose(); } },
-    { label:'Copy Link',Icon:ShareIcons.CopyLink, action:()=>{ navigator.clipboard?.writeText(copyUrl).then(()=>toast('🔗 Link copied!')); onClose(); } },
+    { label:'WhatsApp', Icon:ShareIcons.WhatsApp,
+      href:`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareUrl)}` },
+    { label:'Telegram', Icon:ShareIcons.Telegram,
+      href:`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}` },
+    { label:'Twitter', Icon:ShareIcons.Twitter,
+      href:`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Watch ' + title + ' on JustStreamAnime 🎌')}` },
+    { label:'Facebook', Icon:ShareIcons.Facebook,
+      href:`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
+    { label:'Reddit', Icon:ShareIcons.Reddit,
+      href:`https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(title)}` },
+    { label:'Email', Icon:ShareIcons.Email,
+      href:`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent('Watch ' + title + ' on JustStreamAnime:\n' + shareUrl)}` },
+    { label:'Discord', Icon:ShareIcons.Discord,
+      action:()=>{ navigator.clipboard?.writeText(shareUrl).then(()=>{ toast('📋 Link copied! Paste it in your Discord server.'); window.open('https://discord.gg/Upyq7cYcPa','_blank','noopener'); }); onClose(); } },
+    { label:'Copy Link', Icon:ShareIcons.CopyLink,
+      action:()=>{ navigator.clipboard?.writeText(copyUrl).then(()=>toast('🔗 Link copied!')); onClose(); } },
   ];
   return (
     <div className="share-overlay" onClick={onOverlay}>
@@ -1682,7 +1768,9 @@ function ShareModal({url, hashUrl, title, image, desc, onClose, toast}) {
           {apps.map(({label,Icon,href,action})=>(
             <button key={label} className="share-app-btn"
               onClick={()=>{ if(action) action(); else { window.open(href,'_blank','noopener'); onClose(); } }}>
-              <div className="share-app-ico" style={{background:'transparent',padding:0}}><Icon/></div>
+              <div className="share-app-ico" style={{background:'transparent',padding:0}}>
+                <Icon/>
+              </div>
               <span className="share-app-lbl">{label}</span>
             </button>
           ))}
@@ -1700,32 +1788,90 @@ function ShareModal({url, hashUrl, title, image, desc, onClose, toast}) {
 }
 
 function updateOGTags({title, image, desc, url}) {
-  const set = (id, attr, val) => { const el = document.getElementById(id); if (el && val) el.setAttribute(attr, val); };
+  const set = (id, attr, val) => {
+    const el = document.getElementById(id);
+    if (el && val) el.setAttribute(attr, val);
+  };
   const siteTitle = title ? `${title} – JustStreamAnime` : 'JustStreamAnime – Watch Anime Free Online';
   const siteDesc  = desc  ? desc.slice(0, 200) : 'Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub.';
   const imgUrl    = image || 'https://jsanime.site/og-image.jpg';
   const pageUrl   = url   || 'https://jsanime.site/';
-  set('og-title','content',siteTitle); set('og-desc','content',siteDesc); set('og-image','content',imgUrl);
-  set('og-image-w','content','460'); set('og-image-h','content','650'); set('og-url','content',pageUrl);
-  set('tw-image','content',imgUrl);
+  set('og-title',   'content', siteTitle);
+  set('og-desc',    'content', siteDesc);
+  set('og-image',   'content', imgUrl);
+  set('og-image-w', 'content', '460');
+  set('og-image-h', 'content', '650');
+  set('og-url',     'content', pageUrl);
+  set('tw-title',   'content', siteTitle);
+  set('tw-image',   'content', imgUrl);
   document.title = siteTitle;
 }
 
+// Inject dynamic TVSeries + VideoObject schema when watching an anime
 function injectAnimeSchema(anime, ep) {
+  // Remove any previous dynamic schema
   const old = document.getElementById('dynamic-schema');
   if (old) old.remove();
+
   if (!anime) return;
+
   const shareUrl = `https://jsanime.site/anime/${anime.id}/${makeSlug(anime.title)}`;
   const schema = {
-    "@context":"https://schema.org",
-    "@graph":[
-      {"@type":"TVSeries","name":anime.title,"alternateName":anime.romaji||undefined,"url":shareUrl,"image":anime.image||undefined,"description":anime.desc||undefined,"genre":(anime.genres||[]).slice(0,5),"numberOfEpisodes":anime.eps||anime.airedEps||undefined,"inLanguage":"ja","subtitleLanguage":"en","contentRating":"TV-14","aggregateRating":anime.rating?{"@type":"AggregateRating","ratingValue":(anime.rating/10).toFixed(1),"bestRating":"10","worstRating":"1","ratingCount":1000}:undefined,"potentialAction":{"@type":"WatchAction","target":shareUrl}},
-      {"@type":"VideoObject","name":`${anime.title} Episode ${ep}`,"description":anime.desc||`Watch ${anime.title} Episode ${ep} online free with subtitles or dub on JustStreamAnime.`,"thumbnailUrl":anime.image||undefined,"uploadDate":new Date().toISOString().split('T')[0],"embedUrl":shareUrl,"contentUrl":shareUrl,"inLanguage":"ja","potentialAction":{"@type":"WatchAction","target":shareUrl}},
-      {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://jsanime.site/"},{"@type":"ListItem","position":2,"name":anime.title,"item":shareUrl},{"@type":"ListItem","position":3,"name":`Episode ${ep}`,"item":shareUrl}]}
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TVSeries",
+        "name": anime.title,
+        "alternateName": anime.romaji || undefined,
+        "url": shareUrl,
+        "image": anime.image || undefined,
+        "description": anime.desc || undefined,
+        "genre": (anime.genres || []).slice(0,5),
+        "numberOfEpisodes": anime.eps || anime.airedEps || undefined,
+        "inLanguage": "ja",
+        "subtitleLanguage": "en",
+        "contentRating": "TV-14",
+        "aggregateRating": anime.rating ? {
+          "@type": "AggregateRating",
+          "ratingValue": (anime.rating / 10).toFixed(1),
+          "bestRating": "10",
+          "worstRating": "1",
+          "ratingCount": 1000
+        } : undefined,
+        "potentialAction": {
+          "@type": "WatchAction",
+          "target": shareUrl
+        }
+      },
+      {
+        "@type": "VideoObject",
+        "name": `${anime.title} Episode ${ep}`,
+        "description": anime.desc || `Watch ${anime.title} Episode ${ep} online free with subtitles or dub on JustStreamAnime.`,
+        "thumbnailUrl": anime.image || undefined,
+        "uploadDate": new Date().toISOString().split('T')[0],
+        "embedUrl": shareUrl,
+        "contentUrl": shareUrl,
+        "inLanguage": "ja",
+        "potentialAction": {
+          "@type": "WatchAction",
+          "target": shareUrl
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://jsanime.site/" },
+          { "@type": "ListItem", "position": 2, "name": anime.title, "item": shareUrl },
+          { "@type": "ListItem", "position": 3, "name": `Episode ${ep}`, "item": shareUrl }
+        ]
+      }
     ]
   };
+
   const script = document.createElement('script');
-  script.id='dynamic-schema'; script.type='application/ld+json'; script.text=JSON.stringify(schema);
+  script.id   = 'dynamic-schema';
+  script.type = 'application/ld+json';
+  script.text = JSON.stringify(schema);
   document.head.appendChild(script);
 }
 
@@ -1735,52 +1881,93 @@ function resetOGTags() {
   document.title = 'JustStreamAnime – Watch Anime Free Online';
 }
 
+// ── SIDEBAR + MOBILE NAV ICONS ────────────────────────────────────────────────
 function HomeIco()     { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>; }
 function ExploreIco()  { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>; }
 function ScheduleIco() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>; }
 function HistoryIco()  { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>; }
 
+// ── SIDEBAR (desktop) ─────────────────────────────────────────────────────────
 function Sidebar({page, setPage, goHome}) {
   return (
     <div className="sidebar">
-      <div className="sb-logo" onClick={goHome} title="JustStreamAnime"><PIco s={16}/></div>
+      <div className="sb-logo" onClick={goHome} title="JustStreamAnime">
+        <PIco s={16}/>
+      </div>
       <div className="sb-divider"/>
-      <button className={'sb-btn'+(page==='home'?' on':'')} onClick={()=>setPage('home')} title="Home"><HomeIco/><span>Home</span></button>
-      <button className={'sb-btn'+(page==='explore'?' on':'')} onClick={()=>setPage('explore')} title="Explore"><ExploreIco/><span>Explore</span></button>
-      <button className={'sb-btn'+(page==='schedule'?' on':'')} onClick={()=>setPage('schedule')} title="Schedule"><ScheduleIco/><span>Schedule</span></button>
+      <button className={'sb-btn'+(page==='home'?' on':'')}
+        onClick={()=>setPage('home')} title="Home">
+        <HomeIco/><span>Home</span>
+      </button>
+      <button className={'sb-btn'+(page==='explore'?' on':'')}
+        onClick={()=>setPage('explore')} title="Explore">
+        <ExploreIco/><span>Explore</span>
+      </button>
+      <button className={'sb-btn'+(page==='schedule'?' on':'')}
+        onClick={()=>setPage('schedule')} title="Schedule">
+        <ScheduleIco/><span>Schedule</span>
+      </button>
       <div className="sb-divider"/>
-      <button className={'sb-btn'+(page==='history'?' on':'')} onClick={()=>setPage('history')} title="Watch History"><HistoryIco/><span>History</span></button>
+      <button className={'sb-btn'+(page==='history'?' on':'')}
+        onClick={()=>setPage('history')} title="Watch History">
+        <HistoryIco/><span>History</span>
+      </button>
     </div>
   );
 }
 
+// ── MOBILE BOTTOM NAV ─────────────────────────────────────────────────────────
 function MobileNav({page, setPage}) {
   return (
     <div className="mob-nav">
-      <button className={'mob-nav-btn'+(page==='home'?' on':'')} onClick={()=>setPage('home')}><HomeIco/><span>Home</span></button>
-      <button className={'mob-nav-btn'+(page==='explore'?' on':'')} onClick={()=>setPage('explore')}><ExploreIco/><span>Explore</span></button>
-      <button className={'mob-nav-btn'+(page==='schedule'?' on':'')} onClick={()=>setPage('schedule')}><ScheduleIco/><span>Schedule</span></button>
-      <button className={'mob-nav-btn'+(page==='history'?' on':'')} onClick={()=>setPage('history')}><HistoryIco/><span>History</span></button>
+      <button className={'mob-nav-btn'+(page==='home'?' on':'')} onClick={()=>setPage('home')}>
+        <HomeIco/><span>Home</span>
+      </button>
+      <button className={'mob-nav-btn'+(page==='explore'?' on':'')} onClick={()=>setPage('explore')}>
+        <ExploreIco/><span>Explore</span>
+      </button>
+      <button className={'mob-nav-btn'+(page==='schedule'?' on':'')} onClick={()=>setPage('schedule')}>
+        <ScheduleIco/><span>Schedule</span>
+      </button>
+      <button className={'mob-nav-btn'+(page==='history'?' on':'')} onClick={()=>setPage('history')}>
+        <HistoryIco/><span>History</span>
+      </button>
     </div>
   );
 }
 
+// ── WATCH HISTORY PAGE ────────────────────────────────────────────────────────
 function HistoryPage({cwList, setCwList, onPlay}) {
-  const clearAll = () => { localStorage.removeItem('jsa_continue_watching'); setCwList([]); };
+  const clearAll = () => {
+    localStorage.removeItem('jsa_continue_watching');
+    setCwList([]);
+  };
   const removeOne = (id) => { removeCW(id); setCwList(loadCW()); };
+
   return (
     <div className="hist-wrap">
       <div className="hist-hdr">
-        <div className="hist-title"><HistoryIco/>Watch History{cwList.length > 0 && <span className="hist-count">{cwList.length} items</span>}</div>
+        <div className="hist-title">
+          <HistoryIco/>
+          Watch History
+          {cwList.length > 0 && <span className="hist-count">{cwList.length} items</span>}
+        </div>
         {cwList.length > 0 && (
           <button className="hist-clear" onClick={clearAll}>
-            <svg viewBox="0 0 20 20" fill="currentColor" style={{width:12,height:12}}><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+            <svg viewBox="0 0 20 20" fill="currentColor" style={{width:12,height:12}}>
+              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+            </svg>
             Clear History
           </button>
         )}
       </div>
+
       {cwList.length === 0 ? (
-        <div className="hist-empty"><div className="hist-empty-ico">📺</div><div className="hist-empty-txt">No watch history yet</div><div className="hist-empty-sub">Anime you watch will appear here</div></div>
+        <div className="hist-empty">
+          <div className="hist-empty-ico">📺</div>
+          <div className="hist-empty-txt">No watch history yet</div>
+          <div className="hist-empty-sub">Anime you watch will appear here</div>
+        </div>
       ) : (
         <div className="hist-grid">
           {cwList.map(item => {
@@ -1788,12 +1975,19 @@ function HistoryPage({cwList, setCwList, onPlay}) {
             return (
               <div key={item.id} className="hist-card" onClick={()=>onPlay(item)}>
                 <div className="hist-card-top">
-                  <img className="hist-card-img" src={item.image} alt={item.title} onError={e=>e.target.style.display='none'}/>
+                  <img className="hist-card-img" src={item.image} alt={item.title}
+                    onError={e=>e.target.style.display='none'}/>
                   <div className="hist-card-grad"/>
-                  <div className="hist-card-play"><div className="hist-play-circle"><PIco s={14}/></div></div>
+                  <div className="hist-card-play">
+                    <div className="hist-play-circle"><PIco s={14}/></div>
+                  </div>
                   <div className="hist-ep">EP {item.ep}</div>
-                  <div className="hist-prog-wrap"><div className="hist-prog" style={{width:prog+'%'}}/></div>
-                  <button className="hist-remove" onPointerDown={e=>{e.stopPropagation();e.preventDefault();removeOne(item.id);}} aria-label="Remove">✕</button>
+                  <div className="hist-prog-wrap">
+                    <div className="hist-prog" style={{width:prog+'%'}}/>
+                  </div>
+                  <button className="hist-remove"
+                    onPointerDown={e=>{e.stopPropagation();e.preventDefault();removeOne(item.id);}}
+                    aria-label="Remove">✕</button>
                 </div>
                 <div className="hist-card-body">
                   <div className="hist-card-title">{item.title}</div>
@@ -1808,13 +2002,16 @@ function HistoryPage({cwList, setCwList, onPlay}) {
   );
 }
 
+// ── RECENTLY AIRED ROW ────────────────────────────────────────────────────────
 function RecentlyAired({onPlay}) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    /* FIX: Removed 800ms artificial delay — load immediately */
+    // Defer RecentlyAired load by 800ms so hero and ContinueWatching load first
+    const timer = setTimeout(() => {
     const now  = Math.floor(Date.now() / 1000);
-    const from = now - 72 * 3600;
+    const from = now - 72 * 3600; // last 72 hours
     gql(Qs.recentAired, {from, to: now}).then(d => {
       const seen = new Set();
       const list = (d.data?.Page?.airingSchedules || [])
@@ -1824,32 +2021,46 @@ function RecentlyAired({onPlay}) {
       setItems(list);
       setLoading(false);
     }).catch(() => setLoading(false));
+    }, 800);
+    return () => clearTimeout(timer);
   }, []);
 
   function timeAgo(ts) {
     const diff = Math.floor(Date.now()/1000) - ts;
-    const h = Math.floor(diff / 3600), m = Math.floor((diff % 3600) / 60);
+    const h = Math.floor(diff / 3600);
+    const m = Math.floor((diff % 3600) / 60);
     if (h >= 24) return `${Math.floor(h/24)}d ago`;
     if (h > 0) return `${h}h ago`;
     return `${m}m ago`;
   }
+
   if (!loading && !items.length) return null;
+
   return (
     <div className="ra-section">
-      <div className="sec-hdr" style={{marginBottom:'10px'}}><div className="sec-bar"/><h2 className="sec-title">🕐 Recently Aired</h2></div>
+      <div className="sec-hdr" style={{marginBottom:'10px'}}>
+        <div className="sec-bar"/>
+        <h2 className="sec-title">🕐 Recently Aired</h2>
+      </div>
       <div className="ra-scroll">
         {loading
           ? Array(10).fill(0).map((_,i) => <div key={i} className="ra-sk"/>)
           : items.map(a => (
-            <div key={a.id+'-'+a.airedEpNum} className="ra-card" onClick={()=>onPlay(a,'watch')}>
+            <div key={a.id+'-'+a.airedEpNum} className="ra-card"
+              onClick={()=>onPlay(a,'watch')}>
               <div className="ra-img-wrap">
-                <img className="ra-img" src={a.image} alt={a.title} loading="lazy" onError={e=>e.target.style.display='none'}/>
+                <img className="ra-img" src={a.image} alt={a.title}
+                  loading="lazy" onError={e=>e.target.style.display='none'}/>
                 <div className="ra-grad"/>
                 <div className="ra-ep">EP {a.airedEpNum}</div>
-                <div className="ra-play"><div className="ra-play-c"><PIco s={13}/></div></div>
+                <div className="ra-play">
+                  <div className="ra-play-c"><PIco s={13}/></div>
+                </div>
                 <div className="ra-time">{timeAgo(a.airedAt)}</div>
               </div>
-              <div className="ra-body"><div className="ra-title">{a.title}</div></div>
+              <div className="ra-body">
+                <div className="ra-title">{a.title}</div>
+              </div>
             </div>
           ))
         }
@@ -1858,6 +2069,7 @@ function RecentlyAired({onPlay}) {
   );
 }
 
+// ── EXPLORE PAGE ──────────────────────────────────────────────────────────────
 const FORMATS  = ['TV','MOVIE','OVA','ONA','SPECIAL','MUSIC'];
 const STATUSES = [{label:'Releasing',val:'RELEASING'},{label:'Finished',val:'FINISHED'},{label:'Not Yet Aired',val:'NOT_YET_RELEASED'}];
 const SORTS    = [{label:'Trending',val:'TRENDING_DESC'},{label:'Popular',val:'POPULARITY_DESC'},{label:'Top Rated',val:'SCORE_DESC'},{label:'Newest',val:'START_DATE_DESC'}];
@@ -1878,7 +2090,13 @@ function ExplorePage({onPlay}) {
 
   const loadResults = useCallback(async (f,g,st,y,so,p) => {
     setLoading(true);
-    const vars = { p, sort:[so], ...(f?{format:f}:{}), ...(g?{genres:[g]}:{}), ...(st?{status:st}:{}), ...(y?{year:parseInt(y)}:{}) };
+    const vars = {
+      p, sort:[so],
+      ...(f  ? {format:f}       : {}),
+      ...(g  ? {genres:[g]}     : {}),
+      ...(st ? {status:st}      : {}),
+      ...(y  ? {year:parseInt(y)}: {}),
+    };
     try {
       const d = await gql(Qs.browse, vars);
       setItems((d.data?.Page?.media||[]).map(mapA));
@@ -1892,46 +2110,68 @@ function ExplorePage({onPlay}) {
 
   const hasFilter = format||genre||status||year;
   const reset = () => { setFormat(''); setGenre(''); setStatus(''); setYear(''); setSort('TRENDING_DESC'); setPage(1); };
+
   const ps=[], s=Math.max(1,page-2), e2=Math.min(totalPg,s+4);
   for(let i=s;i<=e2;i++) ps.push(i);
 
   return (
     <div className="explore-wrap">
+      {/* Header */}
       <div style={{padding:'0 clamp(.75rem,3.5vw,2.5rem) .6rem'}}>
-        <div className="sec-hdr" style={{marginBottom:'10px'}}><div className="sec-bar"/><h2 className="sec-title">🔎 Explore Anime</h2></div>
+        <div className="sec-hdr" style={{marginBottom:'10px'}}>
+          <div className="sec-bar"/>
+          <h2 className="sec-title">🔎 Explore Anime</h2>
+        </div>
       </div>
+
+      {/* Filter bar */}
       <div className="filter-bar">
         <select className={'filter-sel'+(format?' active':'')} value={format} onChange={e=>setFormat(e.target.value)}>
           <option value="">All Formats</option>
           {FORMATS.map(f=><option key={f} value={f}>{f}</option>)}
         </select>
+
         <select className={'filter-sel'+(genre?' active':'')} value={genre} onChange={e=>setGenre(e.target.value)}>
           <option value="">All Genres</option>
           {GENRES_LIST.map(g=><option key={g} value={g}>{g}</option>)}
         </select>
+
         <select className={'filter-sel'+(status?' active':'')} value={status} onChange={e=>setStatus(e.target.value)}>
           <option value="">All Status</option>
           {STATUSES.map(s=><option key={s.val} value={s.val}>{s.label}</option>)}
         </select>
+
         <select className={'filter-sel'+(year?' active':'')} value={year} onChange={e=>setYear(e.target.value)}>
           <option value="">All Years</option>
           {YEARS.map(y=><option key={y} value={y}>{y}</option>)}
         </select>
+
+        {/* Sort */}
         <div style={{display:'flex',gap:5,marginLeft:'auto',flexWrap:'wrap'}}>
-          {SORTS.map(s=>(<button key={s.val} className={'sort-btn'+(sort===s.val?' on':'')} onClick={()=>setSort(s.val)}>{s.label}</button>))}
+          {SORTS.map(s=>(
+            <button key={s.val} className={'sort-btn'+(sort===s.val?' on':'')}
+              onClick={()=>setSort(s.val)}>{s.label}</button>
+          ))}
         </div>
+
         {hasFilter && (
           <button className="filter-reset" onClick={reset}>
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" style={{width:11,height:11}}><path d="M12 4L4 12M4 4l8 8" strokeLinecap="round"/></svg>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" style={{width:11,height:11}}>
+              <path d="M12 4L4 12M4 4l8 8" strokeLinecap="round"/>
+            </svg>
             Reset
           </button>
         )}
       </div>
-      {!loading && items.length > 0 && (
+
+      {/* Results count */}
+      {!loading && (
         <div style={{padding:'0 clamp(.75rem,3.5vw,2.5rem) .6rem',fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)'}}>
-          <span style={{background:'rgba(255,255,255,.07)',padding:'2px 9px',borderRadius:10,color:'var(--txt2)',fontWeight:700}}>{items.length} results</span>
+          {items.length > 0 ? <span style={{background:'rgba(255,255,255,.07)',padding:'2px 9px',borderRadius:10,color:'var(--txt2)',fontWeight:700}}>{items.length} results</span> : null}
         </div>
       )}
+
+      {/* Grid */}
       <div className="section" style={{paddingTop:0}}>
         {loading
           ? <div className="agrid">{Array(12).fill(0).map((_,i)=><div key={i} className="sk"/>)}</div>
@@ -1940,6 +2180,8 @@ function ExplorePage({onPlay}) {
             : <EmptyState query={genre||format||status||year||null} onClear={hasFilter?reset:null}/>
         }
       </div>
+
+      {/* Pagination */}
       {!loading && items.length > 0 && totalPg > 1 && (
         <div className="pag">
           <button className="pgb" disabled={page===1} onClick={()=>{setPage(p=>p-1);window.scrollTo({top:0,behavior:'smooth'})}}>‹</button>
@@ -1953,25 +2195,58 @@ function ExplorePage({onPlay}) {
 
 function ContactPage({onBack}) {
   const contacts = [
-    { key:'email', label:'Email',       desc:'Fastest response — usually within 24 hours', icon:<EmailIco/>,        href:`https://mail.google.com/mail/?view=cm&to=fredbv22%40gmail.com&su=Contact%20JustStreamAnime`, display:'fredbv22@gmail.com',    colorClass:'contact-link-email' },
-    { key:'wa',    label:'WhatsApp',    desc:'Quick chat — tap to open a conversation',    icon:<WhatsAppIco/>,     href:'https://wa.me/2348118722788',                    display:'+234 811 872 2788',    colorClass:'contact-link-wa' },
-    { key:'tg',    label:'Telegram',    desc:'Join the JustStreamAnime channel',           icon:<TelegramIcon/>,    href:'https://t.me/juststreamanime',                   display:'t.me/juststreamanime', colorClass:'' },
-    { key:'dc',    label:'Discord',     desc:'Chat with the community in our server',      icon:<DiscordIcon/>,     href:'https://discord.gg/Upyq7cYcPa',                 display:'discord.gg/Upyq7cYcPa',colorClass:'' },
-    { key:'tw',    label:'Twitter / X', desc:'Follow for updates and announcements',       icon:<TwitterXIcon/>,   href:'https://x.com/juststreamanime',                  display:'@juststreamanime',     colorClass:'' },
+    {
+      key:'email', label:'Email', desc:'Fastest response — usually within 24 hours',
+      icon:<EmailIco/>,
+      href:`https://mail.google.com/mail/?view=cm&to=fredbv22%40gmail.com&su=Contact%20JustStreamAnime`,
+      display:'fredbv22@gmail.com', colorClass:'contact-link-email',
+    },
+    {
+      key:'wa', label:'WhatsApp', desc:'Quick chat — tap to open a conversation',
+      icon:<WhatsAppIco/>,
+      href:'https://wa.me/2348118722788',
+      display:'+234 811 872 2788', colorClass:'contact-link-wa',
+    },
+    {
+      key:'tg', label:'Telegram', desc:'Join the JustStreamAnime channel',
+      icon:<TelegramIcon/>,
+      href:'https://t.me/juststreamanime',
+      display:'t.me/juststreamanime', colorClass:'',
+    },
+    {
+      key:'dc', label:'Discord', desc:'Chat with the community in our server',
+      icon:<DiscordIcon/>,
+      href:'https://discord.gg/Upyq7cYcPa',
+      display:'discord.gg/Upyq7cYcPa', colorClass:'',
+    },
+    {
+      key:'tw', label:'Twitter / X', desc:'Follow for updates and announcements',
+      icon:<TwitterXIcon/>,
+      href:'https://x.com/juststreamanime',
+      display:'@juststreamanime', colorClass:'',
+    },
   ];
+
   return (
     <div className="contact-page">
       <div className="contact-inner">
         <button className="policy-back" onClick={onBack}><BackIco/> Back</button>
+
         <div className="contact-hero">
           <div className="contact-hero-icon">💬</div>
           <h1 className="contact-hero-title">Get in Touch</h1>
-          <p className="contact-hero-sub">Have a question, suggestion, or copyright concern? Reach us through any channel below — we typically respond within 24 hours.</p>
+          <p className="contact-hero-sub">
+            Have a question, suggestion, or copyright concern? Reach us through any channel below — we typically respond within 24 hours.
+          </p>
         </div>
+
         <div className="contact-grid">
           {contacts.map(c => (
-            <a key={c.key} href={c.href} target="_blank" rel="noopener noreferrer" className="contact-card">
-              <div className={'contact-card-icon contact-icon '+(c.colorClass||'')}>{c.icon}</div>
+            <a key={c.key} href={c.href} target="_blank" rel="noopener noreferrer"
+              className="contact-card">
+              <div className={'contact-card-icon contact-icon '+(c.colorClass||'')}>
+                {c.icon}
+              </div>
               <div className="contact-card-info">
                 <div className="contact-card-label">{c.label}</div>
                 <div className="contact-card-desc">{c.desc}</div>
@@ -1981,7 +2256,10 @@ function ContactPage({onBack}) {
             </a>
           ))}
         </div>
-        <div className="contact-note">For copyright or DMCA concerns, please include the specific page URL and a description of the content in your message. We respond to all valid notices within 48 hours.</div>
+
+        <div className="contact-note">
+          For copyright or DMCA concerns, please include the specific page URL and a description of the content in your message. We respond to all valid notices within 48 hours.
+        </div>
       </div>
     </div>
   );
@@ -1998,7 +2276,7 @@ class ErrorBoundary extends React.Component {
           <div style={{fontSize:'3rem',marginBottom:'1rem'}}>⚠️</div>
           <h2 style={{color:'var(--txt)',fontWeight:800,fontSize:'1.4rem',marginBottom:'.5rem'}}>Something went wrong</h2>
           <p style={{color:'var(--txt3)',fontFamily:'var(--mono)',fontSize:12,marginBottom:'1.5rem',maxWidth:400}}>A page error occurred. Try refreshing, or go back to home.</p>
-          <button className="btn-play" onClick={()=>{ this.setState({hasError:false,error:null}); window.location.href='/'; }}>← Go Home</button>
+          <button className="btn-play" onClick={()=>{ this.setState({hasError:false,error:null}); }}>← Go Home</button>
         </div>
       );
     }
@@ -2006,9 +2284,6 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   APP COMPONENT — all major fixes applied here
-───────────────────────────────────────────────────────────────────────────── */
 function App() {
   const init        = readPath();
   const [view,      setView]     = useState(init.view||'home');
@@ -2026,19 +2301,17 @@ function App() {
   const [srQuery,   setSrQuery]  = useState('');
   const [srItems,   setSrItems]  = useState([]);
   const [srLoading, setSrLoading]= useState(false);
-  const [navPage,   setNavPage]  = useState(
-    ['explore','schedule','history'].includes(init.view) ? init.view : 'home'
-  );
+  const [navPage,   setNavPage]  = useState('home');
 
-  /* Prefetch hero items */
+  // Prefetch hero
   useEffect(() => {
     gql(Qs.trending, {p:1}).then(d => {
       const list = (d.data?.Page?.media||[]).map(mapA).filter(a=>a.banner||a.image);
-      if (list.length) setHero(list.slice(0,8));
+      if (list.length) setHero(list.slice(0,5));
     }).catch(()=>{});
   }, []);
 
-  /* Boot: deep-link to anime page via URL */
+  // Boot: if URL had ?a= or #watch/ load that anime
   useEffect(() => {
     const init2 = readPath();
     if (init2.view==='watch' && init2.animeId) {
@@ -2049,40 +2322,24 @@ function App() {
     }
   }, []);
 
-  /* FIX 7: popstate now handles ALL views */
   useEffect(() => {
     const onPop = () => {
       const h = readPath();
-      const v = h.view || 'home';
-      setView(v);
-      setNavPage(['explore','schedule','history'].includes(v) ? v : 'home');
-      if (v === 'home') { setTab(h.tab || 'trending'); setPage(h.page || 1); }
-      setWatching(null);
-      setSrView(false);
+      if (h.view==='home')    { setView('home'); setWatching(null); }
+      if (h.view==='contact') { setView('contact'); setWatching(null); }
+      if (h.view==='dmca')    { setView('dmca'); setWatching(null); }
+      if (h.view==='privacy') { setView('privacy'); setWatching(null); }
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
-  /* FIX 8: Genre filtering now properly works using browse query when genre active */
+  // Tab data load
   useEffect(() => {
     if (tab==='schedule'||srView) return;
     setLoading(true); setItems([]);
     const gFilter = genre!=='All' ? genre : null;
-    let query, vars;
-    if (gFilter) {
-      query = Qs.browse;
-      vars  = {
-        p: page,
-        sort: [TAB_SORT_MAP[tab] || 'TRENDING_DESC'],
-        genres: [gFilter],
-        ...(tab === 'airing' ? {status:'RELEASING'} : {}),
-      };
-    } else {
-      query = Qs[tab] || Qs.trending;
-      vars  = {p: page};
-    }
-    gql(query, vars)
+    gql(Qs[tab]||Qs.trending, {p:page, ...(gFilter?{genres:[gFilter]}:{})})
       .then(d => {
         setItems((d.data?.Page?.media||[]).map(mapA));
         setTotalPg(d.data?.Page?.pageInfo?.lastPage||1);
@@ -2092,44 +2349,23 @@ function App() {
 
   function openWatch(anime, startTab='watch') {
     setWatching(anime); setWTab(startTab); setView('watch');
-    updateOGTags({title:anime.title, image:anime.banner||anime.image, desc:anime.desc,
+    updateOGTags({title:anime.title,image:anime.banner||anime.image,desc:anime.desc,
       url:`https://jsanime.site/anime/${anime.id}/${makeSlug(anime.title)}`});
     injectAnimeSchema(anime, 1);
     writePath('watch', {id:anime.id, slug:makeSlug(anime.title), wTab:startTab});
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
-  /* FIX 9: goHome also resets navPage */
   function goHome() {
     setView('home'); setWatching(null); setSrView(false);
-    setNavPage('home');
     resetOGTags(); writePath('home',{tab,page});
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
-  /* FIX 10: goNav writes URL and scrolls */
   function goNav(p) {
     setNavPage(p);
     if (p==='home') { goHome(); return; }
     setView(p); setWatching(null);
-    writePath(p);
-    window.scrollTo({top:0,behavior:'smooth'});
-  }
-
-  /* FIX 11: doSearch uses {s:q} to match the $s variable in Qs.search, reuses pre-loaded results */
-  function doSearch(q, preloadedResults) {
-    if (!q.trim()) { setSrView(false); return; }
-    setSrView(true); setSrQuery(q);
-    if (preloadedResults && preloadedResults.length > 0) {
-      setSrItems(preloadedResults);
-      setSrLoading(false);
-    } else {
-      setSrItems([]); setSrLoading(true);
-      gql(Qs.search, {s: q}).then(d => {
-        setSrItems((d.data?.Page?.media||[]).map(mapA));
-        setSrLoading(false);
-      }).catch(()=>setSrLoading(false));
-    }
   }
 
   function chPg(n) {
@@ -2137,48 +2373,39 @@ function App() {
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
+  function doSearch(q) {
+    if (!q.trim()) { setSrView(false); return; }
+    setSrView(true); setSrQuery(q); setSrItems([]); setSrLoading(true);
+    gql(Qs.search, {q}).then(d => {
+      setSrItems((d.data?.Page?.media||[]).map(mapA));
+      setSrLoading(false);
+    }).catch(()=>setSrLoading(false));
+  }
+
   const ps=[], s=Math.max(1,page-2), e2=Math.min(totalPg,s+4);
   for(let i=s;i<=e2;i++) ps.push(i);
 
-  /* FIX 12: Nav bar, Sidebar, MobileNav always rendered (position:fixed) — one source of truth */
-  const persistentUI = (
-    <>
-      <div className="nav">
-        <div className="logo" onClick={goHome}>
-          <div className="logo-mark"><PIco s={16}/></div>
-          <div className="logo-name">Just<em>Stream</em>Anime</div>
-        </div>
-        {/* FIX 13: onSel={openWatch} passed so search dropdown results work */}
-        <SearchBar onSel={openWatch} onSearch={doSearch}/>
-      </div>
-      <Sidebar page={navPage} setPage={goNav} goHome={goHome}/>
-      <MobileNav page={navPage} setPage={goNav}/>
-      <BackToTop/>
-    </>
-  );
-
-  /* Watch page */
+  // ── RENDER ──────────────────────────────────────────────────────────────────
   if (view==='watch' && watching) {
     return (
-      <>
-        {persistentUI}
-        <WatchPage anime={watching} startTab={wTab}
-          onBack={()=>{ goHome(); setCwList(loadCW()); }}/>
-      </>
+      <ToastProvider>
+        <WatchPage anime={watching} startTab={wTab} onBack={()=>{ goHome(); setCwList(loadCW()); }}/>
+        <BackToTop/>
+      </ToastProvider>
     );
   }
 
-  /* Policy / Contact pages */
-  if (view==='dmca')    return (<>{persistentUI}<PolicyPage type="dmca"    onBack={goHome}/></>);
-  if (view==='privacy') return (<>{persistentUI}<PolicyPage type="privacy" onBack={goHome}/></>);
-  if (view==='contact') return (<>{persistentUI}<ContactPage onBack={goHome}/></>);
+  if (view==='dmca')    return <ToastProvider><PolicyPage type="dmca"    onBack={goHome}/><BackToTop/></ToastProvider>;
+  if (view==='privacy') return <ToastProvider><PolicyPage type="privacy" onBack={goHome}/><BackToTop/></ToastProvider>;
+  if (view==='contact') return <ToastProvider><ContactPage onBack={goHome}/><BackToTop/></ToastProvider>;
 
-  /* Main layout (home / explore / schedule / history / search) */
   return (
-    <>
-      {persistentUI}
+    <ToastProvider>
       <div className="layout">
+        <Sidebar page={navPage} setPage={goNav} goHome={goHome}/>
         <div className="main">
+          <SearchBar onSel={openWatch} onSearch={doSearch} onClear={()=>{setSrView(false);setSrQuery('');}}/>
+
           {srView ? (
             <SearchResultsPage
               query={srQuery} results={srItems} loading={srLoading}
@@ -2191,14 +2418,11 @@ function App() {
             <HistoryPage cwList={cwList} setCwList={setCwList} onPlay={a=>openWatch(a,'watch')}/>
           ) : (
             <>
-              {/* FIX: Show skeleton immediately while API loads, then swap to real hero */}
-              {hero.length > 0
-                ? <Hero items={hero} onPlay={openWatch}/>
-                : <HeroSkeleton/>
-              }
+              {hero.length>0 && <Hero items={hero} onPlay={openWatch}/>}
               <ContinueWatching onPlay={a=>openWatch(a,'watch')} cwList={cwList} setCwList={setCwList}/>
               <RecentlyAired onPlay={openWatch}/>
 
+              {/* Tab nav */}
               <div className="tabs-wrap">
                 <div className="tabs">
                   {TABS.map(t=>(
@@ -2232,6 +2456,7 @@ function App() {
                 )}
               </div>
 
+              {/* Footer */}
               <footer className="footer">
                 <div className="footer-inner">
                   <div className="footer-brand">
@@ -2240,16 +2465,16 @@ function App() {
                   </div>
                   <p className="footer-disc">JustStreamAnime aggregates publicly available anime stream links and does not host, upload, or store any video content. All media is served by independent third-party providers.</p>
                   <div className="footer-links">
-                    <a href="https://t.me/juststreamanime" target="_blank" rel="noopener noreferrer" className="footer-soc" aria-label="Telegram"><TelegramIcon/></a>
-                    <a href="https://discord.gg/Upyq7cYcPa"  target="_blank" rel="noopener noreferrer" className="footer-soc" aria-label="Discord"><DiscordIcon/></a>
-                    <a href="https://x.com/juststreamanime" target="_blank" rel="noopener noreferrer" className="footer-soc" aria-label="Twitter/X"><TwitterXIcon/></a>
+                    <a href="https://t.me/juststreamanime" target="_blank" rel="noopener noreferrer" className="footer-soc footer-soc-tg" aria-label="Telegram"><TelegramIcon/></a>
+                    <a href="https://discord.gg/Upyq7cYcPa"  target="_blank" rel="noopener noreferrer" className="footer-soc footer-soc-dc" aria-label="Discord"><DiscordIcon/></a>
+                    <a href="https://x.com/juststreamanime" target="_blank" rel="noopener noreferrer" className="footer-soc footer-soc-tw" aria-label="Twitter/X"><TwitterXIcon/></a>
                   </div>
                   <div className="footer-policy">
-                    <button onClick={()=>{ setView('dmca');    setNavPage('home'); writePath('dmca'); }}   className="footer-link">DMCA &amp; Copyright</button>
+                    <button onClick={()=>{ setView('dmca');    writePath('dmca'); }}   className="footer-link">DMCA &amp; Copyright</button>
                     <span className="footer-dot">·</span>
-                    <button onClick={()=>{ setView('privacy'); setNavPage('home'); writePath('privacy'); }} className="footer-link">Privacy Policy</button>
+                    <button onClick={()=>{ setView('privacy'); writePath('privacy'); }} className="footer-link">Privacy Policy</button>
                     <span className="footer-dot">·</span>
-                    <button onClick={()=>{ setView('contact'); setNavPage('home'); writePath('contact'); }} className="footer-link">Contact</button>
+                    <button onClick={()=>{ setView('contact'); writePath('contact'); }} className="footer-link">Contact</button>
                   </div>
                   <p className="footer-copy">© {new Date().getFullYear()} JustStreamAnime. For entertainment purposes only.</p>
                 </div>
@@ -2257,19 +2482,20 @@ function App() {
             </>
           )}
         </div>
+        <MobileNav page={navPage} setPage={goNav}/>
       </div>
-    </>
+      <BackToTop/>
+    </ToastProvider>
   );
 }
 
-/* FIX 14: Single ToastProvider at root — no more duplicate providers per page */
 ReactDOM.createRoot(document.getElementById('root')).render(
   <ErrorBoundary>
-    <ToastProvider>
-      <App/>
-    </ToastProvider>
+    <App/>
   </ErrorBoundary>
 );
+
+
 </script>
 </body>
 </html>
