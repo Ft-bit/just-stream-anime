@@ -609,6 +609,9 @@
       color:var(--txt2);text-decoration:none;transition:all .18s}
     .footer-soc:hover{border-color:var(--red);color:var(--red);background:rgba(225,29,72,.08)}
     .footer-soc svg{width:16px;height:16px}
+    .footer-soc.footer-soc-tg:hover{background:rgba(44,165,224,.15);border-color:rgba(44,165,224,.45);color:#2CA5E0}
+    .footer-soc.footer-soc-dc:hover{background:rgba(88,101,242,.18);border-color:rgba(88,101,242,.5);color:#5865F2}
+    .footer-soc.footer-soc-tw:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);color:#fff}
     .footer-policy{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
     .footer-link{background:none;border:none;color:var(--txt3);font-size:11px;
       cursor:pointer;padding:0;font-family:inherit;transition:color .15s;text-decoration:none}
@@ -787,6 +790,15 @@ function Hero({items, onPlay}) {
   const [extraDesc, setExtraDesc] = useState('');
   const pv = useRef(null), pr = useRef(0), tx = useRef(null), ty = useRef(null), fi = useRef(true);
   const CAP = Math.min(items.length, 8);
+
+  // Preload all carousel images upfront so switching slides is instant
+  // instead of showing a dark frame while each new image fetches.
+  useEffect(() => {
+    items.slice(0, 8).forEach(it => {
+      if (it.banner) { const im = new Image(); im.src = it.banner; }
+      if (it.image)  { const im2 = new Image(); im2.src = it.image; }
+    });
+  }, [items]);
 
   const DESC_STORE = 'jsa_desc_cache';
   const descCache  = useRef((() => {
@@ -2243,14 +2255,13 @@ function ContactPage({onBack}) {
         <div className="contact-grid">
           {contacts.map(c => (
             <a key={c.key} href={c.href} target="_blank" rel="noopener noreferrer"
-              className="contact-card">
-              <div className={'contact-card-icon contact-icon '+(c.colorClass||'')}>
+              className={'contact-card '+c.key}>
+              <div className="contact-card-icon contact-icon">
                 {c.icon}
               </div>
               <div className="contact-card-info">
                 <div className="contact-card-label">{c.label}</div>
                 <div className="contact-card-desc">{c.desc}</div>
-                <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt2)',marginTop:4,opacity:.8}}>{c.display}</div>
               </div>
               <div className="contact-card-arrow">→</div>
             </a>
