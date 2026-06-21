@@ -43,13 +43,13 @@ function indexXml() {
   ].join('\n');
 }
 
-// Fetch with a hard timeout so a slow/hanging AniList response can never
+// Fetch with a hard timeout so one slow/hanging AniList response can never
 // hang the whole serverless function past Vercel's limit.
-async function fetchPage(sort, page, perPage) {
-  const query = `query($page:Int,$perPage:Int,$sort:[MediaSort]){
+async function fetchPage(sort, page, perPage, status) {
+  const query = `query($page:Int,$perPage:Int,$sort:[MediaSort],$status:MediaStatus){
     Page(page:$page,perPage:$perPage){
       pageInfo{hasNextPage}
-      media(type:ANIME,sort:$sort,isAdult:false){
+      media(type:ANIME,sort:$sort,status:$status,isAdult:false){
         id title{english romaji} popularity status updatedAt coverImage{large}
       }
     }
@@ -60,7 +60,7 @@ async function fetchPage(sort, page, perPage) {
     const r = await fetch(ANILIST, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ query, variables: { page, perPage, sort: [sort] } }),
+      body: JSON.stringify({ query, variables: { page, perPage, sort: [sort], ...(status?{status}:{}) } }),
       signal: controller.signal,
     });
     clearTimeout(timer);
@@ -88,6 +88,31 @@ function animeEntry(a) {
   return parts.join('\n');
 }
 
+// Coverage plan, run fully in parallel:
+//   POPULARITY_DESC × 15 pages × 50 = up to 750  — everything anyone would
+//     plausibly search for, popular long-runners included
+//   TRENDING_DESC   × 5  pages × 50 = up to 250  — whatever's hot right now
+//   START_DATE_DESC × 5  pages × 50 = up to 250  — newly added/airing titles
+//     that haven't built up popularity yet (this is what catches something
+//     like a recently-aired show before it becomes "popular")
+// All de-duplicated by id. ~25 parallel AniList calls, each with its own
+// 6s timeout, comfortably finishes inside the 30s function budget.
+async function fetchAllAnimeEntries() {
+  const jobs = [];
+  for (let p = 1; p <= 15; p++) jobs.push(fetchPage('POPULARITY_DESC', p, 50));
+  for (let p = 1; p <= 5;  p++) jobs.push(fetchPage('TRENDING_DESC',   p, 50));
+  for (let p = 1; p <= 5;  p++) jobs.push(fetchPage('START_DATE_DESC', p, 50));
+
+  const results = await Promise.all(jobs);
+  const seen = new Set(), entries = [];
+  for (const data of results) {
+    for (const a of data.media || []) {
+      if (!seen.has(a.id)) { seen.add(a.id); entries.push(animeEntry(a)); }
+    }
+  }
+  return entries;
+}
+
 module.exports = async function handler(req, res) {
   const qs   = require('url').parse(req.url, true).query;
   const type = qs.type || (req.url.includes('type=anime')?'anime':req.url.includes('type=index')?'index':'static');
@@ -99,22 +124,7 @@ module.exports = async function handler(req, res) {
     if (type === 'index') { res.statusCode = 200; res.end(indexXml()); return; }
 
     if (type === 'anime') {
-      // Run both sort jobs' first pages in PARALLEL instead of sequential —
-      // far less likely to hit a function timeout.
-      const jobs = [
-        fetchPage('POPULARITY_DESC', 1, 50),
-        fetchPage('POPULARITY_DESC', 2, 50),
-        fetchPage('TRENDING_DESC',   1, 50),
-      ];
-      const results = await Promise.all(jobs);
-
-      const seen = new Set(), entries = [];
-      for (const data of results) {
-        for (const a of data.media || []) {
-          if (!seen.has(a.id)) { seen.add(a.id); entries.push(animeEntry(a)); }
-        }
-      }
-
+      const entries = await fetchAllAnimeEntries();
       res.statusCode = 200;
       res.end(['<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">',
@@ -129,7 +139,6 @@ module.exports = async function handler(req, res) {
 
   } catch (err) {
     console.error('Sitemap error:', err?.message);
-    // Never 500 — always return valid (if empty) XML so Google doesn't see an error
     res.statusCode = 200;
     res.end('<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
   }
