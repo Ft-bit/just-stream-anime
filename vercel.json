@@ -7,13 +7,13 @@
     "api/anime-page.js": { "maxDuration": 15 }
   },
   "rewrites": [
-    { "source": "/sitemap.xml",       "destination": "/api/sitemap" },
-    { "source": "/sitemap-anime.xml", "destination": "/api/sitemap?type=anime" },
-    { "source": "/sitemap-index.xml", "destination": "/api/sitemap?type=index" },
-    { "source": "/share",             "destination": "/api/share" },
-    { "source": "/feed",              "destination": "/api/feed" },
-    { "source": "/anime/:id/:slug",   "destination": "/api/anime-page?id=:id&slug=:slug" },
-    { "source": "/anime/:id",         "destination": "/api/anime-page?id=:id" },
-    { "source": "/(.*)",              "destination": "/index.html" }
+    { "source": "/sitemap.xml",            "destination": "/api/sitemap" },
+    { "source": "/sitemap-anime.xml",      "destination": "/api/sitemap?type=anime" },
+    { "source": "/sitemap-index.xml",      "destination": "/api/sitemap?type=index" },
+    { "source": "/share",                  "destination": "/api/share" },
+    { "source": "/feed",                   "destination": "/api/feed" },
+    { "source": "/anime/([^/]+)/([^/]+)",  "destination": "/api/anime-page?id=$1&slug=$2" },
+    { "source": "/anime/([^/]+)",          "destination": "/api/anime-page?id=$1" },
+    { "source": "/(.*)",                   "destination": "/index.html" }
   ]
 }
