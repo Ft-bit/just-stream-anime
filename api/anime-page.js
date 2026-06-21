@@ -1,19 +1,4 @@
 // api/anime-page.js
-// Server-side meta tag injection for /anime/:id/:slug pages.
-//
-// Without this, every URL on the site returns the exact same generic
-// index.html — the anime-specific <title>, description, and og:image only
-// get set afterward by client-side JS once React fetches the anime from
-// AniList. Google's crawler can render JS but does it in a delayed second
-// pass, and social-link unfurlers (outside Telegram/Discord, which already
-// use api/share.js) don't run JS at all.
-//
-// This function fetches the SAME static index.html, swaps in the correct
-// meta tags for the requested anime, and serves that — so the very first
-// response already has the right title/description/schema. The React app
-// inside is untouched, so real users get the identical interactive site;
-// only the initial <head> content differs, which is what crawlers read.
-
 const SITE_URL = 'https://jsanime.site';
 
 function esc(s) {
