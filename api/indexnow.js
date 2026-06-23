@@ -5,7 +5,7 @@
 // Or POST to it. The `secret` param prevents random people from triggering it.
 
 const SITE_URL    = 'https://jsanime.site';
-const INDEXNOW_KEY = '5155e1e3056b48aeb391399be3da189b';
+const INDEXNOW_KEY = '959052f29efd46f2b6c6ca540fd7c0ee';
 const KEY_LOCATION = `${SITE_URL}/${INDEXNOW_KEY}.txt`;
 const SUBMIT_SECRET = 'jsa2026'; // change this to something only you know
 
