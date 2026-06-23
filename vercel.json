@@ -14,6 +14,7 @@
     { "source": "/share",                 "destination": "/api/share" },
     { "source": "/feed",                  "destination": "/api/feed" },
     { "source": "/indexnow",             "destination": "/api/indexnow" },
+    { "source": "/959052f29efd46f2b6c6ca540fd7c0ee.txt", "destination": "/959052f29efd46f2b6c6ca540fd7c0ee.txt" },
     { "source": "/anime/([^/]+)/([^/]+)", "destination": "/api/anime-page?id=$1&slug=$2" },
     { "source": "/anime/([^/]+)",         "destination": "/api/anime-page?id=$1" },
     { "source": "/(.*)",                  "destination": "/index.html" }
