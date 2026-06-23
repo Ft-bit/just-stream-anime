@@ -4,16 +4,18 @@
     "api/sitemap.js":    { "maxDuration": 30 },
     "api/share.js":      { "maxDuration": 15 },
     "api/feed.js":       { "maxDuration": 15 },
-    "api/anime-page.js": { "maxDuration": 15 }
+    "api/anime-page.js": { "maxDuration": 15 },
+    "api/indexnow.js":   { "maxDuration": 30 }
   },
   "rewrites": [
-    { "source": "/sitemap.xml",            "destination": "/api/sitemap" },
-    { "source": "/sitemap-anime.xml",      "destination": "/api/sitemap?type=anime" },
-    { "source": "/sitemap-index.xml",      "destination": "/api/sitemap?type=index" },
-    { "source": "/share",                  "destination": "/api/share" },
-    { "source": "/feed",                   "destination": "/api/feed" },
-    { "source": "/anime/([^/]+)/([^/]+)",  "destination": "/api/anime-page?id=$1&slug=$2" },
-    { "source": "/anime/([^/]+)",          "destination": "/api/anime-page?id=$1" },
-    { "source": "/(.*)",                   "destination": "/index.html" }
+    { "source": "/sitemap.xml",           "destination": "/api/sitemap" },
+    { "source": "/sitemap-anime.xml",     "destination": "/api/sitemap?type=anime" },
+    { "source": "/sitemap-index.xml",     "destination": "/api/sitemap?type=index" },
+    { "source": "/share",                 "destination": "/api/share" },
+    { "source": "/feed",                  "destination": "/api/feed" },
+    { "source": "/indexnow",             "destination": "/api/indexnow" },
+    { "source": "/anime/([^/]+)/([^/]+)", "destination": "/api/anime-page?id=$1&slug=$2" },
+    { "source": "/anime/([^/]+)",         "destination": "/api/anime-page?id=$1" },
+    { "source": "/(.*)",                  "destination": "/index.html" }
   ]
 }
