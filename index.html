@@ -1,18 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <head>
-  <title>JustStream Anime</title>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "JustStream Anime",
-    "url": "https://jsanime.site"
-  }
-  </script>
-</head>
-
   <script>
     // Auto-cleanup: remove any stale service worker / cache from old deployments
     if ('serviceWorker' in navigator) {
@@ -67,6 +55,7 @@
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "JustStreamAnime",
+    "legalName": "JustStreamAnime",
     "alternateName": ["JSAnime", "JustStream Anime", "jsanime.site", "jsanime", "Just Stream Anime", "JustStreamAnime"],
     "url": "https://jsanime.site/",
     "description": "Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed — just click and play.",
@@ -124,9 +113,7 @@
     "breadcrumb": {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://jsanime.site/" },
-        { "@type": "ListItem", "position": 2, "name": "Trending Anime", "item": "https://jsanime.site/trending" },
-        { "@type": "ListItem", "position": 3, "name": "Popular Anime", "item": "https://jsanime.site/popular" }
+        { "@type": "ListItem", "position": 1, "name": "JustStreamAnime", "item": "https://jsanime.site/" }
       ]
     },
     "speakable": {
@@ -135,17 +122,7 @@
     }
   }
   </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    "name": "Trending Anime",
-    "description": "Currently trending anime on JustStreamAnime",
-    "url": "https://jsanime.site/trending",
-    "itemListOrder": "https://schema.org/ItemListOrderDescending",
-    "numberOfItems": 30
-  }
-  </script>
+  
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -2399,7 +2376,7 @@ function App() {
   function doSearch(q) {
     if (!q.trim()) { setSrView(false); return; }
     setSrView(true); setSrQuery(q); setSrItems([]); setSrLoading(true);
-    gql(Qs.search, {q}).then(d => {
+    gql(Qs.search, {s:q}).then(d => {
       setSrItems((d.data?.Page?.media||[]).map(mapA));
       setSrLoading(false);
     }).catch(()=>setSrLoading(false));
