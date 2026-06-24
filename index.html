@@ -808,13 +808,12 @@ function Hero({items, onPlay}) {
       if (pr.current >= IV) {
         pr.current = 0; setProg(0);
         setIdx(i => (i+1) % Math.min(items.length,8));
-        setLoad(false);
       }
     }, 50);
   };
   useEffect(() => { if (items.length) start(); return () => clearInterval(pv.current); }, [items]);
   useEffect(() => {
-    setLoad(false); setExtraDesc('');
+    setExtraDesc('');
     if (fi.current) { fi.current = false; return; }
     start();
   }, [idx]);
