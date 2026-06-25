@@ -14,13 +14,6 @@
       }).catch(()=>{});
     }
   </script>
-  <script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "xbz93ku9ex");
-</script>
 
   <meta charset="UTF-8"/>
   <!-- already has preconnect -->
@@ -40,14 +33,14 @@
   <meta name="apple-mobile-web-app-title" content="JustStreamAnime"/>
   <link rel="alternate" type="application/rss+xml" title="JustStreamAnime — Trending Anime" href="https://jsanime.site/api/feed?type=trending"/>
   <link rel="alternate" type="application/rss+xml" title="JustStreamAnime — Currently Airing" href="https://jsanime.site/api/feed?type=airing"/>
-  <meta name="description" content="Stream anime free online on JustStreamAnime. Watch trending, popular and top-rated anime with subtitles or dub. No account needed — just click and play."/>
+  <meta name="description" content="JustStreamAnime is a free anime streaming site with a vast library of thousands of anime series and movies. Watch trending, popular and top-rated anime online with subtitles or English dub — no sign-up needed, just click and play."/>
   <meta name="keywords" content="jsanime, jsanime.site, JustStream Anime, JustStreamAnime, watch anime free online, stream anime, anime streaming site, watch anime sub dub, free anime no account, trending anime 2026, watch anime online"/>
   <meta name="robots" content="index, follow"/>
   <link rel="canonical" href="https://jsanime.site/"/>
   <meta property="og:type" content="website"/>
   <meta id="og-url" property="og:url" content="https://jsanime.site/"/>
   <meta id="og-title" property="og:title" content="JustStreamAnime – Watch &amp; Stream Anime Free Online"/>
-  <meta id="og-desc" property="og:description" content="Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed — just click and play."/>
+  <meta id="og-desc" property="og:description" content="JustStreamAnime offers a vast free anime library. Watch thousands of anime online with subtitles or English dub — no sign-up, just play."/>
   <meta id="og-image" property="og:image" content="https://jsanime.site/og-image.jpg"/>
   <meta id="og-image-w" property="og:image:width" content="1200"/>
   <meta id="og-image-h" property="og:image:height" content="630"/>
@@ -55,7 +48,7 @@
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:url" content="https://jsanime.site/"/>
   <meta name="twitter:title" content="JustStreamAnime – Watch &amp; Stream Anime Free Online"/>
-  <meta name="twitter:description" content="Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed."/>
+  <meta name="twitter:description" content="Free anime streaming site with thousands of anime series and movies. Watch with subtitles or English dub — no sign-up needed."/>
   <meta id="tw-image" name="twitter:image" content="https://jsanime.site/og-image.jpg"/>
   <script type="application/ld+json">
   {
@@ -65,7 +58,7 @@
     "legalName": "JustStreamAnime",
     "alternateName": ["JSAnime", "JustStream Anime", "jsanime.site", "jsanime", "Just Stream Anime", "JustStreamAnime"],
     "url": "https://jsanime.site/",
-    "description": "Stream anime free online. Watch trending, popular and top-rated anime with subtitles or dub. No account needed — just click and play.",
+    "description": "JustStreamAnime offers a vast free anime library. Watch thousands of anime online with subtitles or English dub — no sign-up, just play.",
     "inLanguage": "en",
     "potentialAction": {
       "@type": "SearchAction",
@@ -623,6 +616,21 @@
     @media(min-width:769px){.main{padding-left:0}}
 
     </style>
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "xbz93ku9ex");
+  </script>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y32PHX299V"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Y32PHX299V');
+  </script>
 </head>
 <body>
 <div id="root"></div>
@@ -1145,15 +1153,18 @@ function WatchPage({anime, startTab, onBack}) {
 
   function startAutoplay(ep) {
     setAutoplayCD(10);
+    let count = 10;
     const iv = setInterval(()=>{
-      setAutoplayCD(n => {
-        if (n <= 1) {
-          clearInterval(iv);
-          loadEp(ep + 1, lang);
-          return null;
-        }
-        return n - 1;
-      });
+      if (document.hidden) return; // pause countdown while tab is hidden
+      count--;
+      if (count <= 0) {
+        clearInterval(iv);
+        autoRef.current = null;
+        setAutoplayCD(null);
+        loadEp(ep + 1, lang); // called directly - NOT inside a setState updater
+      } else {
+        setAutoplayCD(count);
+      }
     }, 1000);
     autoRef.current = iv;
   }
