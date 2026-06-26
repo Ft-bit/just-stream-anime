@@ -615,6 +615,20 @@
     .main{flex:1;min-width:0;padding-top:0}
     @media(min-width:769px){.main{padding-left:0}}
 
+    
+    /* ── MANGA ─────────────────────────────────────────────────────────────── */
+    @keyframes bookFlip {
+      0%,100%  { transform: perspective(400px) rotateY(0deg); }
+      40%,60%  { transform: perspective(400px) rotateY(-18deg); }
+    }
+    .mob-nav-btn .book-page-anim,
+    .sb-btn .book-page-anim {
+      animation: bookFlip 3.5s ease-in-out infinite;
+      transform-origin: left center;
+    }
+    .mob-nav-btn.on .book-page-anim,
+    .sb-btn.on .book-page-anim { animation: none; }
+
     </style>
   <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
@@ -1449,6 +1463,11 @@ function readPath() {
     if (s0==='explore')      return {view:'explore'};
     if (s0==='schedule')     return {view:'schedule'};
     if (s0==='history')      return {view:'history'};
+    if (s0==='manga') {
+      if (s1 && s2 === 'read' && segs[3]) return {view:'manga', mangaId:s1, chapterId:segs[3], mangaView:'reader'};
+      if (s1) return {view:'manga', mangaId:s1, mangaView:'detail'};
+      return {view:'manga', mangaView:'browse'};
+    }
 
     const TABS = ['trending','popular','top','airing'];
     if (TABS.includes(s0)) return {view:'home', tab:s0, page:Math.max(1,parseInt(s1)||1)};
@@ -1468,6 +1487,11 @@ function writePath(view, extra={}) {
   else if (view==='explore')    path = '/explore';
   else if (view==='schedule')   path = '/schedule';
   else if (view==='history')    path = '/history';
+  else if (view==='manga') {
+    if (extra.chapterId) path = `/manga/${extra.id||''}${extra.slug?'/'+extra.slug:''}/read/${extra.chapterId}`;
+    else if (extra.id)   path = `/manga/${extra.id||''}${extra.slug?'/'+extra.slug:''}`;
+    else                 path = '/manga';
+  }
   else {
     const t = extra.tab || 'trending';
     const p = extra.page || 1;
@@ -1930,6 +1954,11 @@ function Sidebar({page, setPage, goHome}) {
         onClick={()=>setPage('history')} title="Watch History">
         <HistoryIco/><span>History</span>
       </button>
+      <div className="sb-divider"/>
+      <button className={'sb-btn'+(page==='manga'?' on':'')}
+        onClick={()=>setPage('manga')} title="Read Manga">
+        <BookIco/><span>Read</span>
+      </button>
     </div>
   );
 }
@@ -1949,6 +1978,9 @@ function MobileNav({page, setPage}) {
       </button>
       <button className={'mob-nav-btn'+(page==='history'?' on':'')} onClick={()=>setPage('history')}>
         <HistoryIco/><span>History</span>
+      </button>
+      <button className={'mob-nav-btn'+(page==='manga'?' on':'')} onClick={()=>setPage('manga')}>
+        <BookIco/><span>Read</span>
       </button>
     </div>
   );
@@ -2282,6 +2314,593 @@ function ContactPage({onBack}) {
   );
 }
 
+
+
+// ── MANGADEX HELPERS ─────────────────────────────────────────────────────────
+async function mdx(path, params = {}) {
+  const parts = [];
+  for (const [k, v] of Object.entries(params)) {
+    if (Array.isArray(v)) v.forEach(i => parts.push(`${encodeURIComponent(k)}[]=${encodeURIComponent(i)}`));
+    else parts.push(`${encodeURIComponent(k)}=${encodeURIComponent(v)}`);
+  }
+  const url = `https://api.mangadex.org${path}${parts.length ? '?' + parts.join('&') : ''}`;
+  try {
+    const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!r.ok) return null;
+    return r.json();
+  } catch { return null; }
+}
+
+function getCoverUrl(id, rels, size = 256) {
+  const c = (rels||[]).find(r => r.type === 'cover_art');
+  if (!c?.attributes?.fileName) return null;
+  return `https://uploads.mangadex.org/covers/${id}/${c.attributes.fileName}.${size}.jpg`;
+}
+
+function mapManga(m) {
+  if (!m?.attributes) return null;
+  const a = m.attributes;
+  const title = a.title?.en || Object.values(a.title||{})[0] || 'Unknown';
+  const desc  = (a.description?.en || Object.values(a.description||{})[0] || '')
+    .replace(/<[^>]+>/g,'').trim();
+  const author = (m.relationships||[]).find(r=>r.type==='author')?.attributes?.name || '';
+  return {
+    id: m.id, title, desc: desc.slice(0,500), author,
+    cover: getCoverUrl(m.id, m.relationships),
+    status: a.status, year: a.year,
+    genres: (a.tags||[]).filter(t=>t.attributes?.group==='genre').map(t=>t.attributes?.name?.en||'').filter(Boolean),
+    themes: (a.tags||[]).filter(t=>t.attributes?.group==='theme').map(t=>t.attributes?.name?.en||'').filter(Boolean),
+    lastChapter: a.lastChapter, lastVolume: a.lastVolume,
+  };
+}
+
+// ── ANIMATED BOOK ICON ────────────────────────────────────────────────────────
+function BookIco() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+         strokeLinecap="round" strokeLinejoin="round" style={{width:20,height:20}}>
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+      <path className="book-page-anim" d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      <line x1="9" y1="7" x2="15" y2="7"/>
+      <line x1="9" y1="11" x2="15" y2="11"/>
+      <line x1="9" y1="15" x2="12" y2="15"/>
+    </svg>
+  );
+}
+
+// ── MANGA CARD ────────────────────────────────────────────────────────────────
+function MangaCard({m, onOpen}) {
+  return (
+    <div className="acard" onClick={()=>onOpen(m)} style={{touchAction:'manipulation'}}>
+      <div className="acard-top">
+        {m.cover
+          ? <img className="acard-img" src={m.cover} alt={m.title} loading="lazy"
+              onError={e=>{e.target.style.display='none'}}/>
+          : <div style={{position:'absolute',inset:0,background:'var(--bg3)',display:'flex',alignItems:'center',justifyContent:'center',opacity:.3}}><BookIco/></div>
+        }
+        <div className="acard-grad"/>
+        {m.status && <div className="acard-season">{m.status.toUpperCase()}</div>}
+        <div className="acard-play"><div className="acard-circle"><BookIco/></div></div>
+      </div>
+      <div className="acard-body">
+        <div className="acard-title">{m.title}</div>
+        <div className="acard-sub">
+          {m.author && <span>{m.author}</span>}
+          {m.lastChapter && <><span>·</span><span>Ch.{m.lastChapter}</span></>}
+        </div>
+        {m.genres.length>0 && (
+          <div className="acard-tags">{m.genres.slice(0,2).map(g=><span key={g} className="atag">{g}</span>)}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── MANGA BROWSE PAGE ─────────────────────────────────────────────────────────
+const MANGA_GENRES = ['All','Action','Adventure','Comedy','Drama','Fantasy','Horror',
+  'Mystery','Romance','Sci-Fi','Slice of Life','Sports','Supernatural','Thriller',
+  'Historical','Psychological','Isekai','Mecha','School Life'];
+
+function MangaBrowsePage({onOpen}) {
+  const [items,    setItems]    = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [genre,    setGenre]    = useState('All');
+  const [sort,     setSort]     = useState('followedCount');
+  const [query,    setQuery]    = useState('');
+  const [page,     setPage]     = useState(0);
+  const [total,    setTotal]    = useState(0);
+  const [latest,   setLatest]   = useState([]);
+  const [latLoad,  setLatLoad]  = useState(true);
+  const LIMIT = 24;
+
+  const SORTS = [
+    {id:'followedCount', label:'🔥 Popular'},
+    {id:'updatedAt',     label:'🕐 Latest'},
+    {id:'rating',        label:'⭐ Top Rated'},
+    {id:'createdAt',     label:'✨ New'},
+  ];
+
+  const GENRE_TAG_IDS = {
+    'Action':'391b0423-d847-456f-aff0-8b0cfc03066b',
+    'Adventure':'87cc87cd-a395-47af-b27a-93258283bbc6',
+    'Comedy':'4d32cc48-9f00-4cca-9b5a-a839f0764984',
+    'Drama':'b9af3a63-f058-46de-a9a0-e0c13906197a',
+    'Fantasy':'cdc58593-87dd-415e-bbc0-2ec27bf404cc',
+    'Horror':'cdad7e68-1419-41dd-bdce-27753074a640',
+    'Mystery':'ee968100-4191-4968-93d3-f82d72be7e46',
+    'Romance':'423e2eae-a7a2-4a8b-ac03-a8351462d71d',
+    'Sci-Fi':'256c8bd9-4904-4360-bf4f-508a76d67183',
+    'Slice of Life':'e5301a23-ebd9-49dd-a0cb-2add944c7fe9',
+    'Sports':'69964a64-2f90-4d33-beeb-107d3d29bc46',
+    'Supernatural':'eabc5b4c-6aff-42f3-b657-3e90cbd00b75',
+    'Thriller':'07251805-a27e-4d59-b488-f0bfbec15168',
+    'Historical':'33771934-028e-4cb3-8744-691e866a923e',
+    'Psychological':'3b60b75c-a2d7-4860-ab56-05f391bb889c',
+    'Isekai':'ace04997-f6bd-436e-b261-779182193d3d',
+    'Mecha':'50880a9d-5440-4732-9afb-8f457127e836',
+    'School Life':'caaa44eb-cd40-4177-b930-79d3ef2afe87',
+  };
+
+  useEffect(() => {
+    setLatLoad(true);
+    const params = {
+      limit: 12, offset: 0,
+      'order[updatedAt]': 'desc',
+      'includes[]': ['cover_art','author'],
+      'contentRating[]': ['safe','suggestive'],
+      'availableTranslatedLanguage[]': ['en'],
+    };
+    mdx('/manga', params).then(d => {
+      setLatest((d?.data||[]).map(mapManga).filter(Boolean));
+      setLatLoad(false);
+    }).catch(()=>setLatLoad(false));
+  }, []);
+
+  useEffect(() => {
+    setLoading(true); setItems([]);
+    const params = {
+      limit: LIMIT, offset: page * LIMIT,
+      [`order[${sort}]`]: 'desc',
+      'includes[]': ['cover_art','author'],
+      'contentRating[]': ['safe','suggestive'],
+      'availableTranslatedLanguage[]': ['en'],
+    };
+    if (query.trim()) params.title = query.trim();
+    if (genre !== 'All' && GENRE_TAG_IDS[genre]) params['includedTags[]'] = [GENRE_TAG_IDS[genre]];
+    mdx('/manga', params).then(d => {
+      setItems((d?.data||[]).map(mapManga).filter(Boolean));
+      setTotal(d?.total || 0);
+      setLoading(false);
+    }).catch(()=>setLoading(false));
+  }, [sort, genre, query, page]);
+
+  const totalPages = Math.ceil(total / LIMIT);
+
+  return (
+    <div style={{paddingTop:'calc(var(--nav) + .5rem)'}}>
+      {/* Header */}
+      <div style={{padding:'0 clamp(.75rem,3.5vw,2.5rem) .8rem',display:'flex',alignItems:'center',gap:12}}>
+        <div className="sec-bar"/>
+        <h1 style={{fontSize:'clamp(1.1rem,3vw,1.4rem)',fontWeight:900,color:'#fff',letterSpacing:'-.03em'}}>
+          📖 Manga Library
+        </h1>
+      </div>
+
+      {/* Latest Updates Row */}
+      <div style={{padding:'0 0 .5rem'}}>
+        <div style={{padding:'0 clamp(.75rem,3.5vw,2.5rem) .5rem',display:'flex',alignItems:'center',gap:8}}>
+          <div className="sec-bar"/>
+          <span className="sec-title">🕐 Latest Updates</span>
+        </div>
+        <div className="ra-scroll" style={{padding:'0 clamp(.75rem,3.5vw,2.5rem) 4px'}}>
+          {latLoad
+            ? Array(8).fill(0).map((_,i)=><div key={i} className="ra-sk"/>)
+            : latest.map(m=>(
+              <div key={m.id} className="ra-card" onClick={()=>onOpen(m)}>
+                <div className="ra-img-wrap">
+                  {m.cover && <img className="ra-img" src={m.cover} alt={m.title} loading="lazy"
+                    onError={e=>e.target.style.display='none'}/>}
+                  <div className="ra-grad"/>
+                  {m.lastChapter && <div className="ra-ep">Ch.{m.lastChapter}</div>}
+                  <div className="ra-play"><div className="ra-play-c"><BookIco/></div></div>
+                </div>
+                <div className="ra-body"><div className="ra-title">{m.title}</div></div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      {/* Search + Sort */}
+      <div style={{padding:'0 clamp(.75rem,3.5vw,2.5rem) .5rem',display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
+        <input
+          placeholder="Search manga…"
+          value={query}
+          onChange={e=>{setQuery(e.target.value);setPage(0);}}
+          style={{fontFamily:'var(--mono)',fontSize:12,background:'rgba(255,255,255,.05)',
+            border:'1px solid var(--border)',color:'var(--txt)',padding:'8px 14px',
+            borderRadius:9,outline:'none',flex:'1',minWidth:160,
+            transition:'border-color .2s'}}
+          onFocus={e=>e.target.style.borderColor='rgba(225,29,72,.45)'}
+          onBlur={e=>e.target.style.borderColor='var(--border)'}
+        />
+        <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
+          {SORTS.map(s=>(
+            <button key={s.id} className={'sort-btn'+(sort===s.id?' on':'')}
+              onClick={()=>{setSort(s.id);setPage(0);}}>
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Genre Bar */}
+      <div className="genre-wrap">
+        <div className="genre-bar">
+          {MANGA_GENRES.map(g=>(
+            <button key={g} className={'gpill'+(genre===g?' on':'')}
+              onClick={()=>{setGenre(g);setPage(0);}}>
+              {g}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Grid */}
+      <div className="section">
+        {!loading && total>0 && (
+          <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',marginBottom:12}}>
+            <span style={{background:'rgba(255,255,255,.07)',padding:'2px 9px',borderRadius:10,color:'var(--txt2)',fontWeight:700}}>
+              {total.toLocaleString()} manga
+            </span>
+          </div>
+        )}
+        {loading
+          ? <div className="agrid">{Array(LIMIT).fill(0).map((_,i)=><div key={i} className="sk"/>)}</div>
+          : items.length>0
+            ? <div className="agrid">{items.map(m=><MangaCard key={m.id} m={m} onOpen={onOpen}/>)}</div>
+            : <EmptyState query={query||genre!=='All'?'manga':null} onClear={()=>{setQuery('');setGenre('All');setPage(0);}}/>
+        }
+        {!loading && totalPages>1 && (
+          <div className="pag">
+            <button className="pgb" disabled={page===0} onClick={()=>{setPage(p=>p-1);window.scrollTo({top:0,behavior:'smooth'})}}>‹</button>
+            {Array.from({length:Math.min(5,totalPages)},(_,i)=>{
+              const pg = Math.max(0,Math.min(page-2,totalPages-5))+i;
+              return <button key={pg} className={'pgb'+(pg===page?' on':'')} onClick={()=>{setPage(pg);window.scrollTo({top:0,behavior:'smooth'})}}>{pg+1}</button>;
+            })}
+            <button className="pgb" disabled={page>=totalPages-1} onClick={()=>{setPage(p=>p+1);window.scrollTo({top:0,behavior:'smooth'})}}>›</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── MANGA DETAIL PAGE ─────────────────────────────────────────────────────────
+function MangaDetailPage({manga, onBack, onRead}) {
+  const [chapters, setChapters] = useState([]);
+  const [chLoading, setChLoading] = useState(true);
+  const [expanded, setExpanded] = useState(false);
+  const [page, setPage] = useState(0);
+  const CLIMIT = 100;
+
+  useEffect(()=>{
+    setChLoading(true);
+    mdx(`/manga/${manga.id}/feed`, {
+      'translatedLanguage[]': ['en'],
+      'order[chapter]': 'asc',
+      limit: CLIMIT,
+      offset: page * CLIMIT,
+      'includes[]': ['scanlation_group'],
+    }).then(d=>{
+      setChapters((d?.data||[]).map(ch=>({
+        id: ch.id,
+        chapter: ch.attributes?.chapter,
+        volume: ch.attributes?.volume,
+        title: ch.attributes?.title,
+        pages: ch.attributes?.pages,
+        publishAt: ch.attributes?.publishAt,
+        group: (ch.relationships||[]).find(r=>r.type==='scanlation_group')?.attributes?.name,
+      })));
+      setChLoading(false);
+    }).catch(()=>setChLoading(false));
+  }, [manga.id, page]);
+
+  const desc = manga.desc || '';
+  const shortDesc = desc.slice(0, 300);
+
+  return (
+    <div style={{minHeight:'100vh',background:'var(--bg)',paddingTop:'var(--nav)'}}>
+      {/* Banner */}
+      <div style={{position:'relative',height:'clamp(260px,40vw,420px)',overflow:'hidden',background:'var(--bg2)'}}>
+        {manga.cover && <img src={manga.cover.replace('.256.jpg','.512.jpg')} alt={manga.title}
+          style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:'center top',
+            filter:'brightness(.55) saturate(1.1)',position:'absolute',inset:0}}/>}
+        <div style={{position:'absolute',inset:0,background:'linear-gradient(to top,var(--bg) 0%,rgba(7,7,14,.6) 50%,transparent 100%)'}}/>
+        <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(7,7,14,.9) 0%,transparent 60%)'}}/>
+        {/* Cover thumbnail + info */}
+        <div style={{position:'absolute',bottom:0,left:0,padding:'0 clamp(.75rem,3.5vw,2.5rem) 1.5rem',
+          display:'flex',gap:16,alignItems:'flex-end',zIndex:2}}>
+          {manga.cover && <img src={manga.cover} alt=""
+            style={{width:90,height:130,borderRadius:8,objectFit:'cover',
+              border:'2px solid rgba(255,255,255,.15)',boxShadow:'0 8px 32px rgba(0,0,0,.6)',flexShrink:0}}/>}
+          <div style={{minWidth:0}}>
+            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--red)',fontWeight:700,
+              letterSpacing:'.12em',textTransform:'uppercase',marginBottom:4}}>MANGA</div>
+            <h1 style={{fontSize:'clamp(1.2rem,3.5vw,2rem)',fontWeight:900,color:'#fff',
+              letterSpacing:'-.03em',lineHeight:1.1,marginBottom:8,textShadow:'0 2px 16px rgba(0,0,0,.7)'}}>{manga.title}</h1>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap',fontFamily:'var(--mono)',fontSize:10,color:'rgba(255,255,255,.6)'}}>
+              {manga.author && <span>{manga.author}</span>}
+              {manga.status && <><span style={{opacity:.4}}>·</span><span style={{textTransform:'capitalize'}}>{manga.status}</span></>}
+              {manga.year && <><span style={{opacity:.4}}>·</span><span>{manga.year}</span></>}
+              {manga.lastChapter && <><span style={{opacity:.4}}>·</span><span>{manga.lastChapter} chapters</span></>}
+            </div>
+          </div>
+        </div>
+        <button className="wp-back" onClick={onBack}
+          style={{position:'absolute',top:'calc(var(--nav) + 8px)',left:'clamp(.75rem,3.5vw,2.5rem)',zIndex:10}}>
+          <BackIco/> Back
+        </button>
+      </div>
+
+      {/* Content */}
+      <div style={{padding:'1.2rem clamp(.75rem,3.5vw,2.5rem)',maxWidth:900,margin:'0 auto'}}>
+        {/* Genres */}
+        {(manga.genres.length>0||manga.themes.length>0) && (
+          <div style={{display:'flex',flexWrap:'wrap',gap:5,marginBottom:14}}>
+            {[...manga.genres,...manga.themes].slice(0,8).map(g=><span key={g} className="atag">{g}</span>)}
+          </div>
+        )}
+
+        {/* Description */}
+        {desc && (
+          <div style={{marginBottom:20}}>
+            <p style={{fontSize:13,lineHeight:1.8,color:'var(--txt2)'}}>
+              {expanded ? desc : shortDesc}{!expanded && desc.length>300 && '…'}
+            </p>
+            {desc.length>300 && (
+              <button onClick={()=>setExpanded(e=>!e)}
+                style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--red)',background:'none',
+                  border:'none',cursor:'pointer',padding:'4px 0',fontWeight:700}}>
+                {expanded ? '▲ Show less' : '▼ Read more'}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div style={{display:'flex',gap:9,flexWrap:'wrap',marginBottom:24}}>
+          {chapters.length>0 && (
+            <button className="btn-play" onClick={()=>onRead(manga, chapters[0])}>
+              <BookIco/> Start Reading
+            </button>
+          )}
+          {chapters.length>1 && (
+            <button className="btn-info" onClick={()=>onRead(manga, chapters[chapters.length-1])}>
+              Latest: Ch.{chapters[chapters.length-1].chapter}
+            </button>
+          )}
+        </div>
+
+        {/* Chapter List */}
+        <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:13,overflow:'hidden'}}>
+          <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',display:'flex',
+            alignItems:'center',justifyContent:'space-between'}}>
+            <span style={{fontFamily:'var(--mono)',fontSize:10,fontWeight:700,color:'var(--txt3)',
+              textTransform:'uppercase',letterSpacing:'.1em'}}>
+              Chapters ({chapters.length}{chLoading?' loading…':''})
+            </span>
+          </div>
+          {chLoading
+            ? <div style={{padding:'2rem',display:'flex',justifyContent:'center'}}>
+                <div className="spin-ring"/>
+              </div>
+            : chapters.length===0
+              ? <div style={{padding:'2rem',textAlign:'center',color:'var(--txt3)',fontFamily:'var(--mono)',fontSize:12}}>
+                  No English chapters found
+                </div>
+              : <div style={{maxHeight:'clamp(320px,50vh,520px)',overflowY:'auto'}}>
+                  {chapters.map(ch=>(
+                    <div key={ch.id}
+                      onClick={()=>onRead(manga, ch)}
+                      style={{display:'flex',alignItems:'center',gap:12,padding:'11px 16px',
+                        borderBottom:'1px solid var(--border)',cursor:'pointer',transition:'background .15s'}}
+                      onMouseOver={e=>e.currentTarget.style.background='rgba(255,255,255,.05)'}
+                      onMouseOut={e=>e.currentTarget.style.background='transparent'}>
+                      <div style={{fontFamily:'var(--mono)',fontSize:11,fontWeight:800,
+                        color:'var(--red)',minWidth:60,flexShrink:0}}>
+                        Ch.{ch.chapter||'?'}
+                      </div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:13,color:'var(--txt)',fontWeight:600,
+                          overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                          {ch.title || `Chapter ${ch.chapter}`}
+                        </div>
+                        {ch.group && <div style={{fontFamily:'var(--mono)',fontSize:10,
+                          color:'var(--txt3)',marginTop:2}}>{ch.group}</div>}
+                      </div>
+                      <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',flexShrink:0}}>
+                        {ch.pages ? `${ch.pages}p` : ''}
+                      </div>
+                      <span style={{color:'var(--txt3)',fontSize:16}}>›</span>
+                    </div>
+                  ))}
+                </div>
+          }
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── MANGA READER PAGE ─────────────────────────────────────────────────────────
+function MangaReaderPage({manga, chapter, chapters, onBack, onChapter}) {
+  const [pages,      setPages]    = useState([]);
+  const [loading,    setLoading]  = useState(true);
+  const [curPage,    setCurPage]  = useState(0);
+  const [showUI,     setShowUI]   = useState(true);
+  const [dataSaver,  setDataSaver] = useState(false);
+  const uiTimer = useRef(null);
+
+  useEffect(()=>{
+    setLoading(true); setPages([]); setCurPage(0);
+    mdx(`/at-home/server/${chapter.id}`).then(d=>{
+      if (!d?.chapter) { setLoading(false); return; }
+      const base = d.baseUrl;
+      const hash = d.chapter.hash;
+      const src  = dataSaver ? d.chapter.dataSaver : d.chapter.data;
+      const qual = dataSaver ? 'data-saver' : 'data';
+      setPages((src||[]).map(f=>`${base}/${qual}/${hash}/${f}`));
+      setLoading(false);
+    }).catch(()=>setLoading(false));
+  }, [chapter.id, dataSaver]);
+
+  useEffect(()=>{
+    clearTimeout(uiTimer.current);
+    uiTimer.current = setTimeout(()=>setShowUI(false), 4000);
+    return ()=>clearTimeout(uiTimer.current);
+  }, []);
+
+  const showUIBriefly = () => {
+    setShowUI(true);
+    clearTimeout(uiTimer.current);
+    uiTimer.current = setTimeout(()=>setShowUI(false), 3500);
+  };
+
+  const chIdx = chapters.findIndex(c=>c.id===chapter.id);
+  const prevCh = chIdx > 0 ? chapters[chIdx-1] : null;
+  const nextCh = chIdx < chapters.length-1 ? chapters[chIdx+1] : null;
+
+  // Keyboard navigation
+  useEffect(()=>{
+    const onKey = e => {
+      if (e.key==='ArrowDown'||e.key==='ArrowRight') {
+        setCurPage(p=>Math.min(p+1, pages.length-1)); showUIBriefly();
+      }
+      if (e.key==='ArrowUp'||e.key==='ArrowLeft') {
+        setCurPage(p=>Math.max(p-1,0)); showUIBriefly();
+      }
+      if (e.key==='Escape') onBack();
+    };
+    window.addEventListener('keydown', onKey);
+    return ()=>window.removeEventListener('keydown', onKey);
+  }, [pages.length]);
+
+  return (
+    <div style={{minHeight:'100vh',background:'#0a0a0a',userSelect:'none'}}
+      onClick={showUIBriefly}>
+
+      {/* Top bar */}
+      <div style={{position:'fixed',top:0,left:0,right:0,zIndex:100,
+        background:'rgba(0,0,0,.92)',backdropFilter:'blur(16px)',
+        padding:'10px clamp(.75rem,3vw,2rem)',
+        display:'flex',alignItems:'center',gap:12,
+        transition:'opacity .3s, transform .3s',
+        opacity:showUI?1:0,
+        transform:showUI?'translateY(0)':'translateY(-100%)',
+        pointerEvents:showUI?'all':'none'}}>
+        <button onClick={e=>{e.stopPropagation();onBack();}} className="wp-back" style={{flexShrink:0}}>
+          <BackIco/> Back
+        </button>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:12,fontWeight:700,color:'#fff',
+            overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{manga.title}</div>
+          <div style={{fontFamily:'var(--mono)',fontSize:10,color:'rgba(255,255,255,.5)'}}>
+            Ch.{chapter.chapter}{chapter.title?` — ${chapter.title}`:''}
+          </div>
+        </div>
+        <div style={{fontFamily:'var(--mono)',fontSize:11,color:'rgba(255,255,255,.5)',flexShrink:0}}>
+          {pages.length>0?`${curPage+1} / ${pages.length}`:''}
+        </div>
+        <button onClick={e=>{e.stopPropagation();setDataSaver(s=>!s);}}
+          style={{fontFamily:'var(--mono)',fontSize:10,padding:'4px 10px',borderRadius:6,
+            background:dataSaver?'rgba(225,29,72,.2)':'rgba(255,255,255,.07)',
+            border:`1px solid ${dataSaver?'rgba(225,29,72,.4)':'var(--border)'}`,
+            color:dataSaver?'#fb7185':'var(--txt3)',cursor:'pointer',flexShrink:0}}>
+          {dataSaver?'Data Saver ON':'Data Saver'}
+        </button>
+      </div>
+
+      {/* Pages — vertical scroll */}
+      <div style={{paddingTop:52}}>
+        {loading ? (
+          <div style={{display:'flex',flexDirection:'column',alignItems:'center',
+            justifyContent:'center',minHeight:'80vh',gap:14}}>
+            <div className="spin-ring"/>
+            <p style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--txt3)'}}>Loading chapter…</p>
+          </div>
+        ) : pages.length===0 ? (
+          <div style={{display:'flex',flexDirection:'column',alignItems:'center',
+            justifyContent:'center',minHeight:'80vh',gap:14,color:'var(--txt3)'}}>
+            <div style={{fontSize:'3rem',opacity:.3}}>📄</div>
+            <p style={{fontFamily:'var(--mono)',fontSize:12}}>No pages found</p>
+          </div>
+        ) : (
+          <div>
+            {pages.map((src,i)=>(
+              <div key={i} style={{textAlign:'center',lineHeight:0}}>
+                <img src={src} alt={`Page ${i+1}`}
+                  style={{maxWidth:'100%',width:'100%',maxWidth:800,margin:'0 auto',display:'block',
+                    background:'#111'}}
+                  loading={i<3?'eager':'lazy'}
+                  onLoad={()=>{ if(i===0) setLoading(false); }}
+                  onError={e=>{ e.target.style.display='none'; }}
+                  onClick={e=>{ e.stopPropagation(); showUIBriefly(); }}
+                />
+              </div>
+            ))}
+            {/* End of chapter navigation */}
+            <div style={{padding:'2.5rem 1rem',display:'flex',flexDirection:'column',
+              alignItems:'center',gap:14,background:'#0a0a0a'}}>
+              <div style={{fontFamily:'var(--mono)',fontSize:12,color:'rgba(255,255,255,.4)',
+                textAlign:'center'}}>
+                End of Chapter {chapter.chapter}
+              </div>
+              <div style={{display:'flex',gap:10}}>
+                {prevCh && <button className="btn-info"
+                  onClick={e=>{e.stopPropagation();onChapter(prevCh);}}>
+                  ← Ch.{prevCh.chapter}
+                </button>}
+                {nextCh && <button className="btn-play"
+                  onClick={e=>{e.stopPropagation();onChapter(nextCh);}}>
+                  Ch.{nextCh.chapter} →
+                </button>}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom nav */}
+      {pages.length>0 && (
+        <div style={{position:'fixed',bottom:0,left:0,right:0,zIndex:100,
+          background:'rgba(0,0,0,.92)',backdropFilter:'blur(16px)',
+          padding:'10px clamp(.75rem,3vw,2rem)',
+          display:'flex',alignItems:'center',gap:10,
+          transition:'opacity .3s, transform .3s',
+          opacity:showUI?1:0,
+          transform:showUI?'translateY(0)':'translateY(100%)',
+          pointerEvents:showUI?'all':'none'}}>
+          {prevCh && <button className="btn-info" style={{padding:'8px 14px',fontSize:12}}
+            onClick={e=>{e.stopPropagation();onChapter(prevCh);}}>← Prev Ch.</button>}
+          <div style={{flex:1,display:'flex',alignItems:'center',gap:8}}>
+            <button onClick={e=>{e.stopPropagation();setCurPage(p=>Math.max(0,p-1));}}
+              className="pgb" style={{flexShrink:0}}>‹</button>
+            <input type="range" min={0} max={pages.length-1} value={curPage}
+              onChange={e=>{ setCurPage(Number(e.target.value)); }}
+              onClick={e=>e.stopPropagation()}
+              style={{flex:1,accentColor:'var(--red)',cursor:'pointer'}}/>
+            <button onClick={e=>{e.stopPropagation();setCurPage(p=>Math.min(pages.length-1,p+1));}}
+              className="pgb" style={{flexShrink:0}}>›</button>
+          </div>
+          {nextCh && <button className="btn-play" style={{padding:'8px 14px',fontSize:12}}
+            onClick={e=>{e.stopPropagation();onChapter(nextCh);}}>Next Ch. →</button>}
+        </div>
+      )}
+    </div>
+  );
+}
+
 class ErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { hasError: false, error: null }; }
   static getDerivedStateFromError(error) { return { hasError: true, error }; }
@@ -2319,6 +2938,10 @@ function App() {
   const [srItems,   setSrItems]  = useState([]);
   const [srLoading, setSrLoading]= useState(false);
   const [navPage,   setNavPage]  = useState('home');
+  const [selectedManga,   setSelectedManga]   = useState(null);
+  const [selectedChapter, setSelectedChapter] = useState(null);
+  const [mangaChapters,   setMangaChapters]   = useState([]);
+  const [mangaView,       setMangaView]       = useState('browse'); // 'browse'|'detail'|'reader'
 
   // Prefetch hero
   useEffect(() => {
@@ -2381,7 +3004,9 @@ function App() {
 
   function goNav(p) {
     setNavPage(p);
-    if (p==='home') { goHome(); return; }
+    if (p==='home')  { goHome(); return; }
+    if (p==='manga') { setView('manga'); setMangaView('browse'); setWatching(null);
+                       writePath('manga',{}); window.scrollTo({top:0,behavior:'smooth'}); return; }
     setView(p); setWatching(null);
   }
 
@@ -2432,11 +3057,41 @@ function App() {
           ) : view==='schedule' ? (
             <SchedulePage onPlay={openWatch}/>
           ) : view==='history' ? (
-            <HistoryPage cwList={cwList} setCwList={setCwList} onPlay={a=>openWatch(a,'watch')}/>
+            <HistoryPage cwList={cwList} setCwList={setCwList} onPlay={item=>{
+                gql(Qs.detail,{id:parseInt(item.id)}).then(d=>{
+                  const a=d.data?.Media;
+                  if(a) openWatch(mapA(a),'watch');
+                }).catch(()=>{});
+              }}/>
+          ) : view==='manga' && mangaView==='reader' && selectedManga && selectedChapter ? (
+            <MangaReaderPage
+              manga={selectedManga} chapter={selectedChapter} chapters={mangaChapters}
+              onBack={()=>{ setMangaView('detail'); writePath('manga',{id:selectedManga.id,slug:makeSlug(selectedManga.title)}); }}
+              onChapter={ch=>{ setSelectedChapter(ch); writePath('manga',{id:selectedManga.id,slug:makeSlug(selectedManga.title),chapterId:ch.id}); }}/>
+          ) : view==='manga' && mangaView==='detail' && selectedManga ? (
+            <MangaDetailPage
+              manga={selectedManga}
+              onBack={()=>{ setMangaView('browse'); writePath('manga',{}); }}
+              onRead={(m,ch)=>{
+                setSelectedChapter(ch);
+                setMangaView('reader');
+                writePath('manga',{id:m.id,slug:makeSlug(m.title),chapterId:ch.id});
+              }}/>
+          ) : view==='manga' ? (
+            <MangaBrowsePage onOpen={m=>{
+              setSelectedManga(m); setMangaView('detail');
+              writePath('manga',{id:m.id,slug:makeSlug(m.title)});
+              window.scrollTo({top:0,behavior:'smooth'});
+            }}/>
           ) : (
             <>
               {hero.length>0 && <Hero items={hero} onPlay={openWatch}/>}
-              <ContinueWatching onPlay={a=>openWatch(a,'watch')} cwList={cwList} setCwList={setCwList}/>
+              <ContinueWatching onPlay={item=>{
+                gql(Qs.detail,{id:parseInt(item.id)}).then(d=>{
+                  const a=d.data?.Media;
+                  if(a) openWatch(mapA(a),'watch');
+                }).catch(()=>{});
+              }} cwList={cwList} setCwList={setCwList}/>
               <RecentlyAired onPlay={openWatch}/>
 
               {/* Tab nav */}
