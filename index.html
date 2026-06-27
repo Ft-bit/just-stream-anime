@@ -2320,8 +2320,10 @@ function ContactPage({onBack}) {
 async function mdx(path, params = {}) {
   const parts = [];
   for (const [k, v] of Object.entries(params)) {
-    if (Array.isArray(v)) v.forEach(i => parts.push(`${encodeURIComponent(k)}[]=${encodeURIComponent(i)}`));
-    else parts.push(`${encodeURIComponent(k)}=${encodeURIComponent(v)}`);
+    // Do NOT encode keys — MangaDex uses bracket notation: includes[], order[rating]
+    // Only encode values to preserve special characters in search queries
+    if (Array.isArray(v)) v.forEach(i => parts.push(`${k}=${encodeURIComponent(i)}`));
+    else parts.push(`${k}=${encodeURIComponent(v)}`);
   }
   const url = `https://api.mangadex.org${path}${parts.length ? '?' + parts.join('&') : ''}`;
   try {
