@@ -3,9 +3,13 @@
 <head>
   <script>
     // Auto-cleanup: remove any stale service worker / cache from old deployments
+    // Modified to avoid unregistering OneSignal service worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(regs => {
-        regs.forEach(reg => reg.unregister());
+        regs.forEach(reg => {
+          if (reg.active && reg.active.scriptURL.includes('OneSignalSDKWorker')) return;
+          reg.unregister();
+        });
       }).catch(()=>{});
     }
     if ('caches' in window) {
@@ -13,6 +17,22 @@
         names.forEach(name => caches.delete(name));
       }).catch(()=>{});
     }
+  </script>
+
+  <!-- OneSignal Web SDK -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(function(OneSignal) {
+      OneSignal.init({
+        appId: "cf27eca5-8641-4cdf-8c37-83e7023ee43f",
+        safari_web_id: "web.onesignal.auto.19453265-885b-4357-9e48-73599907994e",
+        notifyButton: {
+          enable: true,
+        },
+        allowLocalhostAsSecureOrigin: true,
+      });
+    });
   </script>
 
   <meta charset="UTF-8"/>
