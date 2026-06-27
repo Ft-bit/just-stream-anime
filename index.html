@@ -3,13 +3,9 @@
 <head>
   <script>
     // Auto-cleanup: remove any stale service worker / cache from old deployments
-    // Modified to avoid unregistering OneSignal service worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(regs => {
-        regs.forEach(reg => {
-          if (reg.active && reg.active.scriptURL.includes('OneSignalSDKWorker')) return;
-          reg.unregister();
-        });
+        regs.forEach(reg => reg.unregister());
       }).catch(()=>{});
     }
     if ('caches' in window) {
@@ -17,22 +13,6 @@
         names.forEach(name => caches.delete(name));
       }).catch(()=>{});
     }
-  </script>
-
-  <!-- OneSignal Web SDK -->
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-  <script>
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    OneSignalDeferred.push(function(OneSignal) {
-      OneSignal.init({
-        appId: "cf27eca5-8641-4cdf-8c37-83e7023ee43f",
-        safari_web_id: "web.onesignal.auto.19453265-885b-4357-9e48-73599907994e",
-        notifyButton: {
-          enable: true,
-        },
-        allowLocalhostAsSecureOrigin: true,
-      });
-    });
   </script>
 
   <meta charset="UTF-8"/>
@@ -2338,16 +2318,16 @@ function ContactPage({onBack}) {
 
 // ── MANGADEX HELPERS ─────────────────────────────────────────────────────────
 async function mdx(path, params = {}) {
-  const parts = [];
+  // Route through /api/manga proxy to avoid CORS issues with MangaDex
+  const parts = [`path=${encodeURIComponent(path)}`];
   for (const [k, v] of Object.entries(params)) {
-    // Do NOT encode keys — MangaDex uses bracket notation: includes[], order[rating]
-    // Only encode values to preserve special characters in search queries
+    // Don't encode keys — MangaDex uses bracket notation: includes[], order[rating]
     if (Array.isArray(v)) v.forEach(i => parts.push(`${k}=${encodeURIComponent(i)}`));
     else parts.push(`${k}=${encodeURIComponent(v)}`);
   }
-  const url = `https://api.mangadex.org${path}${parts.length ? '?' + parts.join('&') : ''}`;
+  const url = `/api/manga?${parts.join('&')}`;
   try {
-    const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    const r = await fetch(url);
     if (!r.ok) return null;
     return r.json();
   } catch { return null; }
