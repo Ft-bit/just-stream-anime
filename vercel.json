@@ -1,22 +1,67 @@
 {
   "functions": {
-    "api/proxy.js":      { "maxDuration": 30 },
-    "api/sitemap.js":    { "maxDuration": 30 },
-    "api/share.js":      { "maxDuration": 15 },
-    "api/feed.js":       { "maxDuration": 15 },
-    "api/anime-page.js": { "maxDuration": 15 },
-    "api/indexnow.js":   { "maxDuration": 30 }
+    "api/proxy.js": {
+      "maxDuration": 30
+    },
+    "api/sitemap.js": {
+      "maxDuration": 30
+    },
+    "api/share.js": {
+      "maxDuration": 15
+    },
+    "api/feed.js": {
+      "maxDuration": 15
+    },
+    "api/anime-page.js": {
+      "maxDuration": 15
+    },
+    "api/indexnow.js": {
+      "maxDuration": 30
+    },
+    "api/manga.js": {
+      "maxDuration": 15
+    }
   },
   "rewrites": [
-    { "source": "/sitemap.xml",           "destination": "/api/sitemap" },
-    { "source": "/sitemap-anime.xml",     "destination": "/api/sitemap?type=anime" },
-    { "source": "/sitemap-index.xml",     "destination": "/api/sitemap?type=index" },
-    { "source": "/share",                 "destination": "/api/share" },
-    { "source": "/feed",                  "destination": "/api/feed" },
-    { "source": "/indexnow",             "destination": "/api/indexnow" },
-    { "source": "/959052f29efd46f2b6c6ca540fd7c0ee.txt", "destination": "/959052f29efd46f2b6c6ca540fd7c0ee.txt" },
-    { "source": "/anime/([^/]+)/([^/]+)", "destination": "/api/anime-page?id=$1&slug=$2" },
-    { "source": "/anime/([^/]+)",         "destination": "/api/anime-page?id=$1" },
-    { "source": "/(.*)",                  "destination": "/index.html" }
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/sitemap-anime.xml",
+      "destination": "/api/sitemap?type=anime"
+    },
+    {
+      "source": "/sitemap-index.xml",
+      "destination": "/api/sitemap?type=index"
+    },
+    {
+      "source": "/share",
+      "destination": "/api/share"
+    },
+    {
+      "source": "/feed",
+      "destination": "/api/feed"
+    },
+    {
+      "source": "/indexnow",
+      "destination": "/api/indexnow"
+    },
+    {
+      "source": "/959052f29efd46f2b6c6ca540fd7c0ee.txt",
+      "destination": "/959052f29efd46f2b6c6ca540fd7c0ee.txt"
+    },
+    {
+      "source": "/anime/([^/]+)/([^/]+)",
+      "destination": "/api/anime-page?id=$1&slug=$2"
+    },
+    {
+      "source": "/anime/([^/]+)",
+      "destination": "/api/anime-page?id=$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
