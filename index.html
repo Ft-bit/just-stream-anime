@@ -14,15 +14,6 @@
       }).catch(()=>{});
     }
   </script>
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "cf27eca5-8641-4cdf-8c37-83e7023ee43f",
-    });
-  });
-</script>
 
   <meta charset="UTF-8"/>
   <!-- already has preconnect -->
@@ -654,6 +645,16 @@
     gtag('js', new Date());
     gtag('config', 'G-Y32PHX299V');
   </script>
+  <!-- OneSignal Push Notifications -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "cf27eca5-8641-4cdf-8c37-83e7023ee43f",
+      });
+    });
+  </script>
 </head>
 <body>
 <div id="root"></div>
@@ -816,12 +817,12 @@ function Hero({items, onPlay}) {
   const [prog,setProg]   = useState(0);
   const [extraDesc, setExtraDesc] = useState('');
   const pv = useRef(null), pr = useRef(0), tx = useRef(null), ty = useRef(null), fi = useRef(true);
-  const CAP = Math.min(items.length, 8);
+  const CAP = Math.min(items.length, 10);
 
   // Preload all carousel images upfront so switching slides is instant
   // instead of showing a dark frame while each new image fetches.
   useEffect(() => {
-    items.slice(0, 8).forEach(it => {
+    items.slice(0, 10).forEach(it => {
       if (it.banner) { const im = new Image(); im.src = it.banner; }
       if (it.image)  { const im2 = new Image(); im2.src = it.image; }
     });
@@ -836,8 +837,8 @@ function Hero({items, onPlay}) {
     descCache.current[key] = synopsis;
     try { localStorage.setItem(DESC_STORE, JSON.stringify(descCache.current)); } catch {}
   };
-  const prev = useCallback(() => { const h = Math.min(items.length,8); setIdx(i=>(i-1+h)%h); }, [items.length]);
-  const next = useCallback(() => { const h = Math.min(items.length,8); setIdx(i=>(i+1)%h); }, [items.length]);
+  const prev = useCallback(() => { const h = Math.min(items.length,10); setIdx(i=>(i-1+h)%h); }, [items.length]);
+  const next = useCallback(() => { const h = Math.min(items.length,10); setIdx(i=>(i+1)%h); }, [items.length]);
   const go   = useCallback(i => setIdx(i), []);
   const start = () => {
     clearInterval(pv.current); pr.current = 0; setProg(0);
@@ -858,7 +859,7 @@ function Hero({items, onPlay}) {
 
   useEffect(() => {
     if (!items.length) return;
-    const cap = Math.min(items.length, 8);
+    const cap = Math.min(items.length, 10);
     const stubs = items.slice(0, cap).filter(a => a.descIsStub && a.malId);
     if (!stubs.length) return;
     let cancelled = false;
@@ -2353,7 +2354,9 @@ function mapManga(m) {
   const a = m.attributes;
   const title = a.title?.en || Object.values(a.title||{})[0] || 'Unknown';
   const desc  = (a.description?.en || Object.values(a.description||{})[0] || '')
-    .replace(/<[^>]+>/g,'').trim();
+    .replace(/<[^>]+>/g,'').trim()
+    .replace(/^(read (at|on) mangadex[^.\n]*[.\n]\s*)/gi,'')
+    .replace(/^(this (title|manga|series) (has been|is) licens[^.\n]*[.\n]\s*)/gi,'').trim();
   const author = (m.relationships||[]).find(r=>r.type==='author')?.attributes?.name || '';
   return {
     id: m.id, title, desc: desc.slice(0,500), author,
@@ -2385,7 +2388,7 @@ function MangaCard({m, onOpen}) {
     <div className="acard" onClick={()=>onOpen(m)} style={{touchAction:'manipulation'}}>
       <div className="acard-top">
         {m.cover
-          ? <img className="acard-img" src={m.cover} alt={m.title} loading="lazy"
+          ? <img className="acard-img" src={m.cover} alt={m.title} loading="lazy" decoding="async"
               onError={e=>{e.target.style.display='none'}}/>
           : <div style={{position:'absolute',inset:0,background:'var(--bg3)',display:'flex',alignItems:'center',justifyContent:'center',opacity:.3}}><BookIco/></div>
         }
@@ -2588,7 +2591,7 @@ function MangaBrowsePage({onOpen}) {
 }
 
 // ── MANGA DETAIL PAGE ─────────────────────────────────────────────────────────
-function MangaDetailPage({manga, onBack, onRead}) {
+function MangaDetailPage({manga, onBack, onRead, onChaptersLoaded}) {
   const [chapters, setChapters] = useState([]);
   const [chLoading, setChLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -2604,7 +2607,7 @@ function MangaDetailPage({manga, onBack, onRead}) {
       offset: page * CLIMIT,
       'includes[]': ['scanlation_group'],
     }).then(d=>{
-      setChapters((d?.data||[]).map(ch=>({
+      const chs = (d?.data||[]).map(ch=>({
         id: ch.id,
         chapter: ch.attributes?.chapter,
         volume: ch.attributes?.volume,
@@ -2612,7 +2615,9 @@ function MangaDetailPage({manga, onBack, onRead}) {
         pages: ch.attributes?.pages,
         publishAt: ch.attributes?.publishAt,
         group: (ch.relationships||[]).find(r=>r.type==='scanlation_group')?.attributes?.name,
-      })));
+      }));
+      setChapters(chs);
+      if (onChaptersLoaded) onChaptersLoaded(chs);
       setChLoading(false);
     }).catch(()=>setChLoading(false));
   }, [manga.id, page]);
@@ -2752,6 +2757,24 @@ function MangaReaderPage({manga, chapter, chapters, onBack, onChapter}) {
   const [showUI,     setShowUI]   = useState(true);
   const [dataSaver,  setDataSaver] = useState(false);
   const uiTimer = useRef(null);
+
+  // Hide sidebar + mobile nav for immersive full-screen reading
+  useEffect(()=>{
+    const sidebar  = document.querySelector('.sidebar');
+    const mobileNav= document.querySelector('.mob-nav');
+    const origPL   = document.body.style.paddingLeft;
+    const origPB   = document.body.style.paddingBottom;
+    document.body.style.paddingLeft   = '0';
+    document.body.style.paddingBottom = '0';
+    if (sidebar)   sidebar.style.display   = 'none';
+    if (mobileNav) mobileNav.style.display = 'none';
+    return () => {
+      document.body.style.paddingLeft   = origPL;
+      document.body.style.paddingBottom = origPB;
+      if (sidebar)   sidebar.style.display   = '';
+      if (mobileNav) mobileNav.style.display = '';
+    };
+  }, []);
 
   useEffect(()=>{
     setLoading(true); setPages([]); setCurPage(0);
@@ -2956,9 +2979,21 @@ function App() {
 
   // Prefetch hero
   useEffect(() => {
-    gql(Qs.trending, {p:1}).then(d => {
-      const list = (d.data?.Page?.media||[]).map(mapA).filter(a=>a.banner||a.image);
-      if (list.length) setHero(list.slice(0,5));
+    Promise.all([
+      gql(Qs.trending,  {p:1}),
+      gql(Qs.popular,   {p:1}),
+    ]).then(([trendD, popD]) => {
+      const seen = new Set();
+      const trending = (trendD?.data?.Page?.media||[]).map(mapA).filter(a=>(a.banner||a.image)&&!seen.has(a.id)&&seen.add(a.id));
+      const popular  = (popD?.data?.Page?.media||[]).map(mapA).filter(a=>(a.banner||a.image)&&!seen.has(a.id)&&seen.add(a.id));
+      // Interleave: trending, popular, trending, popular... for variety
+      const mixed = [];
+      const max = Math.max(trending.length, popular.length);
+      for (let i = 0; i < max && mixed.length < 10; i++) {
+        if (trending[i]) mixed.push(trending[i]);
+        if (popular[i] && mixed.length < 10) mixed.push(popular[i]);
+      }
+      if (mixed.length) setHero(mixed.slice(0, 10));
     }).catch(()=>{});
   }, []);
 
@@ -3082,6 +3117,7 @@ function App() {
           ) : view==='manga' && mangaView==='detail' && selectedManga ? (
             <MangaDetailPage
               manga={selectedManga}
+              onChaptersLoaded={setMangaChapters}
               onBack={()=>{ setMangaView('browse'); writePath('manga',{}); }}
               onRead={(m,ch)=>{
                 setSelectedChapter(ch);
