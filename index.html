@@ -654,7 +654,6 @@
     gtag('js', new Date());
     gtag('config', 'G-Y32PHX299V');
   </script>
-  <!-- OneSignal Push Notifications -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -2362,10 +2361,22 @@ function mapManga(m) {
   if (!m?.attributes) return null;
   const a = m.attributes;
   const title = a.title?.en || Object.values(a.title||{})[0] || 'Unknown';
-  const desc  = (a.description?.en || Object.values(a.description||{})[0] || '')
-    .replace(/<[^>]+>/g,'').trim()
-    .replace(/^(read (at|on) mangadex[^.\n]*[.\n]\s*)/gi,'')
-    .replace(/^(this (title|manga|series) (has been|is) licens[^.\n]*[.\n]\s*)/gi,'').trim();
+  const rawText = (a.description?.en || Object.values(a.description||{})[0] || '')
+    .replace(/<[^>]+>/g, '').trim();
+  // Remove lines containing MangaDex attribution, source notes, or ---
+  const desc = rawText
+    .split('\n')
+    .filter(ln => {
+      const t = ln.trim().toLowerCase();
+      return t !== '---' &&
+             !t.startsWith('read at') &&
+             !t.startsWith('read on') &&
+             !t.includes('mangadex.org') &&
+             !t.startsWith('source:') &&
+             !t.startsWith('(source') &&
+             !t.startsWith('note:');
+    })
+    .join('\n').trim().slice(0, 500);
   const author = (m.relationships||[]).find(r=>r.type==='author')?.attributes?.name || '';
   return {
     id: m.id, title, desc: desc.slice(0,500), author,
@@ -2397,7 +2408,7 @@ function MangaCard({m, onOpen}) {
     <div className="acard" onClick={()=>onOpen(m)} style={{touchAction:'manipulation'}}>
       <div className="acard-top">
         {m.cover
-          ? <img className="acard-img" src={m.cover} alt={m.title} loading="lazy" decoding="async"
+          ? <img className="acard-img" src={m.cover} alt={m.title} loading="lazy" decoding="async" referrerPolicy="no-referrer"
               onError={e=>{e.target.style.display='none'}}/>
           : <div style={{position:'absolute',inset:0,background:'var(--bg3)',display:'flex',alignItems:'center',justifyContent:'center',opacity:.3}}><BookIco/></div>
         }
@@ -2638,7 +2649,7 @@ function MangaDetailPage({manga, onBack, onRead, onChaptersLoaded}) {
     <div style={{minHeight:'100vh',background:'var(--bg)',paddingTop:'var(--nav)'}}>
       {/* Banner */}
       <div style={{position:'relative',height:'clamp(260px,40vw,420px)',overflow:'hidden',background:'var(--bg2)'}}>
-        {manga.cover && <img src={manga.cover.replace('.256.jpg','.512.jpg')} alt={manga.title}
+        {manga.cover && <img src={manga.cover.replace('.256.jpg','.512.jpg')} alt={manga.title} referrerPolicy='no-referrer'
           style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:'center top',
             filter:'brightness(.55) saturate(1.1)',position:'absolute',inset:0}}/>}
         <div style={{position:'absolute',inset:0,background:'linear-gradient(to top,var(--bg) 0%,rgba(7,7,14,.6) 50%,transparent 100%)'}}/>
@@ -2646,7 +2657,7 @@ function MangaDetailPage({manga, onBack, onRead, onChaptersLoaded}) {
         {/* Cover thumbnail + info */}
         <div style={{position:'absolute',bottom:0,left:0,padding:'0 clamp(.75rem,3.5vw,2.5rem) 1.5rem',
           display:'flex',gap:16,alignItems:'flex-end',zIndex:2}}>
-          {manga.cover && <img src={manga.cover} alt=""
+          {manga.cover && <img src={manga.cover} alt="" referrerPolicy="no-referrer"
             style={{width:90,height:130,borderRadius:8,objectFit:'cover',
               border:'2px solid rgba(255,255,255,.15)',boxShadow:'0 8px 32px rgba(0,0,0,.6)',flexShrink:0}}/>}
           <div style={{minWidth:0}}>
@@ -2882,7 +2893,7 @@ function MangaReaderPage({manga, chapter, chapters, onBack, onChapter}) {
           <div>
             {pages.map((src,i)=>(
               <div key={i} style={{textAlign:'center',lineHeight:0}}>
-                <img src={src} alt={`Page ${i+1}`}
+                <img src={src} alt={`Page ${i+1}`} referrerPolicy="no-referrer"
                   style={{maxWidth:'100%',width:'100%',maxWidth:800,margin:'0 auto',display:'block',
                     background:'#111'}}
                   loading={i<3?'eager':'lazy'}
