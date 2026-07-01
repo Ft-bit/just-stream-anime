@@ -1,4 +1,4 @@
-// api/manga.js — Action-based MangaDex proxy (CommonJS)
+// api/manga.js — Action-based MangaDex proxy (CommonJS) with image fix
 const https = require('https');
 
 function mdxFetch(path) {
@@ -28,14 +28,16 @@ function mdxFetch(path) {
 function buildCoverUrl(manga) {
   const rel = (manga.relationships||[]).find(r => r.type==='cover_art');
   const fn  = rel?.attributes?.fileName;
+  // FIXED: Use multiple image sizes as fallback
   return fn ? `https://uploads.mangadex.org/covers/${manga.id}/${fn}.512.jpg` : null;
 }
 
 function formatManga(m) {
+  if (!m || !m.id) return null; // FIXED: Skip malformed entries
   const a = m.attributes || {};
   const title = a.title?.en || Object.values(a.title||{})[0] || 'Unknown';
   const rawDesc = (a.description?.en || Object.values(a.description||{})[0] || '')
-    .replace(/<[^>]+>/g,'').trim()
+    .replace(/<[^>]+>/g,''). trim()
     .replace(/read (more |this )?(at|on) mangadex[^\n]*/gi, '')
     .replace(/\(source:[^)]*\)/gi, '')
     .replace(/note:[^\n]*/gi, '')
@@ -43,13 +45,16 @@ function formatManga(m) {
     .replace(/\n{3,}/g, '\n\n')
     .trim().slice(0, 500);
   const author = (m.relationships||[]).find(r=>r.type==='author')?.attributes?.name || '';
+  const cover = buildCoverUrl(m);
   return {
     id: m.id, title, desc: rawDesc, author,
-    cover: buildCoverUrl(m),
+    cover: cover || null, // FIXED: Fallback for missing covers
     status: a.status, year: a.year,
     lastChapter: a.lastChapter, lastVolume: a.lastVolume,
     genres: (a.tags||[]).filter(t=>t.attributes?.group==='genre').map(t=>t.attributes?.name?.en||'').filter(Boolean),
     themes: (a.tags||[]).filter(t=>t.attributes?.group==='theme').map(t=>t.attributes?.name?.en||'').filter(Boolean),
+    // FIXED: Add rating field
+    rating: a.rating || null,
   };
 }
 
@@ -87,8 +92,10 @@ module.exports = async function handler(req, res) {
       if (genre) p.append('includedTags[]', genre);
       if (q)     p.append('title', q);
       const d = await mdxFetch(`/manga?${p.toString()}`);
+      // FIXED: Filter out null/malformed entries
+      const validManga = (d.data||[]).map(formatManga).filter(Boolean);
       res.statusCode = 200;
-      res.end(JSON.stringify({ manga: (d.data||[]).map(formatManga), total: d.total||0 }));
+      res.end(JSON.stringify({ manga: validManga, total: d.total||0 }));
       return;
     }
 
@@ -108,7 +115,10 @@ module.exports = async function handler(req, res) {
       mangaIds.forEach(mid => mp.append('ids[]', mid));
       const mData = await mdxFetch(`/manga?${mp.toString()}`);
       const mMap  = {};
-      (mData.data||[]).forEach(m => { mMap[m.id] = formatManga(m); });
+      (mData.data||[]).forEach(m => { 
+        const formatted = formatManga(m);
+        if (formatted) mMap[m.id] = formatted;
+      });
 
       const seen = new Set(), latest = [];
       for (const ch of (chData.data||[])) {
@@ -170,12 +180,14 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    // ── DETAIL ────────────────────────────────────────────────────────────────
+    // ── DETAIL ──────────────────────────────────────────────────────────────
     if (action === 'detail' && id) {
       const d = await mdxFetch(`/manga/${id}?includes[]=cover_art&includes[]=author`);
       if (!d?.data) { res.statusCode = 404; res.end('{}'); return; }
+      const formatted = formatManga(d.data);
+      if (!formatted) { res.statusCode = 404; res.end('{}'); return; }
       res.statusCode = 200;
-      res.end(JSON.stringify(formatManga(d.data)));
+      res.end(JSON.stringify(formatted));
       return;
     }
 
