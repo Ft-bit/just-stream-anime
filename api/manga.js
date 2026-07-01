@@ -36,12 +36,12 @@ function formatManga(m) {
   const title = a.title?.en || Object.values(a.title||{})[0] || 'Unknown';
   const rawDesc = (a.description?.en || Object.values(a.description||{})[0] || '')
     .replace(/<[^>]+>/g,'').trim()
-    .split('\n').filter(ln => {
-      const t = ln.trim().toLowerCase();
-      return t && t !== '---' && !t.startsWith('read at') && !t.startsWith('read on')
-        && !t.includes('mangadex.org') && !t.startsWith('source:')
-        && !t.startsWith('(source') && !t.startsWith('note:');
-    }).join('\n').trim().slice(0, 500);
+    .replace(/read (more |this )?(at|on) mangadex[^\n]*/gi, '')
+    .replace(/\(source:[^)]*\)/gi, '')
+    .replace(/note:[^\n]*/gi, '')
+    .replace(/^[-—\s]+$/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim().slice(0, 500);
   const author = (m.relationships||[]).find(r=>r.type==='author')?.attributes?.name || '';
   return {
     id: m.id, title, desc: rawDesc, author,
