@@ -2359,7 +2359,6 @@ function getCoverUrl(id, rels, size = 256) {
   return `/api/proxy?url=${encodeURIComponent(raw)}&referer=${encodeURIComponent('https://mangadex.org/')}`;
 }
 
-
 function mapManga(m) {
   if (!m?.attributes) return null;
   const a = m.attributes;
