@@ -2472,38 +2472,22 @@ function MangaBrowsePage({onOpen}) {
 
   useEffect(() => {
     setLatLoad(true);
-    const params = {
-      limit: 12, offset: 0,
-      'order[updatedAt]': 'desc',
-      'includes[]': ['cover_art','author'],
-      'contentRating[]': ['safe','suggestive'],
-      'availableTranslatedLanguage[]': ['en'],
-    };
     mgApi('list', { sort: 'updatedAt', page: '1' }).then(d => {
-      setLatest((d?.manga||[]).filter(Boolean).slice(0,16));
+      setLatest((d?.manga||[]).filter(Boolean).slice(0, 16));
       setLatLoad(false);
-    }).catch(()=>setLatLoad(false));
+    }).catch(() => setLatLoad(false));
   }, []);
 
   useEffect(() => {
     setLoading(true); setItems([]);
-    const params = {
-      limit: LIMIT, offset: page * LIMIT,
-      [`order[${sort}]`]: 'desc',
-      'includes[]': ['cover_art','author'],
-      'contentRating[]': ['safe','suggestive'],
-      'availableTranslatedLanguage[]': ['en'],
-    };
-    if (query.trim()) params.title = query.trim();
-    if (genre !== 'All' && GENRE_TAG_IDS[genre]) params['includedTags[]'] = [GENRE_TAG_IDS[genre]];
-    const browseParams = { sort, page: String(page) }; // page is 1-indexed
-    if (query.trim()) browseParams.q = query.trim();
-    if (genre !== 'All' && GENRE_TAG_IDS[genre]) browseParams.genre = GENRE_TAG_IDS[genre];
-    mgApi('list', browseParams).then(d => {
+    const p = { sort, page: String(page) };
+    if (query.trim()) p.q = query.trim();
+    if (genre !== 'All' && GENRE_TAG_IDS[genre]) p.genre = GENRE_TAG_IDS[genre];
+    mgApi('list', p).then(d => {
       setItems((d?.manga||[]).filter(Boolean));
       setTotal(d?.total || 0);
       setLoading(false);
-    }).catch(()=>setLoading(false));
+    }).catch(() => setLoading(false));
   }, [sort, genre, query, page]);
 
   const totalPages = Math.ceil(total / LIMIT);
