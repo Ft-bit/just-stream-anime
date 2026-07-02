@@ -34,12 +34,19 @@ function buildCoverUrl(manga) {
 function formatManga(m) {
   const a = m.attributes || {};
   const title = a.title?.en || Object.values(a.title||{})[0] || 'Unknown';
+  // Aggressively strip ALL MangaDex spam from descriptions
   const rawDesc = (a.description?.en || Object.values(a.description||{})[0] || '')
-    .replace(/<[^>]+>/g,'').trim()
-    .replace(/read (more |this )?(at|on) mangadex[^\n]*/gi, '')
+    .replace(/<[^>]+>/g, '')           // strip HTML tags
+    .replace(/https?:\/\/\S+/g, '')  // strip all URLs
+    .replace(/read (more|this|it|now)?\s*(at|on|here)?\s*mangadex[^\n]*/gi, '')
+    .replace(/visit mangadex[^\n]*/gi, '')
+    .replace(/available (on|at) mangadex[^\n]*/gi, '')
+    .replace(/you can read this[^\n]*/gi, '')
+    .replace(/continue reading[^\n]*/gi, '')
     .replace(/\(source:[^)]*\)/gi, '')
-    .replace(/note:[^\n]*/gi, '')
-    .replace(/^[-—\s]+$/gm, '')
+    .replace(/source:\s*[^\n]*/gi, '')
+    .replace(/note:\s*[^\n]*/gi, '')
+    .replace(/^[-—–*=\s]+$/gm, '')    // lines that are only separators
     .replace(/\n{3,}/g, '\n\n')
     .trim().slice(0, 500);
   const author = (m.relationships||[]).find(r=>r.type==='author')?.attributes?.name || '';
