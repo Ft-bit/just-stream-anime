@@ -14,11 +14,6 @@
       }).catch(()=>{});
     }
   </script>
-  <script src="https://5gvci.com/act/files/tag.min.js?z=11221938" data-cfasync="false" async></script>
-
-  <script>(function(s){s.dataset.zone='11221939',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-
-
 
   <meta charset="UTF-8"/>
   <!-- already has preconnect -->
@@ -2355,8 +2350,7 @@ async function mdx(path) {
 function getCoverUrl(id, rels, size = 256) {
   const c = (rels||[]).find(r => r.type === 'cover_art');
   if (!c?.attributes?.fileName) return null;
-  const raw = `https://uploads.mangadex.org/covers/${id}/${c.attributes.fileName}.${size}.jpg`;
-  return `/api/proxy?url=${encodeURIComponent(raw)}&referer=${encodeURIComponent('https://mangadex.org/')}`;
+  return `https://uploads.mangadex.org/covers/${id}/${c.attributes.fileName}.${size}.jpg`;
 }
 
 function mapManga(m) {
@@ -2485,8 +2479,8 @@ function MangaBrowsePage({onOpen}) {
       'contentRating[]': ['safe','suggestive'],
       'availableTranslatedLanguage[]': ['en'],
     };
-    mgApi('latest').then(d => {
-      setLatest((d?.manga||[]).filter(Boolean));
+    mgApi('list', { sort: 'updatedAt', page: '1' }).then(d => {
+      setLatest((d?.manga||[]).filter(Boolean).slice(0,16));
       setLatLoad(false);
     }).catch(()=>setLatLoad(false));
   }, []);
