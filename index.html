@@ -14,8 +14,6 @@
       }).catch(()=>{});
     }
   </script>
-  <script src="https://5gvci.com/act/files/tag.min.js?z=11221938" data-cfasync="false" async></script>
-  <script>(function(s){s.dataset.zone='11221939',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 
   <meta charset="UTF-8"/>
   <!-- already has preconnect -->
@@ -787,7 +785,8 @@ function AnimeCard({a, onPlay}) {
   return (
     <div className="acard" onClick={()=>onPlay(a)} style={{touchAction:'manipulation'}}>
       <div className="acard-top">
-<img className="acard-img" src={a.image} alt={a.title} loading="lazy" onError={e=>{e.target.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 450%22%3E%3Crect fill=%22%231a1a2e%22 width=%22300%22 height=%22450%22/%3E%3C/svg%3E'; e.target.style.display='block'}}/>        <div className="acard-grad"/>
+        <img className="acard-img" src={a.image} alt={a.title} loading="lazy" onError={e=>{e.target.style.display='none'}}/>
+        <div className="acard-grad"/>
         {a.rating && <div className="acard-score">★ {a.rating}%</div>}
         {a.season && <div className="acard-season">{a.season}</div>}
         <div className="acard-play"><div className="acard-circle"><PIco s={16}/></div></div>
@@ -2360,20 +2359,14 @@ function mapManga(m) {
   const title = a.title?.en || Object.values(a.title||{})[0] || 'Unknown';
   const rawText = (a.description?.en || Object.values(a.description||{})[0] || '')
     .replace(/<[^>]+>/g, '').trim();
-  // Remove lines containing MangaDex attribution, source notes, or ---
+  // Strip MangaDex spam — surgically remove phrases rather than entire lines
   const desc = rawText
-    .split('\n')
-    .filter(ln => {
-      const t = ln.trim().toLowerCase();
-      return t !== '---' &&
-             !t.startsWith('read at') &&
-             !t.startsWith('read on') &&
-             !t.includes('mangadex.org') &&
-             !t.startsWith('source:') &&
-             !t.startsWith('(source') &&
-             !t.startsWith('note:');
-    })
-    .join('\n').trim().slice(0, 500);
+    .replace(/read (more |this )?(at|on) mangadex[^\n]*/gi, '')
+    .replace(/\(source:[^)]*\)/gi, '')
+    .replace(/note:[^\n]*/gi, '')
+    .replace(/^[-—\s]+$/gm, '')          // lines that are only dashes
+    .replace(/\n{3,}/g, '\n\n')           // collapse excessive blank lines
+    .trim().slice(0, 500);
   const author = (m.relationships||[]).find(r=>r.type==='author')?.attributes?.name || '';
   return {
     id: m.id, title, desc: desc.slice(0,500), author,
@@ -2438,7 +2431,7 @@ function MangaBrowsePage({onOpen}) {
   const [genre,    setGenre]    = useState('All');
   const [sort,     setSort]     = useState('followedCount');
   const [query,    setQuery]    = useState('');
-  const [page,     setPage]     = useState(0);
+  const [page,     setPage]     = useState(1);
   const [total,    setTotal]    = useState(0);
   const [latest,   setLatest]   = useState([]);
   const [latLoad,  setLatLoad]  = useState(true);
@@ -2498,7 +2491,7 @@ function MangaBrowsePage({onOpen}) {
     };
     if (query.trim()) params.title = query.trim();
     if (genre !== 'All' && GENRE_TAG_IDS[genre]) params['includedTags[]'] = [GENRE_TAG_IDS[genre]];
-    const browseParams = { sort, page: String(page) };
+    const browseParams = { sort, page: String(page) }; // page is 1-indexed
     if (query.trim()) browseParams.q = query.trim();
     if (genre !== 'All' && GENRE_TAG_IDS[genre]) browseParams.genre = GENRE_TAG_IDS[genre];
     mgApi('list', browseParams).then(d => {
@@ -2597,7 +2590,7 @@ function MangaBrowsePage({onOpen}) {
         }
         {!loading && totalPages>1 && (
           <div className="pag">
-            <button className="pgb" disabled={page===0} onClick={()=>{setPage(p=>p-1);window.scrollTo({top:0,behavior:'smooth'})}}>‹</button>
+            <button className="pgb" disabled={page<=1} onClick={()=>{setPage(p=>Math.max(1,p-1));window.scrollTo({top:0,behavior:'smooth'})}}>‹</button>
             {Array.from({length:Math.min(5,totalPages)},(_,i)=>{
               const pg = Math.max(0,Math.min(page-2,totalPages-5))+i;
               return <button key={pg} className={'pgb'+(pg===page?' on':'')} onClick={()=>{setPage(pg);window.scrollTo({top:0,behavior:'smooth'})}}>{pg+1}</button>;
