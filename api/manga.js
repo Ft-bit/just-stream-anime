@@ -25,14 +25,10 @@ function mdxFetch(path) {
   });
 }
 
-const MDX_REF = encodeURIComponent('https://mangadex.org/');
-const proxied = u => `/api/proxy?url=${encodeURIComponent(u)}&referer=${MDX_REF}`;
-
 function buildCoverUrl(manga) {
   const rel = (manga.relationships||[]).find(r => r.type==='cover_art');
   const fn  = rel?.attributes?.fileName;
-  if (!fn) return null;
-  return proxied(`https://uploads.mangadex.org/covers/${manga.id}/${fn}.512.jpg`);
+  return fn ? `https://uploads.mangadex.org/covers/${manga.id}/${fn}.512.jpg` : null;
 }
 
 function formatManga(m) {
@@ -174,8 +170,8 @@ module.exports = async function handler(req, res) {
       const d = await mdxFetch(`/at-home/server/${id}`);
       if (!d?.chapter) { res.statusCode = 404; res.end('{}'); return; }
       const base = d.baseUrl, hash = d.chapter.hash;
-      const pages = (d.chapter.data||[]).map(f => proxied(`${base}/data/${hash}/${f}`));
-      const saver = (d.chapter.dataSaver||[]).map(f => proxied(`${base}/data-saver/${hash}/${f}`));
+      const pages = (d.chapter.data||[]).map(f => `${base}/data/${hash}/${f}`);
+      const saver = (d.chapter.dataSaver||[]).map(f => `${base}/data-saver/${hash}/${f}`);
       res.statusCode = 200;
       res.end(JSON.stringify({ pages, dataSaver: saver }));
       return;
