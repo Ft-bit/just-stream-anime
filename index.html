@@ -2355,8 +2355,10 @@ async function mdx(path) {
 function getCoverUrl(id, rels, size = 256) {
   const c = (rels||[]).find(r => r.type === 'cover_art');
   if (!c?.attributes?.fileName) return null;
-  return `https://uploads.mangadex.org/covers/${id}/${c.attributes.fileName}.${size}.jpg`;
+  const raw = `https://uploads.mangadex.org/covers/${id}/${c.attributes.fileName}.${size}.jpg`;
+  return `/api/proxy?url=${encodeURIComponent(raw)}&referer=${encodeURIComponent('https://mangadex.org/')}`;
 }
+
 
 function mapManga(m) {
   if (!m?.attributes) return null;
