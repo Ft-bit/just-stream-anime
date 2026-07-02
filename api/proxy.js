@@ -6,6 +6,7 @@ const { URL } = require('url');
 const ALLOWED = [
   'uwucdn.top','owocdn.top','vault-','kwik','pahe','animepahe',
   'megaplay','vidnest','akamaized.net','cloudfront.net',
+  'uploads.mangadex.org','mangadex.network','mangadex.org',
   '.m3u8','.ts','.mp4','.m4s'
 ];
 
