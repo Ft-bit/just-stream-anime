@@ -135,6 +135,8 @@
       --txt:#e4e4f0;--txt2:#8888a6;--txt3:#44445a;
       --mono:'JetBrains Mono',monospace;--nav:60px;--sidebar:60px;
     }
+    /* SEO: visually hidden H1 for crawlers */
+    .seo-h1{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
     body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
@@ -656,6 +658,8 @@
   </script>
 </head>
 <body>
+<!-- Hidden H1 for Bing/Google crawlers: users never see this -->
+<h1 class="seo-h1">JustStreamAnime – Free Anime Streaming &amp; Manga Reading Site | Watch &amp; Read Online Free</h1>
 <div id="root"></div>
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
@@ -2514,7 +2518,7 @@ function MangaBrowsePage({onOpen}) {
             : latest.map(m=>(
               <div key={m.id} className="ra-card" onClick={()=>onOpen(m)}>
                 <div className="ra-img-wrap">
-                  {m.cover && <img className="ra-img" src={m.cover} alt={m.title} loading="lazy"
+                  {m.cover && <img className="ra-img" src={m.cover} alt={m.title} loading="lazy" referrerPolicy="no-referrer"
                     onError={e=>e.target.style.display='none'}/>}
                   <div className="ra-grad"/>
                   {m.lastChapter && <div className="ra-ep">Ch.{m.lastChapter}</div>}
