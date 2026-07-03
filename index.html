@@ -2408,7 +2408,9 @@ function MangaCard({m, onOpen}) {
       <div className="acard-top">
         {m.cover
           ? <img className="acard-img" src={m.cover} alt={m.title} loading="lazy" decoding="async" referrerPolicy="no-referrer"
-              onError={e=>{e.target.style.display='none'}}/>
+              style={{opacity:0,transition:'opacity .3s ease'}}
+              onLoad={e=>e.target.style.opacity=1}
+              onError={e=>e.target.style.display='none'}/>
           : <div style={{position:'absolute',inset:0,background:'var(--bg3)',display:'flex',alignItems:'center',justifyContent:'center',opacity:.3}}><BookIco/></div>
         }
         <div className="acard-grad"/>
@@ -2476,8 +2478,8 @@ function MangaBrowsePage({onOpen}) {
 
   useEffect(() => {
     setLatLoad(true);
-    mgApi('list', { sort: 'updatedAt', page: '1' }).then(d => {
-      setLatest((d?.manga||[]).filter(Boolean).slice(0, 16));
+    mgApi('latest').then(d => {
+      setLatest((d?.manga||[]).filter(Boolean).slice(0, 20));
       setLatLoad(false);
     }).catch(() => setLatLoad(false));
   }, []);
@@ -2498,30 +2500,45 @@ function MangaBrowsePage({onOpen}) {
 
   return (
     <div style={{paddingTop:'calc(var(--nav) + .5rem)'}}>
-      {/* Header */}
-      <div style={{padding:'0 clamp(.75rem,3.5vw,2.5rem) .8rem',display:'flex',alignItems:'center',gap:12}}>
-        <div className="sec-bar"/>
-        <h1 style={{fontSize:'clamp(1.1rem,3vw,1.4rem)',fontWeight:900,color:'#fff',letterSpacing:'-.03em'}}>
-          📖 Manga Library
+      {/* Hero header - centered */}
+      <div style={{textAlign:'center',padding:'clamp(1.2rem,3.5vw,2rem) clamp(.75rem,3.5vw,2.5rem) .6rem'}}>
+        <h1 style={{fontSize:'clamp(1.5rem,4.5vw,2.2rem)',fontWeight:900,color:'#fff',
+          letterSpacing:'-.04em',marginBottom:6}}>
+          Read Manga Free
         </h1>
+        <p style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',letterSpacing:'.04em',
+          textTransform:'uppercase'}}>Thousands of series · Sub & Eng · No account needed</p>
       </div>
 
-      {/* Latest Updates Row */}
+      {/* New Chapters Row */}
       <div style={{padding:'0 0 .5rem'}}>
         <div style={{padding:'0 clamp(.75rem,3.5vw,2.5rem) .5rem',display:'flex',alignItems:'center',gap:8}}>
           <div className="sec-bar"/>
-          <span className="sec-title">🕐 Latest Updates</span>
+          <span className="sec-title">🆕 New Chapters</span>
         </div>
         <div className="ra-scroll" style={{padding:'0 clamp(.75rem,3.5vw,2.5rem) 4px'}}>
           {latLoad
-            ? Array(8).fill(0).map((_,i)=><div key={i} className="ra-sk"/>)
-            : latest.map(m=>(
-              <div key={m.id} className="ra-card" onClick={()=>onOpen(m)}>
+            ? Array(10).fill(0).map((_,i)=><div key={i} className="ra-sk"/>)
+            : latest.map((m,idx)=>(
+              <div key={m.id+'-'+idx} className="ra-card" onClick={()=>onOpen(m)}>
                 <div className="ra-img-wrap">
-                  {m.cover && <img className="ra-img" src={m.cover} alt={m.title} loading="lazy" referrerPolicy="no-referrer"
-                    onError={e=>e.target.style.display='none'}/>}
+                  {m.cover
+                    ? <img className="ra-img" src={m.cover} alt={m.title}
+                        loading={idx<5?'eager':'lazy'} decoding="async"
+                        referrerPolicy="no-referrer"
+                        style={{opacity:0,transition:'opacity .35s'}}
+                        onLoad={e=>e.target.style.opacity=1}
+                        onError={e=>e.target.style.display='none'}/>
+                    : <div style={{position:'absolute',inset:0,background:'var(--bg3)',
+                        display:'flex',alignItems:'center',justifyContent:'center',opacity:.2}}>
+                        <BookIco/>
+                      </div>
+                  }
                   <div className="ra-grad"/>
-                  {m.lastChapter && <div className="ra-ep">Ch.{m.lastChapter}</div>}
+                  {(m.latestChapter||m.lastChapter) &&
+                    <div className="ra-ep" style={{background:'var(--red)',zIndex:2}}>
+                      Ch.{m.latestChapter||m.lastChapter}
+                    </div>}
                   <div className="ra-play"><div className="ra-play-c"><BookIco/></div></div>
                 </div>
                 <div className="ra-body"><div className="ra-title">{m.title}</div></div>
@@ -2536,7 +2553,7 @@ function MangaBrowsePage({onOpen}) {
         <input
           placeholder="Search manga…"
           value={query}
-          onChange={e=>{setQuery(e.target.value);setPage(0);}}
+          onChange={e=>{setQuery(e.target.value);setPage(1);}}
           style={{fontFamily:'var(--mono)',fontSize:12,background:'rgba(255,255,255,.05)',
             border:'1px solid var(--border)',color:'var(--txt)',padding:'8px 14px',
             borderRadius:9,outline:'none',flex:'1',minWidth:160,
@@ -2547,7 +2564,7 @@ function MangaBrowsePage({onOpen}) {
         <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
           {SORTS.map(s=>(
             <button key={s.id} className={'sort-btn'+(sort===s.id?' on':'')}
-              onClick={()=>{setSort(s.id);setPage(0);}}>
+              onClick={()=>{setSort(s.id);setPage(1);}}>
               {s.label}
             </button>
           ))}
@@ -2559,7 +2576,7 @@ function MangaBrowsePage({onOpen}) {
         <div className="genre-bar">
           {MANGA_GENRES.map(g=>(
             <button key={g} className={'gpill'+(genre===g?' on':'')}
-              onClick={()=>{setGenre(g);setPage(0);}}>
+              onClick={()=>{setGenre(g);setPage(1);}}>
               {g}
             </button>
           ))}
@@ -2579,16 +2596,16 @@ function MangaBrowsePage({onOpen}) {
           ? <div className="agrid">{Array(LIMIT).fill(0).map((_,i)=><div key={i} className="sk"/>)}</div>
           : items.length>0
             ? <div className="agrid">{items.map(m=><MangaCard key={m.id} m={m} onOpen={onOpen}/>)}</div>
-            : <EmptyState query={query||genre!=='All'?'manga':null} onClear={()=>{setQuery('');setGenre('All');setPage(0);}}/>
+            : <EmptyState query={query||genre!=='All'?'manga':null} onClear={()=>{setQuery('');setGenre('All');setPage(1);}}/>
         }
         {!loading && totalPages>1 && (
           <div className="pag">
-            <button className="pgb" disabled={page<=1} onClick={()=>{setPage(p=>Math.max(1,p-1));window.scrollTo({top:0,behavior:'smooth'})}}>‹</button>
+            <button className="pgb" disabled={page===1} onClick={()=>{setPage(p=>Math.max(1,p-1));window.scrollTo({top:0,behavior:'smooth'})}}>‹</button>
             {Array.from({length:Math.min(5,totalPages)},(_,i)=>{
-              const pg = Math.max(0,Math.min(page-2,totalPages-5))+i;
-              return <button key={pg} className={'pgb'+(pg===page?' on':'')} onClick={()=>{setPage(pg);window.scrollTo({top:0,behavior:'smooth'})}}>{pg+1}</button>;
+              const pg = Math.max(1,Math.min(page-2,totalPages-4))+i;
+              return <button key={pg} className={'pgb'+(pg===page?' on':'')} onClick={()=>{setPage(pg);window.scrollTo({top:0,behavior:'smooth'})}}>{pg}</button>;
             })}
-            <button className="pgb" disabled={page>=totalPages-1} onClick={()=>{setPage(p=>p+1);window.scrollTo({top:0,behavior:'smooth'})}}>›</button>
+            <button className="pgb" disabled={page===totalPages} onClick={()=>{setPage(p=>Math.min(totalPages,p+1));window.scrollTo({top:0,behavior:'smooth'})}}>›</button>
           </div>
         )}
       </div>
@@ -2623,7 +2640,8 @@ function MangaDetailPage({manga, onBack, onRead, onChaptersLoaded}) {
       <div style={{position:'relative',height:'clamp(260px,40vw,420px)',overflow:'hidden',background:'var(--bg2)'}}>
         {manga.cover && <img src={manga.cover.replace('.256.jpg','.512.jpg')} alt={manga.title} referrerPolicy='no-referrer'
           style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:'center top',
-            filter:'brightness(.55) saturate(1.1)',position:'absolute',inset:0}}/>}
+            filter:'brightness(.55) saturate(1.1)',position:'absolute',inset:0,opacity:0,transition:'opacity .5s'}}
+          onLoad={e=>e.target.style.opacity=1}/>}
         <div style={{position:'absolute',inset:0,background:'linear-gradient(to top,var(--bg) 0%,rgba(7,7,14,.6) 50%,transparent 100%)'}}/>
         <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(7,7,14,.9) 0%,transparent 60%)'}}/>
         {/* Cover thumbnail + info */}
