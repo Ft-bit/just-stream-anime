@@ -757,15 +757,16 @@ function mapA(a) {
 }
 
 const SERVER_DEFS = [
+ const SERVER_DEFS = [
   { n:'1', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/animepahe/${a}/${e}/${L}` },
-  { n:'2', hasDub:true,  url:(a,e,L,m)=>`https://megaplay.buzz/stream/ani/${a}/${e}/${L}` },
-  { n:'3', hasDub:true,  url:(a,e,L,m)=>m?`https://megaplay.buzz/stream/mal/${m}/${e}/${L}`:null },
+  { n:'2', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.pro/embed/anime/${m}/${e}`:null },
+  { n:'3', hasDub:true,  url:(a,e,L,m)=>m?`https://player.autoembed.cc/embed/anime/${m}/${e}`:null },
   { n:'4', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.cc/v2/embed/anime/${m}/${e}/`:null },
-  { n:'5', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.xyz/embed/anime?mal=${m}&ep=${e}`:null },
+  { n:'5', hasDub:true,  url:(a,e,L,m)=>m?`https://anime.autoembed.cc/embed/${m}/${e}`:null },
   { n:'6', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.to/embed/anime/${m}/${e}`:null },
   { n:'7', hasDub:true,  url:(a,e,L,m)=>m?`https://embed.su/embed/anime/${m}/${e}`:null },
   { n:'8', hasDub:false, url:(a,e,L,m)=>m?`https://vidsrc.me/embed/anime?mal=${m}&ep=${e}`:null },
-  { n:'9', hasDub:false, url:(a,e,L,m)=>m?`https://player.smashy.stream/anime/${m}?ep=${e}`:null },
+  { n:'9', hasDub:true,  url:(a,e,L,m)=>m?`https://multiembed.mov/directstream.php?video_id=${m}&tmdb=1&s=1&e=${e}`:null },
 ];
 
 function buildServers(aniId, ep, lang, malId) {
