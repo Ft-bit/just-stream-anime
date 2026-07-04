@@ -16,10 +16,16 @@
   </script>
 
   <meta charset="UTF-8"/>
-  <!-- already has preconnect -->
+  <!-- Resource hints for faster loading -->
+  <link rel="preconnect" href="https://unpkg.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="preconnect" href="https://s4.anilist.co"/>
   <link rel="preconnect" href="https://img.anili.st"/>
   <link rel="preconnect" href="https://graphql.anilist.co"/>
+  <link rel="dns-prefetch" href="https://api.jikan.moe"/>
+  <link rel="dns-prefetch" href="https://api.aniskip.com"/>
+  <link rel="dns-prefetch" href="https://api.mangadex.org"/>
+  <link rel="dns-prefetch" href="https://uploads.mangadex.org"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
   <title>JustStreamAnime – Watch Anime & Read Manga Free | No Account Needed</title>
   <meta name="theme-color" content="#e11d48"/>
@@ -165,7 +171,7 @@
     .hero{position:relative;min-height:clamp(480px,85vh,780px);display:flex;align-items:flex-end;overflow:hidden}
     .hero-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:var(--bg2)}
     
-    .hero-img-desk{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;filter:brightness(.78) saturate(1.05);transition:opacity .75s ease}
+    .hero-img-desk{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;filter:brightness(.78) saturate(1.05);transition:opacity .75s ease;will-change:opacity}
     .hero-img-mob{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center;filter:brightness(.82) saturate(1.05);transition:opacity .75s ease;display:none}
     @media(max-width:768px){
       .hero-img-desk{display:none}
@@ -680,7 +686,7 @@ async function gql(query, vars={}) {
   return r.json();
 }
 
-const FL = `id idMal siteUrl title{romaji english}coverImage{extraLarge large color}bannerImage
+const FL = `id idMal siteUrl title{romaji english}coverImage{extraLarge large medium color}bannerImage
   description(asHtml:false)averageScore episodes status nextAiringEpisode{episode timeUntilAiring}
   seasonYear season format genres trailer{id site} duration`;
 const FD = `${FL} streamingEpisodes{title thumbnail url site}`;
@@ -692,7 +698,7 @@ const Qs = {
   airing:  `query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,status:RELEASING,sort:TRENDING_DESC,isAdult:false){${FL}}}}`,
   search:  `query($s:String){Page(perPage:14){media(search:$s,type:ANIME,isAdult:false){${FL}}}}`,
   detail:  `query($id:Int){Media(id:$id,type:ANIME){
-    id idMal siteUrl title{romaji english}coverImage{extraLarge large color}bannerImage
+    id idMal siteUrl title{romaji english}coverImage{extraLarge large medium color}bannerImage
     description(asHtml:false)averageScore episodes status duration
     nextAiringEpisode{episode timeUntilAiring}
     seasonYear season format genres trailer{id site}
@@ -702,7 +708,7 @@ const Qs = {
     recommendations(sort:RATING_DESC,perPage:10){nodes{mediaRecommendation{id title{romaji english}coverImage{large}format averageScore}}}
   }}`,
   explore: `query($p:Int,$format:MediaFormat,$genre:String,$status:MediaStatus,$year:Int,$sort:[MediaSort]){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,sort:$sort,isAdult:false,format:$format,genre:$genre,status:$status,seasonYear:$year){${FL}}}}`,
-  recent:  `query($from:Int,$to:Int){Page(perPage:30){airingSchedules(airingAt_greater:$from,airingAt_lesser:$to,sort:TIME_DESC){airingAt episode media{id title{english romaji}coverImage{extraLarge}averageScore format nextAiringEpisode{episode}}}}}`,
+  recent:  `query($from:Int,$to:Int){Page(perPage:30){airingSchedules(airingAt_greater:$from,airingAt_lesser:$to,sort:TIME_DESC){airingAt episode media{id title{english romaji}coverImage{extraLarge large medium}averageScore format nextAiringEpisode{episode}}}}}`,
   schedule:`query($from:Int,$to:Int){Page(perPage:50){airingSchedules(airingAt_greater:$from,airingAt_lesser:$to,sort:TIME){airingAt episode media{${FL}}}}}`,
   browse:`query($p:Int,$format:MediaFormat,$genres:[String],$status:MediaStatus,$year:Int,$sort:[MediaSort]){Page(page:$p,perPage:28){pageInfo{lastPage}media(type:ANIME,format:$format,genre_in:$genres,status:$status,seasonYear:$year,sort:$sort,isAdult:false){${FL}}}}`,
   recentAired:`query($from:Int,$to:Int){Page(perPage:30){airingSchedules(airingAt_greater:$from,airingAt_lesser:$to,sort:TIME_DESC){airingAt episode media{${FL}}}}}`,
@@ -736,7 +742,8 @@ function mapA(a) {
     id: a.id, malId: a.idMal, siteUrl: a.siteUrl||null,
     title: a.title?.english||a.title?.romaji||'Unknown',
     romaji: a.title?.romaji||'',
-    image: a.coverImage?.extraLarge||a.coverImage?.large,
+    image: a.coverImage?.medium||a.coverImage?.large,
+    imageHD: a.coverImage?.extraLarge||a.coverImage?.large,
     banner: a.bannerImage,
     desc: rawDesc,
     descIsStub,
@@ -822,12 +829,11 @@ function Hero({items, onPlay}) {
   const pv = useRef(null), pr = useRef(0), tx = useRef(null), ty = useRef(null), fi = useRef(true);
   const CAP = Math.min(items.length, 10);
 
-  // Preload all carousel images upfront so switching slides is instant
-  // instead of showing a dark frame while each new image fetches.
+  // Preload only the first 3 hero items for fast initial display
   useEffect(() => {
-    items.slice(0, 10).forEach(it => {
-      if (it.banner) { const im = new Image(); im.src = it.banner; }
-      if (it.image)  { const im2 = new Image(); im2.src = it.image; }
+    items.slice(0, 3).forEach((it, i) => {
+      const src = it.banner || it.imageHD || it.image;
+      if (src) { const im = new Image(); im.fetchPriority = i===0?'high':'auto'; im.src = src; }
     });
   }, [items]);
 
@@ -933,8 +939,8 @@ function Hero({items, onPlay}) {
     <div className="hero" onTouchStart={onTS} onTouchEnd={onTE}>
       <div className="hero-bg">
         
-        <img className="hero-img-desk" loading="eager" fetchPriority="high" key={'d-'+a.id} src={a.banner||a.image} alt="" fetchpriority="high" loading="eager" style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
-        <img className="hero-img-mob" loading="eager" fetchPriority="high"  key={'m-'+a.id} src={a.image} alt="" fetchpriority="high" loading="eager" style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
+        <img className="hero-img-desk" loading="eager" fetchPriority="high" key={'d-'+a.id} src={a.banner||a.imageHD||a.image} alt="" fetchpriority="high" loading="eager" style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
+        <img className="hero-img-mob" loading="eager" fetchPriority="high"  key={'m-'+a.id} src={a.imageHD||a.image} alt="" fetchpriority="high" loading="eager" style={{opacity:loaded?1:0}} onLoad={()=>setLoad(true)} onError={()=>setLoad(true)}/>
         <div className="hero-grad"/>
         <div className="hero-nav-fade"/>
       </div>
@@ -1879,7 +1885,7 @@ function injectAnimeSchema(anime, ep) {
         "name": anime.title,
         "alternateName": anime.romaji || undefined,
         "url": shareUrl,
-        "image": anime.image || undefined,
+        "image": anime.imageHD || anime.image || undefined,
         "description": anime.desc || undefined,
         "genre": (anime.genres || []).slice(0,5),
         "numberOfEpisodes": anime.eps || anime.airedEps || undefined,
@@ -3041,7 +3047,7 @@ function App() {
 
   function openWatch(anime, startTab='watch') {
     setWatching(anime); setWTab(startTab); setView('watch');
-    updateOGTags({title:anime.title,image:anime.banner||anime.image,desc:anime.desc,
+    updateOGTags({title:anime.title,image:anime.banner||anime.imageHD||anime.image,desc:anime.desc,
       url:`https://jsanime.site/anime/${anime.id}/${makeSlug(anime.title)}`});
     injectAnimeSchema(anime, 1);
     writePath('watch', {id:anime.id, slug:makeSlug(anime.title), wTab:startTab});
