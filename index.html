@@ -757,27 +757,25 @@ function mapA(a) {
 }
 
 // SERVER MAP:
-// 1 — vidnest.fun /anime/    → MULTI-SOURCE (AniList ID, low ads, widest coverage) ← DEFAULT
-// 2 — vidnest.fun /animepahe/→ AnimePahe only (AniList ID, low ads, 720p H.265)
-// 3 — megaplay.buzz /ani/    → Multi-source (AniList ID, low-medium ads)
-// 4 — megaplay.buzz /mal/    → Multi-source (MAL ID fallback for server 3)
-// 5 — embed.su               → Aggregator (MAL ID, medium ads)
-// 6 — smashy.stream          → Aggregator (MAL ID, medium ads)
-// 7 — vidsrc.cc              → VidSrc network (MAL ID, HIGH ads — fallback only)
-// 8 — vidsrc.xyz             → VidSrc network (MAL ID, HIGH ads — fallback only)
-// 9 — vidsrc.to              → VidSrc network (MAL ID, HIGH ads — fallback only)
-// WHY Server 1 was broken: /animepahe/ only works for anime ON AnimePahe.
-//   /anime/ tries multiple sources so it works for ALL anime old & new.
+// 1 — vidnest.fun     → AnimePahe source  (AniList ID, low ads, best quality)
+// 2 — megaplay.buzz   → Multi-source      (AniList ID, low-medium ads)
+// 3 — megaplay.buzz   → Multi-source      (MAL ID fallback for server 2)
+// 4 — embed.su        → Aggregator        (MAL ID, medium ads)
+// 5 — smashy.stream   → Aggregator        (MAL ID, medium ads)
+// 6 — vidsrc.cc       → VidSrc network    (MAL ID, HIGH ads — fallback only)
+// 7 — vidsrc.xyz      → VidSrc network    (MAL ID, HIGH ads — fallback only)
+// 8 — vidsrc.to       → VidSrc network    (MAL ID, HIGH ads — fallback only)
+// 9 — vidsrc.me       → VidSrc original   (MAL ID, HIGH ads — last resort)
 const SERVER_DEFS = [
-  { n:'1', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/anime/${a}/${e}/${L}` },
-  { n:'2', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/animepahe/${a}/${e}/${L}` },
-  { n:'3', hasDub:true,  url:(a,e,L,m)=>`https://megaplay.buzz/stream/ani/${a}/${e}/${L}` },
-  { n:'4', hasDub:true,  url:(a,e,L,m)=>m?`https://megaplay.buzz/stream/mal/${m}/${e}/${L}`:null },
-  { n:'5', hasDub:true,  url:(a,e,L,m)=>m?`https://embed.su/embed/anime/${m}/${e}`:null },
-  { n:'6', hasDub:false, url:(a,e,L,m)=>m?`https://player.smashy.stream/anime/${m}?ep=${e}`:null },
-  { n:'7', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.cc/v2/embed/anime/${m}/${e}/`:null },
-  { n:'8', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.xyz/embed/anime?mal=${m}&ep=${e}`:null },
-  { n:'9', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.to/embed/anime/${m}/${e}`:null },
+  { n:'1', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/animepahe/${a}/${e}/${L}` },
+  { n:'2', hasDub:true,  url:(a,e,L,m)=>`https://megaplay.buzz/stream/ani/${a}/${e}/${L}` },
+  { n:'3', hasDub:true,  url:(a,e,L,m)=>m?`https://megaplay.buzz/stream/mal/${m}/${e}/${L}`:null },
+  { n:'4', hasDub:true,  url:(a,e,L,m)=>m?`https://embed.su/embed/anime/${m}/${e}`:null },
+  { n:'5', hasDub:false, url:(a,e,L,m)=>m?`https://player.smashy.stream/anime/${m}?ep=${e}`:null },
+  { n:'6', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.cc/v2/embed/anime/${m}/${e}/`:null },
+  { n:'7', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.xyz/embed/anime?mal=${m}&ep=${e}`:null },
+  { n:'8', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.to/embed/anime/${m}/${e}`:null },
+  { n:'9', hasDub:false, url:(a,e,L,m)=>m?`https://vidsrc.me/embed/anime?mal=${m}&ep=${e}`:null },
 ];
 
 function buildServers(aniId, ep, lang, malId) {
@@ -1350,8 +1348,8 @@ function WatchPage({anime, startTab, onBack}) {
                 </div>
                 <p className="srv-hint">
                   {lang==='dub'
-                    ? <>Servers <span>1, 3, 5</span> have best DUB. Server 1 has widest anime coverage.</>
-                    : <>Server 1 works for all anime (multi-source). Server 2 is AnimePahe quality. <span>Servers 7–9 are last-resort fallbacks — they have more ads.</span></>}
+                    ? <>Servers <span>1–3</span> have best DUB coverage. Servers 6–9 have more ads.</>
+                    : <>Servers 1–3 load fastest with fewest ads. <span>Servers 6–9 are fallbacks — they have more ads. If EP 1 fails, try again later when it becomes available.</span></>}
                 </p>
               </div>
             )}
