@@ -755,151 +755,30 @@ function mapA(a) {
     season: seasonName, trailerUrl, status: a.status,
   };
 }
-// ── PUBLIC STREAMING API CONFIG ─────────────────────────────────────────────
-const STREAM_APIS = {
-  aniwatch: {
-    name: 'AniWatch',
-    base: 'https://api-anime-rouge.vercel.app/aniwatch',
-    hasDub: true,
-    async search(title) {
-      try {
-        const r = await fetch(`${this.base}/search?keyword=${encodeURIComponent(title)}&page=1`);
-        if (!r.ok) return null;
-        const d = await r.json();
-        return d.animes?.map(a => ({ id: a.id, title: a.name, image: a.img, eps: a.episodes })) || [];
-      } catch { return null; }
-    },
-    async episodes(id) {
-      try {
-        const r = await fetch(`${this.base}/episodes/${id}`);
-        if (!r.ok) return null;
-        const d = await r.json();
-        return d.episodes?.map(e => ({ id: e.episodeId, number: e.episodeNo, title: e.name })) || [];
-      } catch { return null; }
-    },
-    async stream(episodeId, type = 'sub', server = 'vidstreaming') {
-      try {
-        const r = await fetch(`${this.base}/episode-srcs?id=${encodeURIComponent(episodeId)}&server=${server}&category=${type}`);
-        if (!r.ok) return null;
-        return await r.json();
-      } catch { return null; }
-    }
-  },
-  hianime: {
-    name: 'HiAnime',
-    base: 'https://hianime-api-iy4s.onrender.com/api/v2',
-    hasDub: true,
-    async search(title) {
-      try {
-        const r = await fetch(`${this.base}/search?keyword=${encodeURIComponent(title)}&page=1`);
-        if (!r.ok) return null;
-        const d = await r.json();
-        return d.data?.animes?.map(a => ({ id: a.id, title: a.title, image: a.poster, eps: a.episodes })) || [];
-      } catch { return null; }
-    },
-    async episodes(id) {
-      try {
-        const r = await fetch(`${this.base}/episodes/${id}`);
-        if (!r.ok) return null;
-        const d = await r.json();
-        return d.data?.episodes?.map(e => ({ id: e.id, number: e.episodeNumber, title: e.title })) || [];
-      } catch { return null; }
-    },
-    async stream(episodeId, type = 'sub') {
-      try {
-        const r = await fetch(`${this.base}/episode/sources?animeEpisodeId=${encodeURIComponent(episodeId)}&category=${type}`);
-        if (!r.ok) return null;
-        return await r.json();
-      } catch { return null; }
-    }
-  }
-};
 
-const SRC_CACHE = new Map();
-const CACHE_TTL = 30 * 60 * 1000;
-function cacheGet(key) { const e = SRC_CACHE.get(key); if (e && Date.now() - e.ts < CACHE_TTL) return e.data; return null; }
-function cacheSet(key, data) { SRC_CACHE.set(key, { data, ts: Date.now() }); }
-
-async function fetchEpisodeSources(animeTitle, animeId, malId, episode, lang = 'sub') {
-  const cacheKey = `${animeId}_${episode}_${lang}`;
-  const cached = cacheGet(cacheKey);
-  if (cached) return cached;
-
-  const sources = [], errors = [];
-  let intro = null, outro = null, tracks = [];
-
-  // Try AniWatch
-  try {
-    const aw = STREAM_APIS.aniwatch;
-    const results = await aw.search(animeTitle);
-    if (results?.length > 0) {
-      const eps = await aw.episodes(results[0].id);
-      if (eps?.length > 0) {
-        const targetEp = eps[Math.min(episode - 1, eps.length - 1)];
-        if (targetEp) {
-          for (const srv of ['vidstreaming', 'megacloud', 'streamsb']) {
-            try {
-              const stream = await aw.stream(targetEp.id, lang, srv);
-              if (stream?.sources?.length > 0) {
-                stream.sources.forEach(src => sources.push({
-                  n: String(sources.length + 1), name: `AW ${srv}`, provider: 'aniwatch',
-                  hasDub: lang === 'dub', url: src.url,
-                  isM3U8: src.isM3U8 || src.url?.includes('.m3u8'),
-                  quality: src.quality || 'Auto', headers: stream.headers
-                }));
-                if (stream.subtitles) tracks = stream.subtitles;
-                intro = stream.intro || intro; outro = stream.outro || outro;
-              }
-            } catch (e) { errors.push(`AW ${srv}: ${e.message}`); }
-          }
-        }
-      }
-    }
-  } catch (e) { errors.push(`AniWatch: ${e.message}`); }
-
-  // Try HiAnime if AniWatch failed
-  if (sources.length === 0) {
-    try {
-      const hi = STREAM_APIS.hianime;
-      const results = await hi.search(animeTitle);
-      if (results?.length > 0) {
-        const eps = await hi.episodes(results[0].id);
-        if (eps?.length > 0) {
-          const targetEp = eps[Math.min(episode - 1, eps.length - 1)];
-          if (targetEp) {
-            const stream = await hi.stream(targetEp.id, lang);
-            if (stream?.sources?.length > 0) {
-              stream.sources.forEach(src => sources.push({
-                n: String(sources.length + 1), name: 'HiAnime', provider: 'hianime',
-                hasDub: lang === 'dub', url: src.url,
-                isM3U8: src.isM3U8 || src.url?.includes('.m3u8'),
-                quality: src.quality || 'Auto', headers: stream.headers
-              }));
-              if (stream.subtitles) tracks = stream.subtitles;
-              intro = stream.intro || intro; outro = stream.outro || outro;
-            }
-          }
-        }
-      }
-    } catch (e) { errors.push(`HiAnime: ${e.message}`); }
-  }
-
-  // Fallback embeds
-  if (sources.length === 0) {
-    const L = lang === 'dub' ? 'dub' : 'sub';
-    sources.push({ n: 'FB1', name: 'VidNest', provider: 'vidnest', hasDub: true,
-      url: `https://vidnest.fun/anime/${animeId}/${episode}/${L}`, isEmbed: true, quality: 'Embed' });
-    if (malId) sources.push({ n: 'FB2', name: 'MegaPlay', provider: 'megaplay', hasDub: true,
-      url: `https://megaplay.buzz/stream/mal/${malId}/${episode}/${L}`, isEmbed: true, quality: 'Embed' });
-  }
-
-  const result = { sources, tracks, intro, outro, errors, fromAPI: sources.length > 0 && !sources[0].isEmbed };
-  cacheSet(cacheKey, result); return result;
-}
-
-function buildServers(aniId, ep, lang, malId) {
-  return [{ n: '1', name: 'Loading…', hasDub: true, url: 'about:blank', isLoading: true }];
-}
+// SERVER MAP:
+// 1 — vidnest.fun /anime/    → MULTI-SOURCE (AniList ID, low ads, widest coverage) ← DEFAULT
+// 2 — vidnest.fun /animepahe/→ AnimePahe only (AniList ID, low ads, 720p H.265)
+// 3 — megaplay.buzz /ani/    → Multi-source (AniList ID, low-medium ads)
+// 4 — megaplay.buzz /mal/    → Multi-source (MAL ID fallback for server 3)
+// 5 — embed.su               → Aggregator (MAL ID, medium ads)
+// 6 — smashy.stream          → Aggregator (MAL ID, medium ads)
+// 7 — vidsrc.cc              → VidSrc network (MAL ID, HIGH ads — fallback only)
+// 8 — vidsrc.xyz             → VidSrc network (MAL ID, HIGH ads — fallback only)
+// 9 — vidsrc.to              → VidSrc network (MAL ID, HIGH ads — fallback only)
+// WHY Server 1 was broken: /animepahe/ only works for anime ON AnimePahe.
+//   /anime/ tries multiple sources so it works for ALL anime old & new.
+const SERVER_DEFS = [
+  { n:'1', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/anime/${a}/${e}/${L}` },
+  { n:'2', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/animepahe/${a}/${e}/${L}` },
+  { n:'3', hasDub:true,  url:(a,e,L,m)=>`https://megaplay.buzz/stream/ani/${a}/${e}/${L}` },
+  { n:'4', hasDub:true,  url:(a,e,L,m)=>m?`https://megaplay.buzz/stream/mal/${m}/${e}/${L}`:null },
+  { n:'5', hasDub:true,  url:(a,e,L,m)=>m?`https://embed.su/embed/anime/${m}/${e}`:null },
+  { n:'6', hasDub:false, url:(a,e,L,m)=>m?`https://player.smashy.stream/anime/${m}?ep=${e}`:null },
+  { n:'7', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.cc/v2/embed/anime/${m}/${e}/`:null },
+  { n:'8', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.xyz/embed/anime?mal=${m}&ep=${e}`:null },
+  { n:'9', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.to/embed/anime/${m}/${e}`:null },
+];
 
 function buildServers(aniId, ep, lang, malId) {
   const e = ep || 1;
