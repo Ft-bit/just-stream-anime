@@ -755,29 +755,27 @@ function mapA(a) {
     season: seasonName, trailerUrl, status: a.status,
   };
 }
-
-// SERVER MAP:
-// 1 — vidnest.fun /anime/    → MULTI-SOURCE (AniList ID, low ads, widest coverage) ← DEFAULT
-// 2 — vidnest.fun /animepahe/→ AnimePahe only (AniList ID, low ads, 720p H.265)
-// 3 — megaplay.buzz /ani/    → Multi-source (AniList ID, low-medium ads)
-// 4 — megaplay.buzz /mal/    → Multi-source (MAL ID fallback for server 3)
-// 5 — embed.su               → Aggregator (MAL ID, medium ads)
-// 6 — smashy.stream          → Aggregator (MAL ID, medium ads)
-// 7 — vidsrc.cc              → VidSrc network (MAL ID, HIGH ads — fallback only)
-// 8 — vidsrc.xyz             → VidSrc network (MAL ID, HIGH ads — fallback only)
-// 9 — vidsrc.to              → VidSrc network (MAL ID, HIGH ads — fallback only)
-// WHY Server 1 was broken: /animepahe/ only works for anime ON AnimePahe.
-//   /anime/ tries multiple sources so it works for ALL anime old & new.
 const SERVER_DEFS = [
-  { n:'1', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/anime/${a}/${e}/${L}` },
-  { n:'2', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/animepahe/${a}/${e}/${L}` },
-  { n:'3', hasDub:true,  url:(a,e,L,m)=>`https://megaplay.buzz/stream/ani/${a}/${e}/${L}` },
-  { n:'4', hasDub:true,  url:(a,e,L,m)=>m?`https://megaplay.buzz/stream/mal/${m}/${e}/${L}`:null },
-  { n:'5', hasDub:true,  url:(a,e,L,m)=>m?`https://embed.su/embed/anime/${m}/${e}`:null },
-  { n:'6', hasDub:false, url:(a,e,L,m)=>m?`https://player.smashy.stream/anime/${m}?ep=${e}`:null },
-  { n:'7', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.cc/v2/embed/anime/${m}/${e}/`:null },
-  { n:'8', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.xyz/embed/anime?mal=${m}&ep=${e}`:null },
-  { n:'9', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.to/embed/anime/${m}/${e}`:null },
+  // ── NEW: MegaPlay Embed API (low ads, AniList ID support) ──
+  { n:'1', hasDub:true,  url:(a,e,L,m)=>`https://animeplay.cfd/stream/ani/${a}/${e}/${L}` },
+  
+  // ── NEW: MegaPlay MAL fallback ──
+  { n:'2', hasDub:true,  url:(a,e,L,m)=>m?`https://animeplay.cfd/stream/mal/${m}/${e}/${L}`:null },
+  
+  // ── NEW: VidNest multi-source (your old reliable) ──
+  { n:'3', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/anime/${a}/${e}/${L}` },
+  
+  // ── NEW: VidNest AnimePahe (high quality, smaller library) ──
+  { n:'4', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/animepahe/${a}/${e}/${L}` },
+  
+  // ── NEW: MegaPlay AniWatch legacy ──
+  { n:'5', hasDub:true,  url:(a,e,L,m)=>`https://animeplay.cfd/stream/s-2/${a}/${L}` },
+  
+  // ── KEEP: Your old embeds as last resort ──
+  { n:'6', hasDub:true,  url:(a,e,L,m)=>m?`https://embed.su/embed/anime/${m}/${e}`:null },
+  { n:'7', hasDub:false, url:(a,e,L,m)=>m?`https://player.smashy.stream/anime/${m}?ep=${e}`:null },
+  { n:'8', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.cc/v2/embed/anime/${m}/${e}/`:null },
+  { n:'9', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.xyz/embed/anime?mal=${m}&ep=${e}`:null },
 ];
 
 function buildServers(aniId, ep, lang, malId) {
@@ -791,6 +789,7 @@ function buildServers(aniId, ep, lang, malId) {
   }
   return results;
 }
+
 
 const PIco = ({s=16}) => (<svg viewBox="0 0 20 20" fill="currentColor" style={{width:s,height:s}}><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>);
 const FilmIco = () => (<svg viewBox="0 0 20 20" fill="currentColor" style={{width:13,height:13}}><path fillRule="evenodd" d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm2 0h2v2H4V6zm0 4h2v2H4v-2zm0 4h2v2H4v-2zm12-8h-2v2h2V6zm0 4h-2v2h2v-2zm0 4h-2v2h2v-2zM8 6h4v8H8V6z" clipRule="evenodd"/></svg>);
