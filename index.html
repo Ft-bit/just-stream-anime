@@ -14,7 +14,6 @@
       }).catch(()=>{});
     }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
 
   <meta charset="UTF-8"/>
   <!-- Resource hints for faster loading -->
@@ -757,195 +756,40 @@ function mapA(a) {
   };
 }
 
-// ── PUBLIC STREAMING API CONFIG ─────────────────────────────────────────────
-// These are FREE public APIs - NO self-hosting needed!
-// They return direct M3U8 video links (no iframe ads).
+// SERVER MAP:
+// 1 — vidnest.fun /anime/    → MULTI-SOURCE (AniList ID, low ads, widest coverage) ← DEFAULT
+// 2 — vidnest.fun /animepahe/→ AnimePahe only (AniList ID, low ads, 720p H.265)
+// 3 — megaplay.buzz /ani/    → Multi-source (AniList ID, low-medium ads)
+// 4 — megaplay.buzz /mal/    → Multi-source (MAL ID fallback for server 3)
+// 5 — embed.su               → Aggregator (MAL ID, medium ads)
+// 6 — smashy.stream          → Aggregator (MAL ID, medium ads)
+// 7 — vidsrc.cc              → VidSrc network (MAL ID, HIGH ads — fallback only)
+// 8 — vidsrc.xyz             → VidSrc network (MAL ID, HIGH ads — fallback only)
+// 9 — vidsrc.to              → VidSrc network (MAL ID, HIGH ads — fallback only)
+// WHY Server 1 was broken: /animepahe/ only works for anime ON AnimePahe.
+//   /anime/ tries multiple sources so it works for ALL anime old & new.
+const SERVER_DEFS = [
+  { n:'1', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/anime/${a}/${e}/${L}` },
+  { n:'2', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/animepahe/${a}/${e}/${L}` },
+  { n:'3', hasDub:true,  url:(a,e,L,m)=>`https://megaplay.buzz/stream/ani/${a}/${e}/${L}` },
+  { n:'4', hasDub:true,  url:(a,e,L,m)=>m?`https://megaplay.buzz/stream/mal/${m}/${e}/${L}`:null },
+  { n:'5', hasDub:true,  url:(a,e,L,m)=>m?`https://embed.su/embed/anime/${m}/${e}`:null },
+  { n:'6', hasDub:false, url:(a,e,L,m)=>m?`https://player.smashy.stream/anime/${m}?ep=${e}`:null },
+  { n:'7', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.cc/v2/embed/anime/${m}/${e}/`:null },
+  { n:'8', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.xyz/embed/anime?mal=${m}&ep=${e}`:null },
+  { n:'9', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.to/embed/anime/${m}/${e}`:null },
+];
 
-const STREAM_APIS = {
-  // AniWatch API - Public, fast, sub+dub, M3U8 direct links
-  aniwatch: {
-    name: 'AniWatch',
-    base: 'https://api-anime-rouge.vercel.app/aniwatch',
-    hasDub: true,
-    async search(title) {
-      try {
-        const r = await fetch(`${this.base}/search?keyword=${encodeURIComponent(title)}&page=1`);
-        if (!r.ok) return null;
-        const d = await r.json();
-        return d.animes?.map(a => ({ id: a.id, title: a.name, image: a.img, eps: a.episodes })) || [];
-      } catch { return null; }
-    },
-    async episodes(id) {
-      try {
-        const r = await fetch(`${this.base}/episodes/${id}`);
-        if (!r.ok) return null;
-        const d = await r.json();
-        return d.episodes?.map(e => ({ id: e.episodeId, number: e.episodeNo || e.number, title: e.name || e.title })) || [];
-      } catch { return null; }
-    },
-    async stream(episodeId, type = 'sub', server = 'vidstreaming') {
-      try {
-        const r = await fetch(`${this.base}/episode-srcs?id=${encodeURIComponent(episodeId)}&server=${server}&category=${type}`);
-        if (!r.ok) return null;
-        return await r.json();
-      } catch { return null; }
-    }
-  },
-
-  // HiAnime API v2 - Public, reliable, multiple servers
-  hianime: {
-    name: 'HiAnime',
-    base: 'https://hianime-api-iy4s.onrender.com/api/v2',
-    hasDub: true,
-    async search(title) {
-      try {
-        const r = await fetch(`${this.base}/search?keyword=${encodeURIComponent(title)}&page=1`);
-        if (!r.ok) return null;
-        const d = await r.json();
-        return d.data?.animes?.map(a => ({ id: a.id, title: a.title, image: a.poster, eps: a.episodes })) || [];
-      } catch { return null; }
-    },
-    async episodes(id) {
-      try {
-        const r = await fetch(`${this.base}/episodes/${id}`);
-        if (!r.ok) return null;
-        const d = await r.json();
-        return d.data?.episodes?.map(e => ({ id: e.id, number: e.episodeNumber, title: e.title })) || [];
-      } catch { return null; }
-    },
-    async stream(episodeId, type = 'sub') {
-      try {
-        const r = await fetch(`${this.base}/episode/sources?animeEpisodeId=${encodeURIComponent(episodeId)}&category=${type}`);
-        if (!r.ok) return null;
-        return await r.json();
-      } catch { return null; }
-    }
-  }
-};
-
-// In-memory cache for API responses (TTL: 30 min)
-const SRC_CACHE = new Map();
-const CACHE_TTL = 30 * 60 * 1000;
-
-function cacheGet(key) {
-  const entry = SRC_CACHE.get(key);
-  if (entry && Date.now() - entry.ts < CACHE_TTL) return entry.data;
-  return null;
-}
-function cacheSet(key, data) {
-  SRC_CACHE.set(key, { data, ts: Date.now() });
-}
-
-// ── MAIN: Fetch streaming sources for an anime episode ──────────────────────
-async function fetchEpisodeSources(animeTitle, animeId, malId, episode, lang = 'sub') {
-  const cacheKey = `${animeId}_${episode}_${lang}`;
-  const cached = cacheGet(cacheKey);
-  if (cached) return cached;
-
-  const sources = [];
-  const errors = [];
-  let intro = null, outro = null, tracks = [];
-
-  // ── Provider 1: AniWatch ──
-  try {
-    const aw = STREAM_APIS.aniwatch;
-    const results = await aw.search(animeTitle);
-    if (results && results.length > 0) {
-      const match = results[0];
-      const eps = await aw.episodes(match.id);
-      if (eps && eps.length > 0) {
-        const targetIdx = Math.min(episode - 1, eps.length - 1);
-        const targetEp = eps[targetIdx];
-        if (targetEp) {
-          const servers = ['vidstreaming', 'megacloud', 'streamsb'];
-          for (const srv of servers) {
-            try {
-              const stream = await aw.stream(targetEp.id, lang, srv);
-              if (stream?.sources?.length > 0) {
-                for (const src of stream.sources) {
-                  sources.push({
-                    n: String(sources.length + 1),
-                    name: `AW ${srv}`,
-                    provider: 'aniwatch',
-                    hasDub: lang === 'dub',
-                    url: src.url,
-                    isM3U8: src.isM3U8 || src.url?.includes('.m3u8'),
-                    quality: src.quality || 'Auto',
-                    headers: stream.headers,
-                  });
-                }
-                if (stream.subtitles) tracks = stream.subtitles;
-                intro = stream.intro || intro;
-                outro = stream.outro || outro;
-              }
-            } catch (e) { errors.push(`AW ${srv}: ${e.message}`); }
-          }
-        }
-      }
-    }
-  } catch (e) { errors.push(`AniWatch: ${e.message}`); }
-
-  // ── Provider 2: HiAnime ──
-  if (sources.length === 0) {
-    try {
-      const hi = STREAM_APIS.hianime;
-      const results = await hi.search(animeTitle);
-      if (results && results.length > 0) {
-        const match = results[0];
-        const eps = await hi.episodes(match.id);
-        if (eps && eps.length > 0) {
-          const targetIdx = Math.min(episode - 1, eps.length - 1);
-          const targetEp = eps[targetIdx];
-          if (targetEp) {
-            const stream = await hi.stream(targetEp.id, lang);
-            if (stream?.sources?.length > 0) {
-              for (const src of stream.sources) {
-                sources.push({
-                  n: String(sources.length + 1),
-                  name: `HiAnime`,
-                  provider: 'hianime',
-                  hasDub: lang === 'dub',
-                  url: src.url,
-                  isM3U8: src.isM3U8 || src.url?.includes('.m3u8'),
-                  quality: src.quality || 'Auto',
-                  headers: stream.headers,
-                });
-              }
-              if (stream.subtitles) tracks = stream.subtitles;
-              intro = stream.intro || intro;
-              outro = stream.outro || outro;
-            }
-          }
-        }
-      }
-    } catch (e) { errors.push(`HiAnime: ${e.message}`); }
-  }
-
-  // ── Fallback: Legacy embeds (last resort) ──
-  if (sources.length === 0) {
-    const L = lang === 'dub' ? 'dub' : 'sub';
-    sources.push({
-      n: 'FB1', name: 'VidNest', provider: 'vidnest', hasDub: true,
-      url: `https://vidnest.fun/anime/${animeId}/${episode}/${L}`,
-      isEmbed: true, quality: 'Embed',
-    });
-    if (malId) {
-      sources.push({
-        n: 'FB2', name: 'MegaPlay', provider: 'megaplay', hasDub: true,
-        url: `https://megaplay.buzz/stream/mal/${malId}/${episode}/${L}`,
-        isEmbed: true, quality: 'Embed',
-      });
-    }
-  }
-
-  const result = { sources, tracks, intro, outro, errors, fromAPI: sources.length > 0 && !sources[0].isEmbed };
-  cacheSet(cacheKey, result);
-  return result;
-}
-
-// Legacy compatibility
 function buildServers(aniId, ep, lang, malId) {
-  return [{ n:'1', name:'Loading…', hasDub:true, url:'about:blank', isLoading:true }];
+  const e = ep || 1;
+  const L = lang === 'dub' ? 'dub' : 'sub';
+  const results = [];
+  for (const def of SERVER_DEFS) {
+    const url = def.url(aniId, e, L, malId);
+    if (!url) continue;
+    results.push({ n:def.n, hasDub:def.hasDub, url });
+  }
+  return results;
 }
 
 const PIco = ({s=16}) => (<svg viewBox="0 0 20 20" fill="currentColor" style={{width:s,height:s}}><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>);
@@ -1422,32 +1266,13 @@ function WatchPage({anime, startTab, onBack}) {
                   If it doesn't load in 10s — try Server 2 or 3
                 </p>
               </div>}
-{tab==='watch' && srvs[si]?.isM3U8 ? (
-  <VideoPlayer 
-    src={srvs[si]?.url}
-    poster={anime.banner || anime.imageHD || anime.image}
-    tracks={srvs[si]?.tracks || []}
-    intro={srvs[si]?.intro}
-    outro={srvs[si]?.outro}
-    onReady={() => setSpin(false)}
-    onError={() => {
-      setSpin(false);
-      if (si < srvs.length - 1) {
-        setSi(si + 1);
-        setKey(k => k + 1);
-        toast(`Server ${si + 1} failed, trying ${si + 2}...`);
-      }
-    }}
-  />
-) : (
-  <iframe key={`${tab}-${key}`} className="player-iframe" src={src}
-    allowFullScreen
-    allow={isYT?"accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share":"autoplay;fullscreen;picture-in-picture;encrypted-media;clipboard-write"}
-    referrerPolicy={isYT?"strict-origin-when-cross-origin":"no-referrer"}
-    scrolling="no" style={{touchAction:'manipulation'}}
-    onLoad={()=>setSpin(false)}
-    onError={()=>setSpin(false)}/>
-)}
+              {src&&<iframe key={`${tab}-${key}`} className="player-iframe" src={src}
+                allowFullScreen
+                allow={isYT?"accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share":"autoplay;fullscreen;picture-in-picture;encrypted-media;clipboard-write"}
+                referrerPolicy={isYT?"strict-origin-when-cross-origin":"no-referrer"}
+                scrolling="no" style={{touchAction:'manipulation'}}
+                onLoad={()=>setSpin(false)}
+                onError={()=>setSpin(false)}/>}
 
               {/* Skip Intro/Outro button */}
               {tab==='watch'&&showSkip&&(
@@ -1516,15 +1341,19 @@ function WatchPage({anime, startTab, onBack}) {
                   </div>
                 </div>
                 <div className="srv-btns">
-  {srvs.map((s,i)=>(
-    <button key={s.n} className={`sbtn${si===i?' on':''}`} onClick={()=>switchSrv(i)}
-      title={s.name ? `${s.name} • ${s.quality || 'Auto'}` : undefined}>
-      {s.quality || s.name || `S${s.n}`}
-      {s.provider && <span style={{fontSize:8,opacity:.6,marginLeft:3}}>({s.provider})</span>}
-      {lang==='dub'&&!s.hasDub&&<span style={{fontSize:7,opacity:.55,marginLeft:2}}>?</span>}
-    </button>
-  ))}
-</div>
+                  {srvs.map((s,i)=>(
+                    <button key={s.n} className={`sbtn${si===i?' on':''}`} onClick={()=>switchSrv(i)}
+                      title={lang==='dub'&&!s.hasDub?'May not have DUB':undefined}>
+                      {s.n}{lang==='dub'&&!s.hasDub&&<span style={{fontSize:7,opacity:.55,marginLeft:2}}>?</span>}
+                    </button>
+                  ))}
+                </div>
+                <p className="srv-hint">
+                  {lang==='dub'
+                    ? <>Servers <span>1, 3, 5</span> have best DUB. Server 1 has widest anime coverage.</>
+                    : <>Server 1 works for all anime (multi-source). Server 2 is AnimePahe quality. <span>Servers 7–9 are last-resort fallbacks — they have more ads.</span></>}
+                </p>
+              </div>
             )}
 
             {/* Anime info */}
@@ -3167,135 +2996,6 @@ class ErrorBoundary extends React.Component {
     }
     return this.props.children;
   }
-}
-  // ── HLS VIDEO PLAYER COMPONENT ──────────────────────────────────────────────
-function VideoPlayer({ src, poster, tracks, onReady, onError, intro, outro }) {
-  const videoRef = useRef(null);
-  const hlsRef = useRef(null);
-  const [showSkipIntro, setShowSkipIntro] = useState(false);
-  const [showSkipOutro, setShowSkipOutro] = useState(false);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !src) return;
-
-    if (hlsRef.current) {
-      hlsRef.current.destroy();
-      hlsRef.current = null;
-    }
-
-    if (Hls.isSupported()) {
-      const hls = new Hls({
-        maxBufferLength: 60,
-        maxMaxBufferLength: 300,
-        enableWorker: true,
-        manifestLoadingTimeOut: 10000,
-        levelLoadingTimeOut: 10000,
-      });
-      hlsRef.current = hls;
-      
-      hls.loadSource(src);
-      hls.attachMedia(video);
-      
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.play().catch(() => {});
-        onReady?.();
-      });
-      
-      hls.on(Hls.Events.ERROR, (event, data) => {
-        if (data.fatal) {
-          console.error('HLS fatal error:', data);
-          onError?.();
-        }
-      });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = src;
-      video.addEventListener('loadedmetadata', () => {
-        video.play().catch(() => {});
-        onReady?.();
-      });
-      video.addEventListener('error', onError);
-    } else {
-      onError?.();
-    }
-
-    const handleTimeUpdate = () => {
-      const ct = video.currentTime;
-      if (intro && ct >= intro.start && ct < intro.end - 3) {
-        setShowSkipIntro(true);
-      } else {
-        setShowSkipIntro(false);
-      }
-      if (outro && ct >= outro.start && ct < outro.end - 3) {
-        setShowSkipOutro(true);
-      } else {
-        setShowSkipOutro(false);
-      }
-    };
-    video.addEventListener('timeupdate', handleTimeUpdate);
-
-    return () => {
-      if (hlsRef.current) {
-        hlsRef.current.destroy();
-        hlsRef.current = null;
-      }
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-    };
-  }, [src]);
-
-  const doSkip = (toTime) => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = toTime;
-      setShowSkipIntro(false);
-      setShowSkipOutro(false);
-    }
-  };
-
-  return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', background: '#000' }}>
-      <video
-        ref={videoRef}
-        poster={poster}
-        controls
-        autoPlay
-        playsInline
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'contain',
-          background: '#000'
-        }}
-      />
-      {showSkipIntro && (
-        <button onClick={() => doSkip(intro.end)}
-          style={{
-            position: 'absolute', bottom: 70, right: 16, zIndex: 20,
-            background: 'rgba(225,29,72,.92)', border: 'none', color: '#fff',
-            fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 700,
-            padding: '8px 18px', borderRadius: 6, cursor: 'pointer',
-            backdropFilter: 'blur(8px)', boxShadow: '0 4px 16px rgba(225,29,72,.4)',
-            letterSpacing: '.04em'
-          }}>
-          ⏭ Skip Intro
-        </button>
-      )}
-      {showSkipOutro && (
-        <button onClick={() => doSkip(outro.end)}
-          style={{
-            position: 'absolute', bottom: 70, right: 16, zIndex: 20,
-            background: 'rgba(225,29,72,.92)', border: 'none', color: '#fff',
-            fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 700,
-            padding: '8px 18px', borderRadius: 6, cursor: 'pointer',
-            backdropFilter: 'blur(8px)', boxShadow: '0 4px 16px rgba(225,29,72,.4)',
-            letterSpacing: '.04em'
-          }}>
-          ⏭ Skip Outro
-        </button>
-      )}
-    </div>
-  );
 }
 
 function App() {
