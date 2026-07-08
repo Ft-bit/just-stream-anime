@@ -757,37 +757,27 @@ function mapA(a) {
 }
 
 // SERVER MAP:
-// ─────────────────────────────────────────────────────────────────────────────
-// SERVER LINEUP — VERIFIED Jul 2026 with curl + real player-marker checks.
-// Each entry was hand-tested for: <video>, <iframe> pointing to a stream host,
-// jwplayer()/videojs()/hls.js/clappr, or actual m3u8 URLs.
-//
-//   ✅ vidlink.pro      → jwplayer + m3u8 (Next.js player, real stream)
-//   ✅ megaplay.buzz    → JW Player + HLS (loads jw_player.js + hls.js)
-//   ✅ 2embed.cc        → 2 nested iframes → streamsrcs.2embed.cc player
-//   ✅ 2embed.skin      → mirror of 2embed.cc (different domain, same backend)
-//
-// ❌ DEAD PROVIDERS (removed — all confirmed broken Jul 2026):
-//    vidnest.fun       → Next.js client-side fetch hangs on "LOADING…" forever
-//    player.videasy.net → Player shell loads but m3u8 stream never starts
-//    vidsrc-embed.ru   → HTTP 403 Forbidden
-//    embed.su          → Domain is literally "FOR SALE" parking page now
-//    player.smashy.stream → DNS resolution fails
-//    vidsrc.to/embed/anime/ → HTTP 404
-//    vidsrc.to/embed/tv?mal= → Returns VidSrc.to MARKETING landing page,
-//                              NOT a player (this is what your screenshot showed)
-// ─────────────────────────────────────────────────────────────────────────────
+// 1 — vidnest.fun /anime/    → MULTI-SOURCE (AniList ID, low ads, widest coverage) ← DEFAULT
+// 2 — vidnest.fun /animepahe/→ AnimePahe only (AniList ID, low ads, 720p H.265)
+// 3 — megaplay.buzz /ani/    → Multi-source (AniList ID, low-medium ads)
+// 4 — megaplay.buzz /mal/    → Multi-source (MAL ID fallback for server 3)
+// 5 — embed.su               → Aggregator (MAL ID, medium ads)
+// 6 — smashy.stream          → Aggregator (MAL ID, medium ads)
+// 7 — vidsrc.cc              → VidSrc network (MAL ID, HIGH ads — fallback only)
+// 8 — vidsrc.xyz             → VidSrc network (MAL ID, HIGH ads — fallback only)
+// 9 — vidsrc.to              → VidSrc network (MAL ID, HIGH ads — fallback only)
+// WHY Server 1 was broken: /animepahe/ only works for anime ON AnimePahe.
+//   /anime/ tries multiple sources so it works for ALL anime old & new.
 const SERVER_DEFS = [
-  // 1 — DEFAULT. Real jwplayer + m3u8 stream, supports sub/dub toggle.
-  { n:'1', hasDub:true,  url:(a,e,L,m)=>m ?`https://vidlink.pro/anime/${m}/${e}/${L}?fallback=true`               :null },
-  // 2 — JW Player + HLS, indexed by AniList ID (works even when MAL ID is missing).
-  { n:'2', hasDub:true,  url:(a,e,L,m)=>   `https://megaplay.buzz/stream/ani/${a}/${e}/${L}`                          },
-  // 3 — Same megaplay.buzz player, indexed by MAL ID (alternate path/backup).
-  { n:'3', hasDub:true,  url:(a,e,L,m)=>m ?`https://megaplay.buzz/stream/mal/${m}/${e}/${L}`                       :null },
-  // 4 — 2embed.cc iframe-based player (loads streamsrcs.2embed.cc internally).
-  { n:'4', hasDub:true,  url:(a,e,L,m)=>m ?`https://www.2embed.cc/embed/anime?mal=${m}&ep=${e}`                   :null },
-  // 5 — 2embed.skin — mirror of 2embed.cc on a different domain (extra redundancy).
-  { n:'5', hasDub:true,  url:(a,e,L,m)=>m ?`https://www.2embed.skin/embed/anime?mal=${m}&ep=${e}`                 :null },
+  { n:'1', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/anime/${a}/${e}/${L}` },
+  { n:'2', hasDub:true,  url:(a,e,L,m)=>`https://vidnest.fun/animepahe/${a}/${e}/${L}` },
+  { n:'3', hasDub:true,  url:(a,e,L,m)=>`https://megaplay.buzz/stream/ani/${a}/${e}/${L}` },
+  { n:'4', hasDub:true,  url:(a,e,L,m)=>m?`https://megaplay.buzz/stream/mal/${m}/${e}/${L}`:null },
+  { n:'5', hasDub:true,  url:(a,e,L,m)=>m?`https://embed.su/embed/anime/${m}/${e}`:null },
+  { n:'6', hasDub:false, url:(a,e,L,m)=>m?`https://player.smashy.stream/anime/${m}?ep=${e}`:null },
+  { n:'7', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.cc/v2/embed/anime/${m}/${e}/`:null },
+  { n:'8', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.xyz/embed/anime?mal=${m}&ep=${e}`:null },
+  { n:'9', hasDub:true,  url:(a,e,L,m)=>m?`https://vidsrc.to/embed/anime/${m}/${e}`:null },
 ];
 
 function buildServers(aniId, ep, lang, malId) {
@@ -1273,7 +1263,7 @@ function WatchPage({anime, startTab, onBack}) {
               {spin&&<div className="player-loading"><div className="spin-ring"/>
                 <p className="spin-txt">{tab==='trailer'?'Loading trailer…':'Loading stream…'}</p>
                 <p className="spin-txt" style={{fontSize:10,marginTop:4,opacity:.6}}>
-                  If it doesn't load in 10s — try another server
+                  If it doesn't load in 10s — try Server 2 or 3
                 </p>
               </div>}
               {src&&<iframe key={`${tab}-${key}`} className="player-iframe" src={src}
