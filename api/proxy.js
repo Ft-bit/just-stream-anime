@@ -4,13 +4,8 @@ const http  = require('http');
 const { URL } = require('url');
 
 const ALLOWED = [
-  // CDN / HLS chunk hosts
   'uwucdn.top','owocdn.top','vault-','kwik','pahe','animepahe',
   'megaplay','vidnest','akamaized.net','cloudfront.net',
-  // Embed providers (added Jul 2026 — match new SERVER_DEFS in index.html)
-  'vidsrc.to','vidsrc.me','2embed.cc','2embed.skin','2embed.org',
-  'vidlink.pro','embed.su','videasy.net','warezcdn',
-  // Stream formats
   '.m3u8','.ts','.mp4','.m4s'
 ];
 
