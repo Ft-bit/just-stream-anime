@@ -1,7 +1,3 @@
-// api/share.js — JustStreamAnime universal share handler
-// Supports both anime (?a=anilistId) and manga (?m=mangaDexId)
-// Serves OG HTML to everyone — bots read meta tags, users get JS redirect
-
 const SITE_URL     = 'https://jsanime.site';
 const FALLBACK_IMG = 'https://jsanime.site/og-image.jpg';
 
