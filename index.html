@@ -3077,23 +3077,21 @@ function App() {
   const [mangaChapters,   setMangaChapters]   = useState([]);
   const [mangaView,       setMangaView]       = useState('browse'); // 'browse'|'detail'|'reader'
 
-  // Prefetch hero
+  // Prefetch hero — currently airing anime first (shows next-episode countdown),
+  // topped up with trending if there aren't enough airing titles.
   useEffect(() => {
     Promise.all([
+      gql(Qs.airing,    {p:1}),
       gql(Qs.trending,  {p:1}),
-      gql(Qs.popular,   {p:1}),
-    ]).then(([trendD, popD]) => {
+    ]).then(([airD, trendD]) => {
       const seen = new Set();
-      const trending = (trendD?.data?.Page?.media||[]).map(mapA).filter(a=>(a.banner||a.image)&&!seen.has(a.id)&&seen.add(a.id));
-      const popular  = (popD?.data?.Page?.media||[]).map(mapA).filter(a=>(a.banner||a.image)&&!seen.has(a.id)&&seen.add(a.id));
-      // Interleave: trending, popular, trending, popular... for variety
-      const mixed = [];
-      const max = Math.max(trending.length, popular.length);
-      for (let i = 0; i < max && mixed.length < 10; i++) {
-        if (trending[i]) mixed.push(trending[i]);
-        if (popular[i] && mixed.length < 10) mixed.push(popular[i]);
-      }
-      if (mixed.length) setHero(mixed.slice(0, 10));
+      const airing = (airD?.data?.Page?.media||[]).map(mapA)
+        .filter(a=>(a.banner||a.image)&&!seen.has(a.id)&&seen.add(a.id))
+        .sort((a,b)=>(a.timeUntilAiring??Infinity)-(b.timeUntilAiring??Infinity));
+      const trending = (trendD?.data?.Page?.media||[]).map(mapA)
+        .filter(a=>(a.banner||a.image)&&!seen.has(a.id)&&seen.add(a.id));
+      const mixed = [...airing, ...trending].slice(0, 10);
+      if (mixed.length) setHero(mixed);
     }).catch(()=>{});
   }, []);
 
