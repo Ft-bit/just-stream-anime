@@ -1,195 +1,196 @@
-// api/manga-page.js — Server-side meta injection for /manga/:id/:slug
-// Fetches manga from MangaDex, injects OG/Twitter/JSON-LD tags into index.html
-// so Google, Telegram, Discord, Twitter see manga-specific content from first byte
-
-const fs   = require('fs');
-const path = require('path');
+// api/manga.js — Action-based MangaDex proxy (CommonJS)
 const https = require('https');
 
-const SITE_URL     = 'https://jsanime.site';
-const FALLBACK_IMG = 'https://jsanime.site/og-image.jpg';
-
-// ── Fetch from MangaDex ───────────────────────────────────────────────────────
-function mdxFetch(endpoint) {
+function mdxFetch(path) {
   return new Promise((resolve) => {
     const opts = {
       hostname: 'api.mangadex.org',
-      path:     endpoint,
+      path,
       method:   'GET',
-      headers:  {
-        'Accept':     'application/json',
-        'User-Agent': 'JustStreamAnime/1.0 (jsanime.site)',
-      },
-      timeout: 10000,
+      headers:  { 'Accept': 'application/json', 'User-Agent': 'JustStreamAnime/1.0 (jsanime.site)' },
+      timeout:  12000,
     };
     const req = https.request(opts, res => {
       const chunks = [];
       res.on('data', c => chunks.push(c));
-      res.on('end', () => {
+      res.on('end',  ()  => {
         try { resolve(JSON.parse(Buffer.concat(chunks).toString())); }
-        catch { resolve(null); }
+        catch { resolve({}); }
       });
-      res.on('error', () => resolve(null));
+      res.on('error', () => resolve({}));
     });
-    req.on('timeout', () => { req.destroy(); resolve(null); });
-    req.on('error',   () => resolve(null));
+    req.on('timeout', () => { req.destroy(); resolve({}); });
+    req.on('error',   () => resolve({}));
     req.end();
   });
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function getCoverUrl(manga, size = 512) {
-  const rel = (manga.relationships || []).find(r => r.type === 'cover_art');
+function buildCoverUrl(manga) {
+  const rel = (manga.relationships||[]).find(r => r.type==='cover_art');
   const fn  = rel?.attributes?.fileName;
-  return fn ? `https://uploads.mangadex.org/covers/${manga.id}/${fn}.${size}.jpg` : null;
+  return fn ? `https://uploads.mangadex.org/covers/${manga.id}/${fn}.512.jpg` : null;
 }
 
-function makeSlug(title) {
-  return (title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-}
-
-function esc(s) {
-  if (!s) return '';
-  return String(s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-
-function cleanDesc(raw) {
-  return (raw || '')
+function formatManga(m) {
+  const a = m.attributes || {};
+  const title = a.title?.en || Object.values(a.title||{})[0] || 'Unknown';
+  const rawDesc = (a.description?.en || Object.values(a.description||{})[0] || '')
     .replace(/<[^>]+>/g, '')
     .replace(/https?:\/\/\S+/g, '')
-    .replace(/read (more|this|it)?\s*(at|on|here)?\s*mangadex[^\n]*/gi, '')
+    .replace(/read (more|this|it|now)?\s*(at|on|here)?\s*mangadex[^\n]*/gi, '')
     .replace(/visit mangadex[^\n]*/gi, '')
+    .replace(/available (on|at) mangadex[^\n]*/gi, '')
+    .replace(/you can read this[^\n]*/gi, '')
+    .replace(/continue reading[^\n]*/gi, '')
     .replace(/\(source:[^)]*\)/gi, '')
-    .replace(/\s{2,}/g, ' ')
-    .trim()
-    .slice(0, 250);
+    .replace(/source:\s*[^\n]*/gi, '')
+    .replace(/note:\s*[^\n]*/gi, '')
+    .replace(/^[-—–*=\s]+$/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim().slice(0, 500);
+  const author = (m.relationships||[]).find(r=>r.type==='author')?.attributes?.name || '';
+  return {
+    id: m.id, title, desc: rawDesc, author,
+    cover: buildCoverUrl(m),
+    status: a.status, year: a.year,
+    lastChapter: a.lastChapter, lastVolume: a.lastVolume,
+    genres: (a.tags||[]).filter(t=>t.attributes?.group==='genre').map(t=>t.attributes?.name?.en||'').filter(Boolean),
+    themes: (a.tags||[]).filter(t=>t.attributes?.group==='theme').map(t=>t.attributes?.name?.en||'').filter(Boolean),
+  };
 }
 
-// ── Handler ───────────────────────────────────────────────────────────────────
 module.exports = async function handler(req, res) {
-  const { id } = req.query;
+  res.setHeader('Access-Control-Allow-Origin',  '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', '*');
+  if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
-  // Read base index.html
-  let html;
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+
+  const qs     = new URLSearchParams(req.url.includes('?') ? req.url.split('?')[1] : '');
+  const action = qs.get('action') || 'list';
+  const id     = qs.get('id') || '';
+  const q      = qs.get('q') || '';
+  const page   = parseInt(qs.get('page') || '1');
+  const sort   = qs.get('sort') || 'followedCount';
+  const genre  = qs.get('genre') || '';
+  const limit  = 24;
+  const offset = (page - 1) * limit;
+
   try {
-    html = fs.readFileSync(path.join(process.cwd(), 'index.html'), 'utf8');
-  } catch (e) {
+    // ── LIST / BROWSE ────────────────────────────────────────────────────────
+    if (action === 'list') {
+      const p = new URLSearchParams();
+      p.append('limit', limit); p.append('offset', offset);
+      p.append('includes[]', 'cover_art'); p.append('includes[]', 'author');
+      p.append('contentRating[]', 'safe'); p.append('contentRating[]', 'suggestive');
+      p.append('availableTranslatedLanguage[]', 'en');
+      if (sort === 'followedCount') p.append('order[followedCount]', 'desc');
+      else if (sort === 'updatedAt') p.append('order[latestUploadedChapter]', 'desc');
+      else if (sort === 'rating')    p.append('order[rating]', 'desc');
+      else if (sort === 'createdAt') p.append('order[createdAt]', 'desc');
+      if (genre) p.append('includedTags[]', genre);
+      if (q)     p.append('title', q);
+      const d = await mdxFetch(`/manga?${p.toString()}`);
+      res.statusCode = 200;
+      res.end(JSON.stringify({ manga: (d.data||[]).map(formatManga), total: d.total||0 }));
+      return;
+    }
+
+    // ── LATEST (chapter feed - for New Chapters row) ────────────────────────
+    if (action === 'latest') {
+      const p = new URLSearchParams();
+      p.append('limit', 20); p.append('order[readableAt]', 'desc');
+      p.append('translatedLanguage[]', 'en'); p.append('includes[]', 'manga');
+      const chData = await mdxFetch(`/chapter?${p.toString()}`);
+
+      const mangaIds = [...new Set((chData.data||[])
+        .map(ch => (ch.relationships||[]).find(r=>r.type==='manga')?.id)
+        .filter(Boolean))];
+
+      const mp = new URLSearchParams();
+      mp.append('limit', 20); mp.append('includes[]', 'cover_art');
+      mangaIds.forEach(mid => mp.append('ids[]', mid));
+      const mData = await mdxFetch(`/manga?${mp.toString()}`);
+      const mMap  = {};
+      (mData.data||[]).forEach(m => { mMap[m.id] = formatManga(m); });
+
+      const seen = new Set(), latest = [];
+      for (const ch of (chData.data||[])) {
+        const mid = (ch.relationships||[]).find(r=>r.type==='manga')?.id;
+        if (!mid || seen.has(mid)) continue;
+        seen.add(mid);
+        const manga = mMap[mid];
+        if (manga) latest.push({ ...manga, latestChapter: ch.attributes?.chapter });
+      }
+      res.statusCode = 200;
+      res.end(JSON.stringify({ manga: latest }));
+      return;
+    }
+
+    // ── CHAPTERS ─────────────────────────────────────────────────────────────
+    if (action === 'chapters' && id) {
+      const enP = new URLSearchParams();
+      enP.append('limit', 500); enP.append('translatedLanguage[]', 'en');
+      enP.append('order[chapter]', 'asc'); enP.append('order[volume]', 'asc');
+      let d = await mdxFetch(`/manga/${id}/feed?${enP.toString()}`);
+
+      if (!(d.data?.length)) {
+        const anyP = new URLSearchParams();
+        anyP.append('limit', 500); anyP.append('order[chapter]', 'asc'); anyP.append('order[volume]', 'asc');
+        d = await mdxFetch(`/manga/${id}/feed?${anyP.toString()}`);
+      }
+
+      const seen = new Map();
+      for (const ch of (d.data||[])) {
+        const num = ch.attributes?.chapter ?? ch.id;
+        if (!seen.has(num)) seen.set(num, ch);
+      }
+      const chapters = [...seen.values()]
+        .sort((a,b) => (parseFloat(a.attributes?.chapter)||0) - (parseFloat(b.attributes?.chapter)||0))
+        .map(ch => ({
+          id: ch.id,
+          chapter:  ch.attributes?.chapter,
+          volume:   ch.attributes?.volume,
+          title:    ch.attributes?.title,
+          language: ch.attributes?.translatedLanguage,
+          pages:    ch.attributes?.pages,
+          group:    (ch.relationships||[]).find(r=>r.type==='scanlation_group')?.attributes?.name,
+        }));
+
+      res.statusCode = 200;
+      res.end(JSON.stringify({ chapters, hasEnglish: chapters.some(c=>c.language==='en') }));
+      return;
+    }
+
+    // ── PAGES (at-home server) ────────────────────────────────────────────────
+    if (action === 'pages' && id) {
+      const d = await mdxFetch(`/at-home/server/${id}`);
+      if (!d?.chapter) { res.statusCode = 404; res.end('{}'); return; }
+      const base = d.baseUrl, hash = d.chapter.hash;
+      const pages = (d.chapter.data||[]).map(f => `${base}/data/${hash}/${f}`);
+      const saver = (d.chapter.dataSaver||[]).map(f => `${base}/data-saver/${hash}/${f}`);
+      res.statusCode = 200;
+      res.end(JSON.stringify({ pages, dataSaver: saver }));
+      return;
+    }
+
+    // ── DETAIL ────────────────────────────────────────────────────────────────
+    if (action === 'detail' && id) {
+      const d = await mdxFetch(`/manga/${id}?includes[]=cover_art&includes[]=author`);
+      if (!d?.data) { res.statusCode = 404; res.end('{}'); return; }
+      res.statusCode = 200;
+      res.end(JSON.stringify(formatManga(d.data)));
+      return;
+    }
+
+    res.statusCode = 400;
+    res.end(JSON.stringify({ error: 'Unknown action' }));
+
+  } catch(err) {
+    console.error('manga api error:', err.message);
     res.statusCode = 500;
-    return res.end('Cannot read index.html');
+    res.end(JSON.stringify({ error: err.message }));
   }
-
-  // No ID → serve plain index.html (catches /manga browse page)
-  if (!id || id === 'undefined') {
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    return res.end(html);
-  }
-
-  // Fetch manga detail from MangaDex
-  const data = await mdxFetch(`/manga/${encodeURIComponent(id)}?includes[]=cover_art&includes[]=author`);
-
-  if (!data?.data) {
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    return res.end(html);
-  }
-
-  const m    = data.data;
-  const attr = m.attributes || {};
-
-  const title       = attr.title?.en || Object.values(attr.title || {})[0] || 'Manga';
-  const rawDesc     = attr.description?.en || Object.values(attr.description || {})[0] || '';
-  const desc        = cleanDesc(rawDesc);
-  const cover       = getCoverUrl(m, 512) || FALLBACK_IMG;
-  const author      = (m.relationships || []).find(r => r.type === 'author')?.attributes?.name || '';
-  const status      = attr.status ? (attr.status.charAt(0).toUpperCase() + attr.status.slice(1)) : '';
-  const lastChapter = attr.lastChapter || '';
-  const year        = attr.year || '';
-  const genres      = (attr.tags || [])
-    .filter(t => t.attributes?.group === 'genre')
-    .map(t => t.attributes?.name?.en || '')
-    .filter(Boolean)
-    .slice(0, 4)
-    .join(', ');
-
-  const slug      = makeSlug(title);
-  const canonical = `${SITE_URL}/manga/${id}/${slug}`;
-
-  const pageTitle = `${title} – Read Free on JustStreamAnime`;
-  const metaParts = [
-    author      ? `By ${author}`        : '',
-    status      ? status                 : '',
-    lastChapter ? `${lastChapter} Ch`   : '',
-    year        ? String(year)           : '',
-    genres,
-  ].filter(Boolean).join(' · ');
-  const fullDesc  = desc
-    ? `${desc}${metaParts ? ` | ${metaParts}` : ''}`
-    : `Read ${title} online free with English translation on JustStreamAnime. ${metaParts}`;
-
-  // ── JSON-LD Schema ──────────────────────────────────────────────────────────
-  const schema = JSON.stringify({
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type':       'Book',
-        'bookFormat':  'https://schema.org/GraphicNovel',
-        'name':        title,
-        'url':         canonical,
-        'image':       cover,
-        'description': desc || undefined,
-        'inLanguage':  'en',
-        'author':      author ? { '@type': 'Person', 'name': author } : undefined,
-        'genre':       genres || undefined,
-        'potentialAction': { '@type': 'ReadAction', 'target': canonical },
-        'publisher': {
-          '@type': 'Organization',
-          'name':  'JustStreamAnime',
-          'url':   SITE_URL,
-        },
-      },
-      {
-        '@type': 'BreadcrumbList',
-        'itemListElement': [
-          { '@type': 'ListItem', 'position': 1, 'name': 'Home',           'item': SITE_URL + '/'        },
-          { '@type': 'ListItem', 'position': 2, 'name': 'Manga',          'item': SITE_URL + '/manga'   },
-          { '@type': 'ListItem', 'position': 3, 'name': title,            'item': canonical              },
-        ],
-      },
-    ],
-  });
-
-  // ── Inject into HTML ────────────────────────────────────────────────────────
-  html = html
-    // Title
-    .replace(/<title>[^<]*<\/title>/,
-      `<title>${esc(pageTitle)}</title>`)
-    // Meta description
-    .replace(/<meta name="description" content="[^"]*"\/?>/,
-      `<meta name="description" content="${esc(fullDesc.slice(0, 155))}"/>`)
-    // Canonical
-    .replace(/(<link rel="canonical" href=")[^"]*(")/,
-      `$1${canonical}$2`)
-    // OG tags
-    .replace(/id="og-title" property="og:title" content="[^"]*"/,
-      `id="og-title" property="og:title" content="${esc(pageTitle)}"`)
-    .replace(/id="og-desc" property="og:description" content="[^"]*"/,
-      `id="og-desc" property="og:description" content="${esc(fullDesc.slice(0, 200))}"`)
-    .replace(/id="og-url" property="og:url" content="[^"]*"/,
-      `id="og-url" property="og:url" content="${canonical}"`)
-    .replace(/id="og-image" property="og:image" content="[^"]*"/,
-      `id="og-image" property="og:image" content="${cover}"`)
-    .replace(/id="og-image-w" property="og:image:width" content="[^"]*"/,
-      `id="og-image-w" property="og:image:width" content="512"`)
-    .replace(/id="og-image-h" property="og:image:height" content="[^"]*"/,
-      `id="og-image-h" property="og:image:height" content="728"`)
-    // Twitter
-    .replace(/id="tw-image" name="twitter:image" content="[^"]*"/,
-      `id="tw-image" name="twitter:image" content="${cover}"`)
-    // Inject manga JSON-LD before </head>
-    .replace('</head>', `<script type="application/ld+json">${schema}</script>\n</head>`);
-
-  res.setHeader('Content-Type',  'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
-  res.end(html);
 };
