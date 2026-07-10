@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <script>
-    // Auto-cleanup: remove any stale service worker / cache from old deployments
+    // Auto-cleanup: remove any stale service worker / cache from old deployment
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(regs => {
         regs.forEach(reg => reg.unregister());
