@@ -1015,15 +1015,20 @@ function Hero({items, onPlay}) {
   );
 }
 
-function SearchBar({onSel, onSearch}) {
+function SearchBar({onSel, onSelManga, onSearch}) {
   const [q,setQ] = useState(''), [res,setRes] = useState([]), [open,setO] = useState(false);
   const tmr = useRef(null), closeTimer = useRef(null), ref = useRef(null);
   const openDrop  = () => { clearTimeout(closeTimer.current); setO(true); };
   const closeDrop = () => { closeTimer.current = setTimeout(() => setO(false), 160); };
   const run = useCallback(async v => {
     if (!v.trim()) { setRes([]); setO(false); return; }
-    const d = await gql(Qs.search, {s:v});
-    setRes((d.data?.Page?.media||[]).map(mapA)); setO(true);
+    const [animeD, mangaD] = await Promise.allSettled([
+      gql(Qs.search, {s:v}),
+      mgApi('list', { q: v, page: '1', sort: 'followedCount' }),
+    ]);
+    const anime = (animeD.status==='fulfilled'?animeD.value?.data?.Page?.media||[]:[]).map(m=>({...mapA(m),_type:'anime'}));
+    const manga = (mangaD.status==='fulfilled'?mangaD.value?.manga||[]:[]).slice(0,4).map(m=>({...m,_type:'manga'}));
+    setRes([...anime.slice(0,5),...manga]); setO(true);
   }, []);
   const oc = e => {
     setQ(e.target.value);
@@ -1043,12 +1048,28 @@ function SearchBar({onSel, onSearch}) {
         onBlur={closeDrop}/>
       {open && res.length > 0 && (
         <div className="search-drop">
-          {res.map(a=>(
-            <div key={a.id} className="s-row" onMouseDown={e=>e.preventDefault()} onClick={()=>{ setO(false); setQ(''); onSel(a); }}>
-              <img src={a.image} alt={a.title} onError={e=>e.target.style.display='none'}/>
+          {res.map((a,i)=>(
+            <div key={(a.id||i)+'-'+(a._type||'a')} className="s-row"
+              onMouseDown={e=>e.preventDefault()}
+              onClick={()=>{ setO(false); setQ(''); if(a._type==='manga'){ if(onSelManga) onSelManga(a); } else onSel(a); }}>
+              <img src={a._type==='manga'?a.cover:a.image} alt={a.title}
+                referrerPolicy={a._type==='manga'?'no-referrer':undefined}
+                onError={e=>e.target.style.display='none'}/>
               <div style={{minWidth:0}}>
-                <div className="s-title">{a.title}</div>
-                <div className="s-meta">{a.season||a.year}{a.airedEps?` · ${a.airedEps} eps`:''} · {a.format}</div>
+                <div className="s-title" style={{display:'flex',alignItems:'center',gap:5}}>
+                  <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{a.title}</span>
+                  <span style={{fontFamily:'var(--mono)',fontSize:8,fontWeight:800,padding:'1px 5px',borderRadius:3,flexShrink:0,
+                    background:a._type==='manga'?'rgba(88,101,242,.18)':'rgba(225,29,72,.12)',
+                    color:a._type==='manga'?'#818cf8':'#fb7185',
+                    border:`1px solid ${a._type==='manga'?'rgba(88,101,242,.3)':'rgba(225,29,72,.2)'}`}}>
+                    {a._type==='manga'?'MANGA':'ANIME'}
+                  </span>
+                </div>
+                <div className="s-meta">
+                  {a._type==='manga'
+                    ?`${a.author||''}${a.lastChapter?` · Ch.${a.lastChapter}`:''}`
+                    :`${a.season||a.year||''}${a.airedEps?` · ${a.airedEps} eps`:''} · ${a.format||''}`}
+                </div>
               </div>
             </div>
           ))}
@@ -1351,7 +1372,7 @@ function WatchPage({anime, startTab, onBack}) {
                 <p className="srv-hint">
                   {lang==='dub'
                     ? <>Servers <span>1, 3, 5</span> have best DUB. Server 1 has widest anime coverage.</>
-                    : <>Server 1 works for all anime (multi-source). Server 2 is AnimePahe quality. <span>Servers 7–9 are last-resort fallbacks — they have more ads.</span></>}
+                    : <>If a server fails to load, try the next one.</>}
                 </p>
               </div>
             )}
@@ -1738,7 +1759,9 @@ function ContinueWatching({onPlay, cwList, setCwList}) {
   );
 }
 
-function SearchResultsPage({query, results, loading, onPlay, onBack}) {
+function SearchResultsPage({query, results, loading, onPlay, onOpenManga, onBack}) {
+  const animeR = results.filter(r=>r._type!=='manga');
+  const mangaR = results.filter(r=>r._type==='manga');
   return (
     <div className="srp">
       <div className="srp-hdr">
@@ -1749,14 +1772,32 @@ function SearchResultsPage({query, results, loading, onPlay, onBack}) {
         </div>
         <button className="empty-btn" style={{marginLeft:'auto'}} onClick={onBack}>← Back</button>
       </div>
-      <div className="section" style={{paddingTop:'0'}}>
-        {loading
-          ? <div className="agrid">{Array(8).fill(0).map((_,i)=><div key={i} className="sk"/>)}</div>
-          : results.length
-            ? <div className="agrid">{results.map(a=><AnimeCard key={a.id} a={a} onPlay={onPlay}/>)}</div>
-            : <EmptyState query={query} onClear={onBack}/>
-        }
-      </div>
+      {loading ? (
+        <div className="section" style={{paddingTop:0}}>
+          <div className="agrid">{Array(8).fill(0).map((_,i)=><div key={i} className="sk"/>)}</div>
+        </div>
+      ) : results.length===0 ? (
+        <EmptyState query={query} onClear={onBack}/>
+      ) : (
+        <>
+          {animeR.length>0 && (
+            <div className="section" style={{paddingTop:0}}>
+              <div className="sec-hdr" style={{marginBottom:'clamp(.6rem,2vw,1rem)'}}>
+                <div className="sec-bar"/><span className="sec-title">Anime ({animeR.length})</span>
+              </div>
+              <div className="agrid">{animeR.map(a=><AnimeCard key={a.id} a={a} onPlay={onPlay}/>)}</div>
+            </div>
+          )}
+          {mangaR.length>0 && (
+            <div className="section" style={{paddingTop:0}}>
+              <div className="sec-hdr" style={{marginBottom:'clamp(.6rem,2vw,1rem)'}}>
+                <div className="sec-bar"/><span className="sec-title">Manga ({mangaR.length})</span>
+              </div>
+              <div className="agrid">{mangaR.map(m=><MangaCard key={m.id} m={m} onOpen={onOpenManga}/>)}</div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -1818,13 +1859,16 @@ function ShareModal({url, hashUrl, title, image, desc, onClose, toast}) {
   const copyUrl  = url  || hashUrl || window.location.href; // always copy the /share?a= URL
   const shareText = `${title} — Watch on JustStreamAnime`;
   const onOverlay = e => { if (e.target===e.currentTarget) onClose(); };
+  const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share;
   const apps = [
+    ...(canNativeShare ? [{ label:'Share', Icon:ShareIcons.CopyLink,
+      action:()=>{ navigator.share({title:shareText, url:shareUrl}).catch(()=>{}); onClose(); }}] : []),
     { label:'WhatsApp', Icon:ShareIcons.WhatsApp,
       href:`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareUrl)}` },
     { label:'Telegram', Icon:ShareIcons.Telegram,
       href:`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}` },
     { label:'Twitter', Icon:ShareIcons.Twitter,
-      href:`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Watch ' + title + ' on JustStreamAnime 🎌')}` },
+      href:`https://x.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Watch ' + title + ' on JustStreamAnime 🎌')}` },
     { label:'Facebook', Icon:ShareIcons.Facebook,
       href:`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
     { label:'Reddit', Icon:ShareIcons.Reddit,
@@ -2730,6 +2774,18 @@ function MangaDetailPage({manga, onBack, onRead, onChaptersLoaded}) {
               Latest: Ch.{chapters[chapters.length-1].chapter}
             </button>
           )}
+          <button className="share-trigger" onClick={()=>{
+            const url = `https://jsanime.site/manga/${manga.id}/${makeSlug(manga.title)}`;
+            const text = `${manga.title} — Read Free on JustStreamAnime`;
+            if (navigator.share) { navigator.share({title:text, url}).catch(()=>{}); }
+            else { navigator.clipboard?.writeText(url); }
+          }}>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" style={{width:11,height:11}}>
+              <circle cx="13" cy="2.5" r="1.5"/><circle cx="13" cy="13.5" r="1.5"/><circle cx="3" cy="8" r="1.5"/>
+              <path d="M4.5 7.1L11.5 3.4M4.5 8.9L11.5 12.6" strokeLinecap="round"/>
+            </svg>
+            Share
+          </button>
         </div>
 
         {/* Chapter List */}
@@ -3092,6 +3148,14 @@ function App() {
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
+  function openManga(manga) {
+    if (!manga) return;
+    setSelectedManga(manga); setMangaView('detail'); setView('manga'); setNavPage('manga');
+    updateOGTags({ title: manga.title+' – Read Free on JustStreamAnime', image: manga.cover, desc: manga.desc, url: `https://jsanime.site/manga/${manga.id}/${makeSlug(manga.title)}` });
+    writePath('manga',{id:manga.id,slug:makeSlug(manga.title)});
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
   function goNav(p) {
     setNavPage(p);
     if (p==='home')  { goHome(); return; }
@@ -3108,9 +3172,13 @@ function App() {
   function doSearch(q) {
     if (!q.trim()) { setSrView(false); return; }
     setSrView(true); setSrQuery(q); setSrItems([]); setSrLoading(true);
-    gql(Qs.search, {s:q}).then(d => {
-      setSrItems((d.data?.Page?.media||[]).map(mapA));
-      setSrLoading(false);
+    Promise.allSettled([
+      gql(Qs.search, {s:q}),
+      mgApi('list', { q, page:'1', sort:'followedCount' }),
+    ]).then(([animeR, mangaR]) => {
+      const anime = (animeR.status==='fulfilled'?animeR.value?.data?.Page?.media||[]:[]).map(m=>({...mapA(m),_type:'anime'}));
+      const manga = (mangaR.status==='fulfilled'?mangaR.value?.manga||[]:[]).map(m=>({...m,_type:'manga'}));
+      setSrItems([...anime,...manga]); setSrLoading(false);
     }).catch(()=>setSrLoading(false));
   }
 
@@ -3136,12 +3204,12 @@ function App() {
       <div className="layout">
         <Sidebar page={navPage} setPage={goNav} goHome={goHome}/>
         <div className="main">
-          <SearchBar onSel={openWatch} onSearch={doSearch} onClear={()=>{setSrView(false);setSrQuery('');}}/>
+          <SearchBar onSel={openWatch} onSelManga={openManga} onSearch={doSearch} onClear={()=>{setSrView(false);setSrQuery('');}}/>
 
           {srView ? (
             <SearchResultsPage
               query={srQuery} results={srItems} loading={srLoading}
-              onPlay={openWatch} onBack={()=>{setSrView(false);setSrQuery('');}}/>
+              onPlay={openWatch} onOpenManga={openManga} onBack={()=>{setSrView(false);setSrQuery('');}}/>
           ) : view==='explore' ? (
             <ExplorePage onPlay={openWatch}/>
           ) : view==='schedule' ? (
