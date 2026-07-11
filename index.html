@@ -1854,27 +1854,26 @@ const ShareIcons = {
   ),
 };
 
-function ShareModal({url, hashUrl, title, image, desc, onClose, toast}) {
+function ShareModal({url, hashUrl, title, image, desc, type='anime', onClose, toast}) {
   const shareUrl = url  || hashUrl || window.location.href;
-  const copyUrl  = url  || hashUrl || window.location.href; // always copy the /share?a= URL
-  const shareText = `${title} — Watch on JustStreamAnime`;
+  const copyUrl  = url  || hashUrl || window.location.href;
+  const verb = type==='manga' ? 'Read' : 'Watch';
+  const shareText = `${title} — ${verb} on JustStreamAnime`;
   const onOverlay = e => { if (e.target===e.currentTarget) onClose(); };
   const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share;
   const apps = [
-    ...(canNativeShare ? [{ label:'Share', Icon:ShareIcons.CopyLink,
-      action:()=>{ navigator.share({title:shareText, url:shareUrl}).catch(()=>{}); onClose(); }}] : []),
     { label:'WhatsApp', Icon:ShareIcons.WhatsApp,
       href:`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareUrl)}` },
     { label:'Telegram', Icon:ShareIcons.Telegram,
       href:`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}` },
     { label:'Twitter', Icon:ShareIcons.Twitter,
-      href:`https://x.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Watch ' + title + ' on JustStreamAnime 🎌')}` },
+      href:`https://x.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(verb + ' ' + title + ' on JustStreamAnime 🎌')}` },
     { label:'Facebook', Icon:ShareIcons.Facebook,
       href:`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
     { label:'Reddit', Icon:ShareIcons.Reddit,
       href:`https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(title)}` },
     { label:'Email', Icon:ShareIcons.Email,
-      href:`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent('Watch ' + title + ' on JustStreamAnime:\n' + shareUrl)}` },
+      href:`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(verb + ' ' + title + ' on JustStreamAnime:\n' + shareUrl)}` },
     { label:'Discord', Icon:ShareIcons.Discord,
       action:()=>{ navigator.clipboard?.writeText(shareUrl).then(()=>{ toast('📋 Link copied! Paste it in your Discord server.'); window.open('https://discord.gg/Upyq7cYcPa','_blank','noopener'); }); onClose(); } },
     { label:'Copy Link', Icon:ShareIcons.CopyLink,
@@ -1884,7 +1883,7 @@ function ShareModal({url, hashUrl, title, image, desc, onClose, toast}) {
     <div className="share-overlay" onClick={onOverlay}>
       <div className="share-sheet" onClick={e=>e.stopPropagation()}>
         <div className="share-sheet-hdr">
-          <span className="share-sheet-title">Share this Anime</span>
+          <span className="share-sheet-title">Share this {type==='manga'?'Manga':'Anime'}</span>
           <button className="share-sheet-close" onClick={onClose}>✕</button>
         </div>
         <div className="share-apps">
@@ -1905,6 +1904,20 @@ function ShareModal({url, hashUrl, title, image, desc, onClose, toast}) {
             Copy
           </button>
         </div>
+        {canNativeShare && (
+          <button onClick={()=>{ navigator.share({title:shareText,url:shareUrl}).catch(()=>{}); onClose(); }}
+            style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,width:'100%',
+              marginTop:12,padding:'10px',borderRadius:10,background:'rgba(255,255,255,.05)',
+              border:'1px solid var(--border2)',color:'var(--txt2)',cursor:'pointer',
+              fontFamily:'var(--mono)',fontSize:11,fontWeight:700,letterSpacing:'.04em'}}>
+            <svg viewBox="0 0 20 20" fill="currentColor" style={{width:14,height:14}}>
+              <circle cx="4"  cy="10" r="1.8"/>
+              <circle cx="10" cy="10" r="1.8"/>
+              <circle cx="16" cy="10" r="1.8"/>
+            </svg>
+            More
+          </button>
+        )}
       </div>
     </div>
   );
@@ -2687,6 +2700,8 @@ function MangaDetailPage({manga, onBack, onRead, onChaptersLoaded}) {
   const [chLoading, setChLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [page, setPage] = useState(0);
+  const [shareOpen, setShareOpen] = useState(false);
+  const toast = useToast();
   const CLIMIT = 100;
 
   useEffect(()=>{
@@ -2774,12 +2789,7 @@ function MangaDetailPage({manga, onBack, onRead, onChaptersLoaded}) {
               Latest: Ch.{chapters[chapters.length-1].chapter}
             </button>
           )}
-          <button className="share-trigger" onClick={()=>{
-            const url = `https://jsanime.site/manga/${manga.id}/${makeSlug(manga.title)}`;
-            const text = `${manga.title} — Read Free on JustStreamAnime`;
-            if (navigator.share) { navigator.share({title:text, url}).catch(()=>{}); }
-            else { navigator.clipboard?.writeText(url); }
-          }}>
+          <button className="share-trigger" onClick={()=>setShareOpen(true)}>
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" style={{width:11,height:11}}>
               <circle cx="13" cy="2.5" r="1.5"/><circle cx="13" cy="13.5" r="1.5"/><circle cx="3" cy="8" r="1.5"/>
               <path d="M4.5 7.1L11.5 3.4M4.5 8.9L11.5 12.6" strokeLinecap="round"/>
@@ -2787,6 +2797,10 @@ function MangaDetailPage({manga, onBack, onRead, onChaptersLoaded}) {
             Share
           </button>
         </div>
+        {shareOpen&&<ShareModal type="manga"
+          url={`https://jsanime.site/manga/${manga.id}/${makeSlug(manga.title)}`}
+          title={manga.title} image={manga.cover||''} desc={manga.desc||''}
+          onClose={()=>setShareOpen(false)} toast={toast}/>}
 
         {/* Chapter List */}
         <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:13,overflow:'hidden'}}>
