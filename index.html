@@ -512,16 +512,40 @@
     .contact-note strong{color:var(--txt);font-weight:700}
     @media(display-mode:standalone){.nav{padding-top:env(safe-area-inset-top)}}
     @media(min-width:769px){body{padding-left:var(--sidebar)}.nav{left:var(--sidebar)}}
-    .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar);z-index:600;background:rgba(7,7,14,.97);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px}
+    .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar);z-index:600;background:rgba(7,7,14,.97);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px;transition:width .22s ease;overflow:hidden}
     @media(max-width:768px){.sidebar{display:none}}
-    .sb-logo{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px var(--glow);cursor:pointer;margin-bottom:10px;flex-shrink:0;transition:transform .18s}
+    .sidebar.expanded{width:196px;align-items:stretch;padding:10px 10px}
+    .sb-hamburger{width:36px;height:36px;border-radius:9px;border:none;background:none;color:var(--txt2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .18s;flex-shrink:0;margin:0 auto 8px;-webkit-tap-highlight-color:transparent}
+    .sb-hamburger:hover{background:rgba(255,255,255,.08);color:var(--txt)}
+    .sb-hamburger svg{width:18px;height:18px}
+    .sidebar.expanded .sb-hamburger{margin:0 0 8px 2px}
+    .sb-logo{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px var(--glow);cursor:pointer;margin:0 auto 10px;flex-shrink:0;transition:transform .18s}
+    .sidebar.expanded .sb-logo{margin:0 0 10px 2px}
     .sb-logo:hover{transform:scale(1.08)}
-    .sb-btn{width:44px;height:44px;border-radius:10px;border:none;background:none;color:var(--txt3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent;position:relative;flex-shrink:0}
+    .sb-btn{width:44px;height:44px;border-radius:10px;border:none;background:none;color:var(--txt3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent;position:relative;flex-shrink:0;margin:0 auto}
+    .sidebar.expanded .sb-btn{flex-direction:row;justify-content:flex-start;gap:12px;width:100%;height:40px;padding:0 11px;margin:0}
     .sb-btn:hover{background:rgba(255,255,255,.07);color:var(--txt2)}
     .sb-btn.on{background:rgba(225,29,72,.12);color:var(--red)}
     .sb-btn svg{width:20px;height:20px;flex-shrink:0}
-    .sb-btn span{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.03em;line-height:1}
-    .sb-divider{width:28px;height:1px;background:var(--border);margin:4px 0;flex-shrink:0}
+    .sb-btn span{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.03em;line-height:1;position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
+    .sidebar.expanded .sb-btn span{position:static;width:auto;height:auto;overflow:visible;opacity:1;font-size:12px;letter-spacing:.01em}
+    .sb-divider{width:28px;height:1px;background:var(--border);margin:4px auto;flex-shrink:0}
+    .sidebar.expanded .sb-divider{width:100%;margin:4px 0}
+    .sb-promo{margin-top:auto;padding-top:10px;flex-shrink:0}
+    .sb-promo-card{display:flex;align-items:center;gap:8px;padding:7px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--border);justify-content:center}
+    .sidebar.expanded .sb-promo-card{justify-content:flex-start}
+    .sb-promo-ico{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .sb-promo-ico svg{width:14px;height:14px;color:#fff}
+    .sb-promo-text{min-width:0;display:none}
+    .sidebar.expanded .sb-promo-text{display:block}
+    .sb-promo-title{font-size:10px;font-weight:800;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .25s}
+    .sb-promo-sub{font-family:var(--mono);font-size:9px;color:var(--txt3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;transition:opacity .25s}
+    /* Grayscale-by-default thumbnails that colorize on hover, used for compact
+       poster rows (Continue Watching, Recently Aired, History) */
+    .gray-hover{filter:grayscale(.85) brightness(.82);transition:filter .35s ease}
+    .cw-card:hover .gray-hover,
+    .ra-card:hover .gray-hover,
+    .hist-card:hover .gray-hover{filter:grayscale(0) brightness(1)}
     .mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:600;background:rgba(7,7,14,.97);border-top:1px solid var(--border);padding:6px 0 max(6px,env(safe-area-inset-bottom));backdrop-filter:blur(20px)}
     @media(max-width:768px){.mob-nav{display:flex}body{padding-bottom:calc(56px + max(6px,env(safe-area-inset-bottom)))}.toast-wrap{bottom:70px}.btt{bottom:68px}}
     .mob-nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;color:var(--txt3);cursor:pointer;padding:4px 0;transition:color .15s;-webkit-tap-highlight-color:transparent}
@@ -1786,7 +1810,7 @@ function ContinueWatching({onPlay, cwList, setCwList}) {
               onClick={()=>onPlay(item)}
               onKeyDown={e=>e.key==='Enter'&&onPlay(item)}>
               <div className="cw-img-wrap">
-                <img className="cw-img" src={item.image} alt={item.title}
+                <img className="cw-img gray-hover" src={item.image} alt={item.title}
                   onError={e=>e.target.style.display='none'}/>
                 <div className="cw-grad"/>
                 <div className="cw-play-overlay">
@@ -2078,9 +2102,48 @@ function ScheduleIco() { return <svg viewBox="0 0 24 24" fill="none" stroke="cur
 function HistoryIco()  { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>; }
 
 // ── SIDEBAR (desktop) ─────────────────────────────────────────────────────────
-function Sidebar({page, setPage, goHome}) {
+// Small icons used only inside the sidebar (hamburger + social row) ─────────
+function HamburgerIco() {
+  return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>);
+}
+function GiftIco() {
+  return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>);
+}
+
+// Rotating call-to-action shown in the sidebar promo card. Cycles every 4s.
+const SB_PROMOS = [
+  { title:'Love the Site?',        sub:'Bookmark us!',        Icon:GiftIco },
+  { title:'Join the Discord!',     sub:'Chat with the community', Icon:DiscordIcon },
+  { title:'Follow us on Instagram',sub:'@juststreamanime',    Icon:GiftIco },
+  { title:'Follow us on X',        sub:'@juststreamanime',    Icon:TwitterXIcon },
+];
+
+function SidebarPromo({expanded}) {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setI(n => (n+1) % SB_PROMOS.length), 4000);
+    return () => clearInterval(t);
+  }, []);
+  const {title, sub, Icon} = SB_PROMOS[i];
   return (
-    <div className="sidebar">
+    <div className="sb-promo">
+      <div className="sb-promo-card" title={title}>
+        <div className="sb-promo-ico"><Icon/></div>
+        <div className="sb-promo-text">
+          <div className="sb-promo-title">{title}</div>
+          <div className="sb-promo-sub">{sub}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Sidebar({page, setPage, goHome, expanded, onToggle}) {
+  return (
+    <div className={'sidebar'+(expanded?' expanded':'')}>
+      <button className="sb-hamburger" onClick={onToggle} title={expanded?'Collapse menu':'Expand menu'}>
+        <HamburgerIco/>
+      </button>
       <div className="sb-logo" onClick={goHome} title="JustStreamAnime">
         <PIco s={16}/>
       </div>
@@ -2107,6 +2170,7 @@ function Sidebar({page, setPage, goHome}) {
         onClick={()=>setPage('manga')} title="Read Manga">
         <BookIco/><span>Read</span>
       </button>
+      <SidebarPromo expanded={expanded}/>
     </div>
   );
 }
@@ -2173,7 +2237,7 @@ function HistoryPage({cwList, setCwList, onPlay}) {
             return (
               <div key={item.id} className="hist-card" onClick={()=>onPlay(item)}>
                 <div className="hist-card-top">
-                  <img className="hist-card-img" src={item.image} alt={item.title}
+                  <img className="hist-card-img gray-hover" src={item.image} alt={item.title}
                     onError={e=>e.target.style.display='none'}/>
                   <div className="hist-card-grad"/>
                   <div className="hist-card-play">
@@ -2247,7 +2311,7 @@ function RecentlyAired({onPlay}) {
             <div key={a.id+'-'+a.airedEpNum} className="ra-card"
               onClick={()=>onPlay(a,'watch')}>
               <div className="ra-img-wrap">
-                <img className="ra-img" src={a.image} alt={a.title}
+                <img className="ra-img gray-hover" src={a.image} alt={a.title}
                   loading="lazy" onError={e=>e.target.style.display='none'}/>
                 <div className="ra-grad"/>
                 <div className="ra-ep">EP {a.airedEpNum}</div>
@@ -2658,7 +2722,7 @@ function MangaBrowsePage({onOpen}) {
               <div key={m.id+'-'+idx} className="ra-card" onClick={()=>onOpen(m)}>
                 <div className="ra-img-wrap">
                   {m.cover
-                    ? <img className="ra-img" src={m.cover} alt={m.title}
+                    ? <img className="ra-img gray-hover" src={m.cover} alt={m.title}
                         loading={idx<5?'eager':'lazy'} decoding="async"
                         referrerPolicy="no-referrer"
                         style={{opacity:0,transition:'opacity .35s'}}
@@ -3146,6 +3210,13 @@ function App() {
   const [srItems,   setSrItems]  = useState([]);
   const [srLoading, setSrLoading]= useState(false);
   const [navPage,   setNavPage]  = useState('home');
+  const [sbExpanded, setSbExpanded] = useState(() => {
+    try { return localStorage.getItem('jsa_sidebar_expanded') === '1'; } catch { return false; }
+  });
+  useEffect(() => {
+    document.body.style.setProperty('--sidebar', sbExpanded ? '196px' : '60px');
+    try { localStorage.setItem('jsa_sidebar_expanded', sbExpanded ? '1' : '0'); } catch {}
+  }, [sbExpanded]);
   const [selectedManga,   setSelectedManga]   = useState(null);
   const [selectedChapter, setSelectedChapter] = useState(null);
   const [mangaChapters,   setMangaChapters]   = useState([]);
@@ -3274,7 +3345,7 @@ function App() {
   return (
     <ToastProvider>
       <div className="layout">
-        <Sidebar page={navPage} setPage={goNav} goHome={goHome}/>
+        <Sidebar page={navPage} setPage={goNav} goHome={goHome} expanded={sbExpanded} onToggle={()=>setSbExpanded(e=>!e)}/>
         <div className="main">
           <SearchBar onSel={openWatch} onSelManga={openManga} onSearch={doSearch} onClear={()=>{setSrView(false);setSrQuery('');}}/>
 
