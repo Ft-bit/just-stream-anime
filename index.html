@@ -1119,35 +1119,32 @@ function markWatched(animeId, ep) {
 }
 
 
-// DISQUS COMMENTS (SPA-safe: uses DISQUS.reset() on navigation instead of
-// re-injecting embed.js every time, since this is a single-page app and the
-// page never actually reloads when moving between anime/manga)
-const DISQUS_SHORTNAME = 'jsanime';
+// CUSDIS COMMENTS (SPA-safe). Unlike Disqus, Cusdis doesn't expose a public
+// reset() API, so on navigation we clear the container and inject a brand
+// new script tag each time — this forces Cusdis's widget script to rescan
+// the DOM and re-render fresh for whichever anime/manga the user just opened.
+// ⚠️ REQUIRED: replace CUSDIS_APP_ID below with your real App ID from
+// your Cusdis dashboard (Settings → Embed Code → data-app-id="...").
+const CUSDIS_APP_ID = '3082b166-6a5c-46a2-87e1-22551038dd4a';
 
-function DisqusThread({identifier, url, title}) {
+function CusdisComments({identifier, url, title}) {
+  const containerRef = useRef(null);
+
   useEffect(() => {
-    if (!identifier || !url) return;
-    if (window.DISQUS) {
-      window.DISQUS.reset({
-        reload: true,
-        config: function () {
-          this.page.identifier = identifier;
-          this.page.url = url;
-          this.page.title = title;
-        },
-      });
-    } else {
-      window.disqus_config = function () {
-        this.page.url = url;
-        this.page.identifier = identifier;
-        this.page.title = title;
-      };
-      const s = document.createElement('script');
-      s.src = `https://${DISQUS_SHORTNAME}.disqus.com/embed.js`;
-      s.setAttribute('data-timestamp', String(+new Date()));
-      s.async = true;
-      (document.head || document.body).appendChild(s);
-    }
+    if (!identifier || !url || !containerRef.current) return;
+    containerRef.current.innerHTML = '';
+
+    const existing = document.getElementById('cusdis-script');
+    if (existing) existing.remove();
+
+    const script = document.createElement('script');
+    script.id = 'cusdis-script';
+    script.src = 'https://cusdis.com/js/cusdis.es.js';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    return () => { script.remove(); };
   }, [identifier, url]);
 
   return (
@@ -1156,7 +1153,16 @@ function DisqusThread({identifier, url, title}) {
         <div className="sec-bar"/>
         <h2 className="sec-title">💬 Comments</h2>
       </div>
-      <div id="disqus_thread"></div>
+      <div
+        ref={containerRef}
+        id="cusdis_thread"
+        data-host="https://cusdis.com"
+        data-app-id={CUSDIS_APP_ID}
+        data-page-id={identifier}
+        data-page-url={url}
+        data-page-title={title}
+        data-theme="dark"
+      />
     </div>
   );
 }
@@ -1492,7 +1498,7 @@ function WatchPage({anime, startTab, onBack}) {
           </div>
         </div>
 
-        <DisqusThread
+        <CusdisComments
           identifier={`anime-${anime.id}`}
           url={`https://jsanime.site/anime/${anime.id}/${makeSlug(anime.title)}`}
           title={anime.title}
@@ -2897,7 +2903,7 @@ function MangaDetailPage({manga, onBack, onRead, onChaptersLoaded}) {
           }
         </div>
 
-        <DisqusThread
+        <CusdisComments
           identifier={`manga-${manga.id}`}
           url={`https://jsanime.site/manga/${manga.id}/${makeSlug(manga.title)}`}
           title={manga.title}
