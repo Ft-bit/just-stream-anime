@@ -176,7 +176,7 @@
     @media(max-width:768px){
       .hero-img-desk{display:none}
       .hero-img-mob{display:block}
-      .hero{min-height:clamp(320px,62vh,520px)}
+      .hero{min-height:clamp(300px,46vh,430px)}
     }
     .hero-nav-fade{position:absolute;top:0;left:0;right:0;height:140px;background:linear-gradient(to bottom,rgba(7,7,14,.9) 0%,transparent 100%);pointer-events:none;z-index:2}
     .hero-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(7,7,14,1) 0%,rgba(7,7,14,.82) 18%,rgba(7,7,14,.35) 42%,rgba(7,7,14,.05) 65%,transparent 100%),linear-gradient(to right,rgba(7,7,14,.95) 0%,rgba(7,7,14,.7) 25%,rgba(7,7,14,.2) 50%,transparent 72%);z-index:1}
@@ -545,7 +545,31 @@
     .gray-hover{filter:grayscale(.85) brightness(.82);transition:filter .35s ease}
     .cw-card:hover .gray-hover,
     .ra-card:hover .gray-hover,
-    .hist-card:hover .gray-hover{filter:grayscale(0) brightness(1)}
+    .hist-card:hover .gray-hover,
+    .side-item:hover .gray-hover{filter:grayscale(0) brightness(1)}
+
+    /* ── HOME PAGE 2-COLUMN LAYOUT (Latest Completed / Ad / Top Upcoming) ──
+       Desktop: right rail sits beside the tab grid. Mobile: collapses to a
+       single column and the rail stacks full-width below the grid. */
+    .home-grid{display:grid;grid-template-columns:1fr;gap:0}
+    @media(min-width:1180px){.home-grid{grid-template-columns:1fr 300px;gap:20px;align-items:start;padding:0 clamp(.75rem,3.5vw,2.5rem)}}
+    .home-main-col{min-width:0}
+    @media(min-width:1180px){.home-main-col{padding:0}.home-main-col .tabs-wrap,.home-main-col .genre-wrap,.home-main-col .section,.home-main-col .cw-section,.home-main-col .ra-section{padding-left:0;padding-right:0}}
+    .side-rail{display:flex;flex-direction:column;gap:10px;padding:0 clamp(.75rem,3.5vw,2.5rem) 2rem}
+    @media(min-width:1180px){.side-rail{padding:1.4rem 0 2rem}}
+    .side-rail-hdr{display:flex;align-items:center;gap:8px;margin:6px 0 2px}
+    .side-rail-hdr svg{width:16px;height:16px;color:var(--red);flex-shrink:0}
+    .side-rail-hdr span{font-size:14px;font-weight:800;color:#fff;letter-spacing:-.01em}
+    .side-item{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;cursor:pointer;transition:background .18s;-webkit-tap-highlight-color:transparent}
+    .side-item:hover{background:rgba(255,255,255,.05)}
+    .side-item-img{width:44px;height:62px;border-radius:6px;object-fit:cover;flex-shrink:0;background:#131328}
+    .side-item-info{min-width:0}
+    .side-item-title{font-size:12.5px;font-weight:700;color:var(--txt);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .side-item-meta{font-family:var(--mono);font-size:10px;color:var(--txt3);margin-top:3px}
+    .side-item-sk{display:flex;align-items:center;gap:10px;padding:8px}
+    .side-item-sk::before{content:'';width:44px;height:62px;border-radius:6px;flex-shrink:0;background:linear-gradient(90deg,#1a1a2e 25%,#20203a 50%,#1a1a2e 75%);background-size:200% 100%;animation:shimmer 1.7s infinite}
+    .side-ad-slot{margin:8px 0;min-height:120px;border-radius:10px;border:1px dashed var(--border2);background:rgba(255,255,255,.02);display:flex;align-items:center;justify-content:center}
+    .side-ad-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txt3);text-transform:uppercase}
     .mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:600;background:rgba(7,7,14,.97);border-top:1px solid var(--border);padding:6px 0 max(6px,env(safe-area-inset-bottom));backdrop-filter:blur(20px)}
     @media(max-width:768px){.mob-nav{display:flex}body{padding-bottom:calc(56px + max(6px,env(safe-area-inset-bottom)))}.toast-wrap{bottom:70px}.btt{bottom:68px}}
     .mob-nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;color:var(--txt3);cursor:pointer;padding:4px 0;transition:color .15s;-webkit-tap-highlight-color:transparent}
@@ -716,10 +740,12 @@ const FL = `id idMal siteUrl title{romaji english}coverImage{extraLarge large me
 const FD = `${FL} streamingEpisodes{title thumbnail url site}`;
 
 const Qs = {
-  trending:`query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,sort:TRENDING_DESC,isAdult:false){${FL}}}}`,
-  popular: `query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,sort:POPULARITY_DESC,isAdult:false){${FL}}}}`,
-  top:     `query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,sort:SCORE_DESC,isAdult:false){${FL}}}}`,
-  airing:  `query($p:Int){Page(page:$p,perPage:30){pageInfo{lastPage}media(type:ANIME,status:RELEASING,sort:TRENDING_DESC,isAdult:false){${FL}}}}`,
+  trending:`query($p:Int){Page(page:$p,perPage:15){pageInfo{lastPage}media(type:ANIME,sort:TRENDING_DESC,isAdult:false){${FL}}}}`,
+  popular: `query($p:Int){Page(page:$p,perPage:15){pageInfo{lastPage}media(type:ANIME,sort:POPULARITY_DESC,isAdult:false){${FL}}}}`,
+  top:     `query($p:Int){Page(page:$p,perPage:15){pageInfo{lastPage}media(type:ANIME,sort:SCORE_DESC,isAdult:false){${FL}}}}`,
+  airing:  `query($p:Int){Page(page:$p,perPage:15){pageInfo{lastPage}media(type:ANIME,status:RELEASING,sort:TRENDING_DESC,isAdult:false){${FL}}}}`,
+  latestCompleted:`query($p:Int){Page(page:$p,perPage:8){media(type:ANIME,status:FINISHED,sort:[END_DATE_DESC],isAdult:false){${FL}}}}`,
+  topUpcoming:`query($p:Int){Page(page:$p,perPage:8){media(type:ANIME,status:NOT_YET_RELEASED,sort:[POPULARITY_DESC],isAdult:false){${FL}}}}`,
   search:  `query($s:String){Page(perPage:14){media(search:$s,type:ANIME,isAdult:false){${FL}}}}`,
   detail:  `query($id:Int){Media(id:$id,type:ANIME){
     id idMal siteUrl title{romaji english}coverImage{extraLarge large medium color}bannerImage
@@ -2265,6 +2291,66 @@ function HistoryPage({cwList, setCwList, onPlay}) {
 }
 
 // ── RECENTLY AIRED ROW ────────────────────────────────────────────────────────
+// ── SIDE RAIL: Latest Completed / Ad slot / Top Upcoming ──────────────────────
+function CheckCircleIco() {
+  return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>);
+}
+function MegaphoneIco() {
+  return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 11-5.8-1.6"/></svg>);
+}
+
+function SideListItem({a, onPlay}) {
+  return (
+    <div className="side-item" onClick={()=>onPlay(a)}>
+      <img className="side-item-img gray-hover" src={a.image} alt={a.title} loading="lazy"
+        onError={e=>{e.target.style.display='none'}}/>
+      <div className="side-item-info">
+        <div className="side-item-title">{a.title}</div>
+        <div className="side-item-meta">
+          {a.format}{a.airedEps?` · ${a.airedEps} eps`:''}{a.year?` · ${a.year}`:''}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SideRail({onPlay}) {
+  const [completed, setCompleted] = useState([]);
+  const [upcoming,  setUpcoming]  = useState([]);
+  const [cLoad,     setCLoad]     = useState(true);
+  const [uLoad,     setULoad]     = useState(true);
+
+  useEffect(() => {
+    gql(Qs.latestCompleted, {p:1}).then(d => {
+      setCompleted((d.data?.Page?.media||[]).map(mapA));
+      setCLoad(false);
+    }).catch(()=>setCLoad(false));
+    gql(Qs.topUpcoming, {p:1}).then(d => {
+      setUpcoming((d.data?.Page?.media||[]).map(mapA));
+      setULoad(false);
+    }).catch(()=>setULoad(false));
+  }, []);
+
+  return (
+    <aside className="side-rail">
+      <div className="side-rail-hdr"><CheckCircleIco/><span>Latest Completed</span></div>
+      {cLoad
+        ? Array(4).fill(0).map((_,i)=><div key={i} className="side-item-sk"/>)
+        : completed.map(a=><SideListItem key={a.id} a={a} onPlay={onPlay}/>)}
+
+      <div className="side-ad-slot">
+        {/* Paste ad script/embed here later */}
+        <span className="side-ad-label">Advertisement</span>
+      </div>
+
+      <div className="side-rail-hdr"><MegaphoneIco/><span>Top Upcoming</span></div>
+      {uLoad
+        ? Array(4).fill(0).map((_,i)=><div key={i} className="side-item-sk"/>)
+        : upcoming.map(a=><SideListItem key={a.id} a={a} onPlay={onPlay}/>)}
+    </aside>
+  );
+}
+
 function RecentlyAired({onPlay}) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -3394,40 +3480,66 @@ function App() {
                   if(a) openWatch(mapA(a),'watch');
                 }).catch(()=>{});
               }} cwList={cwList} setCwList={setCwList}/>
-              <RecentlyAired onPlay={openWatch}/>
 
-              {/* Tab nav */}
-              <div className="tabs-wrap">
-                <div className="tabs">
-                  {TABS.map(t=>(
-                    <button key={t.id} className={'tab'+(tab===t.id?' on':'')}
-                      onClick={()=>{ setTab(t.id); setPage(1); setGenre('All'); writePath('home',{tab:t.id,page:1}); }}>
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <div className="home-grid">
+                <div className="home-main-col">
+                  {/* Tab nav */}
+                  <div className="tabs-wrap">
+                    <div className="tabs">
+                      {TABS.map(t=>(
+                        <button key={t.id} className={'tab'+(tab===t.id?' on':'')}
+                          onClick={()=>{ setTab(t.id); setPage(1); setGenre('All'); writePath('home',{tab:t.id,page:1}); }}>
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-              {tab!=='schedule' && <GenreBar genre={genre} setGenre={g=>{ setGenre(g); setPage(1); }}/>}
+                  {tab!=='schedule' && <GenreBar genre={genre} setGenre={g=>{ setGenre(g); setPage(1); }}/>}
 
-              <div className="section">
-                {tab==='schedule' ? <SchedulePage onPlay={openWatch}/> : (
-                  <>
-                    {loading
-                      ? <div className="agrid">{Array(12).fill(0).map((_,i)=><div key={i} className="sk"/>)}</div>
-                      : items.length
-                        ? <div className="agrid">{items.map(a=><AnimeCard key={a.id} a={a} onPlay={openWatch}/>)}</div>
-                        : <EmptyState query={null} onClear={genre!=='All'?()=>{setGenre('All');setPage(1);}:null}/>
-                    }
-                    {!loading && items.length>0 && totalPg>1 && (
-                      <div className="pag">
-                        <button className="pgb" disabled={page===1} onClick={()=>chPg(page-1)}>‹</button>
-                        {ps.map(p=><button key={p} className={'pgb'+(p===page?' on':'')} onClick={()=>chPg(p)}>{p}</button>)}
-                        <button className="pgb" disabled={page===totalPg} onClick={()=>chPg(page+1)}>›</button>
+                  {tab==='schedule' ? (
+                    <div className="section"><SchedulePage onPlay={openWatch}/></div>
+                  ) : (
+                    <>
+                      {/* First 6 items */}
+                      <div className="section" style={{paddingBottom:'.6rem'}}>
+                        {loading
+                          ? <div className="agrid">{Array(6).fill(0).map((_,i)=><div key={i} className="sk"/>)}</div>
+                          : items.length
+                            ? <div className="agrid">{items.slice(0,6).map(a=><AnimeCard key={a.id} a={a} onPlay={openWatch}/>)}</div>
+                            : <EmptyState query={null} onClear={genre!=='All'?()=>{setGenre('All');setPage(1);}:null}/>
+                        }
                       </div>
-                    )}
-                  </>
-                )}
+
+                      {!loading && items.length>0 && <RecentlyAired onPlay={openWatch}/>}
+
+                      {/* Remaining items + pagination */}
+                      {!loading && items.length>6 && (
+                        <div className="section" style={{paddingTop:'.2rem'}}>
+                          <div className="agrid">{items.slice(6).map(a=><AnimeCard key={a.id} a={a} onPlay={openWatch}/>)}</div>
+                          {totalPg>1 && (
+                            <div className="pag">
+                              <button className="pgb" disabled={page===1} onClick={()=>chPg(page-1)}>‹</button>
+                              {ps.map(p=><button key={p} className={'pgb'+(p===page?' on':'')} onClick={()=>chPg(p)}>{p}</button>)}
+                              <button className="pgb" disabled={page===totalPg} onClick={()=>chPg(page+1)}>›</button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {!loading && items.length>0 && items.length<=6 && totalPg>1 && (
+                        <div className="section" style={{paddingTop:'.2rem'}}>
+                          <div className="pag">
+                            <button className="pgb" disabled={page===1} onClick={()=>chPg(page-1)}>‹</button>
+                            {ps.map(p=><button key={p} className={'pgb'+(p===page?' on':'')} onClick={()=>chPg(p)}>{p}</button>)}
+                            <button className="pgb" disabled={page===totalPg} onClick={()=>chPg(page+1)}>›</button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {tab!=='schedule' && <SideRail onPlay={openWatch}/>}
               </div>
 
               {/* Footer */}
