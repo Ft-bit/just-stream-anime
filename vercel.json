@@ -25,3 +25,8 @@
     { "source": "/(.*)",                                   "destination": "/index.html"               }
   ]
 }
+"api/auth/anilist/login.js":    { "maxDuration": 10 },
+"api/auth/anilist/callback.js": { "maxDuration": 15 },
+"api/auth/me.js":               { "maxDuration": 10 },
+"api/auth/logout.js":           { "maxDuration": 10 },
+"api/comments.js":              { "maxDuration": 15 }
