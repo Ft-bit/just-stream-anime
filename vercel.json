@@ -8,11 +8,9 @@
     "api/manga-page.js":  { "maxDuration": 15 },
     "api/manga.js":       { "maxDuration": 30 },
     "api/indexnow.js":    { "maxDuration": 30 },
-    "api/auth/anilist/login.js":    { "maxDuration": 10 },
-    "api/auth/anilist/callback.js": { "maxDuration": 15 },
-    "api/auth/me.js":               { "maxDuration": 10 },
-    "api/auth/logout.js":           { "maxDuration": 10 },
-    "api/comments.js":              { "maxDuration": 15 }
+    "api/auth/anilist.js": { "maxDuration": 15 },
+"api/auth/session.js": { "maxDuration": 10 },
+"api/comments.js":     { "maxDuration": 15 }
   },
   "rewrites": [
     { "source": "/sitemap.xml",                             "destination": "/api/sitemap"              },
