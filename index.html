@@ -1234,55 +1234,202 @@ function markWatched(animeId, ep) {
 }
 
 
-// CUSDIS COMMENTS (SPA-safe). Unlike Disqus, Cusdis doesn't expose a public
-// reset() API, so on navigation we clear the container and inject a brand
-// new script tag each time — this forces Cusdis's widget script to rescan
-// the DOM and re-render fresh for whichever anime/manga the user just opened.
-// ⚠️ REQUIRED: replace CUSDIS_APP_ID below with your real App ID from
-// your Cusdis dashboard (Settings → Embed Code → data-app-id="...").
-const CUSDIS_APP_ID = '3082b166-6a5c-46a2-87e1-22551038dd4a';
+// ── COMMENT SYSTEM (AniList login + Supabase-backed comments) ────────────────
+function timeAgoShort(iso) {
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  if (diff < 2592000) return `${Math.floor(diff/86400)}d ago`;
+  return new Date(iso).toLocaleDateString();
+}
 
-function CusdisComments({identifier, url, title}) {
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    if (!identifier || !url || !containerRef.current) return;
-    containerRef.current.innerHTML = '';
-
-    const existing = document.getElementById('cusdis-script');
-    if (existing) existing.remove();
-
-    const script = document.createElement('script');
-    script.id = 'cusdis-script';
-    script.src = 'https://cusdis.com/js/cusdis.es.js';
-    script.async = true;
-    script.defer = true;
-    document.body.appendChild(script);
-
-    return () => { script.remove(); };
-  }, [identifier, url]);
+function CommentRow({c, currentUser, onLogin, onReply, onVote, onDelete, depth=0}) {
+  const [showReplyBox, setShowReplyBox] = useState(false);
+  const [replyText, setReplyText] = useState('');
+  const myVote = c._myVote || 0;
 
   return (
-    <div style={{marginTop:20}}>
-      <div className="sec-hdr" style={{marginBottom:12}}>
-        <div className="sec-bar"/>
-        <h2 className="sec-title">💬 Comments</h2>
+    <div style={{marginLeft: depth>0 ? 28 : 0, marginTop:14}}>
+      <div style={{display:'flex',gap:10}}>
+        {c.avatar_url
+          ? <img src={c.avatar_url} alt={c.username} style={{width:32,height:32,borderRadius:8,flexShrink:0,objectFit:'cover'}}/>
+          : <div style={{width:32,height:32,borderRadius:8,flexShrink:0,background:'var(--bg3)'}}/>}
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{display:'flex',alignItems:'center',gap:7,flexWrap:'wrap'}}>
+            <span style={{fontSize:12.5,fontWeight:800,color:'#fff'}}>{c.username}</span>
+            <span style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>{timeAgoShort(c.created_at)}</span>
+          </div>
+          <p style={{fontSize:13,color:'var(--txt2)',lineHeight:1.6,marginTop:3,whiteSpace:'pre-wrap',wordBreak:'break-word'}}>{c.body}</p>
+          <div style={{display:'flex',alignItems:'center',gap:14,marginTop:6}}>
+            <div style={{display:'flex',alignItems:'center',gap:5}}>
+              <button onClick={()=>onVote(c, myVote===1?0:1)}
+                style={{background:'none',border:'none',cursor:'pointer',padding:2,
+                  color:myVote===1?'var(--red)':'var(--txt3)',display:'flex'}}>
+                <svg viewBox="0 0 20 20" fill="currentColor" style={{width:14,height:14}}><path d="M10 3l7 8h-4v6H7v-6H3l7-8z"/></svg>
+              </button>
+              <span style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt2)',minWidth:14,textAlign:'center'}}>{c.score||0}</span>
+              <button onClick={()=>onVote(c, myVote===-1?0:-1)}
+                style={{background:'none',border:'none',cursor:'pointer',padding:2,
+                  color:myVote===-1?'#60a5fa':'var(--txt3)',display:'flex'}}>
+                <svg viewBox="0 0 20 20" fill="currentColor" style={{width:14,height:14,transform:'rotate(180deg)'}}><path d="M10 3l7 8h-4v6H7v-6H3l7-8z"/></svg>
+              </button>
+            </div>
+            {depth===0 && (
+              <button onClick={()=>{ if(!currentUser){onLogin();return;} setShowReplyBox(s=>!s); }}
+                style={{background:'none',border:'none',cursor:'pointer',fontFamily:'var(--mono)',
+                  fontSize:10.5,color:'var(--txt3)',fontWeight:700}}>
+                Reply
+              </button>
+            )}
+            {currentUser && currentUser.id===c.user_id && (
+              <button onClick={()=>onDelete(c)}
+                style={{background:'none',border:'none',cursor:'pointer',fontFamily:'var(--mono)',
+                  fontSize:10.5,color:'var(--txt3)',fontWeight:700}}>
+                Delete
+              </button>
+            )}
+          </div>
+          {showReplyBox && (
+            <div style={{display:'flex',gap:8,marginTop:10}}>
+              <input value={replyText} onChange={e=>setReplyText(e.target.value)}
+                placeholder={`Reply to ${c.username}…`}
+                style={{flex:1,fontFamily:'inherit',fontSize:12.5,background:'rgba(255,255,255,.04)',
+                  border:'1px solid var(--border)',color:'var(--txt)',padding:'8px 12px',borderRadius:8,outline:'none'}}/>
+              <button onClick={()=>{ if(!replyText.trim())return; onReply(c, replyText.trim()); setReplyText(''); setShowReplyBox(false); }}
+                className="btn-play" style={{padding:'8px 16px',fontSize:11}}>Post</button>
+            </div>
+          )}
+        </div>
       </div>
-      <div
-        ref={containerRef}
-        id="cusdis_thread"
-        data-host="https://cusdis.com"
-        data-app-id={CUSDIS_APP_ID}
-        data-page-id={identifier}
-        data-page-url={url}
-        data-page-title={title}
-        data-theme="dark"
-      />
+      {(c.replies||[]).map(r=>(
+        <CommentRow key={r.id} c={r} currentUser={currentUser} onLogin={onLogin}
+          onReply={onReply} onVote={onVote} onDelete={onDelete} depth={depth+1}/>
+      ))}
     </div>
   );
 }
 
-function WatchPage({anime, startTab, onBack}) {
+function CommentSection({contentType, contentId, episode, title, currentUser, onLogin}) {
+  const [comments, setComments] = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [text,     setText]     = useState('');
+  const [posting,  setPosting]  = useState(false);
+  const toast = useToast();
+
+  const load = useCallback(() => {
+    if (!contentId) return;
+    setLoading(true);
+    const qs = new URLSearchParams({ type: contentType, id: contentId });
+    if (episode) qs.set('episode', episode);
+    fetch(`/api/comments?${qs.toString()}`)
+      .then(r=>r.json())
+      .then(d=>{ setComments(d.comments||[]); setLoading(false); })
+      .catch(()=>setLoading(false));
+  }, [contentType, contentId, episode]);
+
+  useEffect(()=>{ load(); }, [load]);
+
+  async function post() {
+    if (!currentUser) { onLogin(); return; }
+    if (!text.trim()) return;
+    setPosting(true);
+    try {
+      const r = await fetch('/api/comments', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'post', contentType, contentId, episode, text: text.trim() }),
+      });
+      const d = await r.json();
+      if (d.comment) { setComments(cs=>[...cs, d.comment]); setText(''); }
+      else if (d.error) toast(d.error);
+    } catch { toast('Failed to post comment'); }
+    setPosting(false);
+  }
+
+  async function reply(parent, replyText) {
+    if (!currentUser) { onLogin(); return; }
+    try {
+      const r = await fetch('/api/comments', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'post', contentType, contentId, episode, parentId: parent.id, text: replyText }),
+      });
+      const d = await r.json();
+      if (d.comment) {
+        setComments(cs => cs.map(c => c.id===parent.id ? {...c, replies:[...(c.replies||[]), d.comment]} : c));
+      } else if (d.error) toast(d.error);
+    } catch { toast('Failed to post reply'); }
+  }
+
+  async function vote(c, value) {
+    if (!currentUser) { onLogin(); return; }
+    // optimistic update
+    const delta = value - (c._myVote||0);
+    const patch = list => list.map(x => x.id===c.id
+      ? {...x, score:(x.score||0)+delta, _myVote:value}
+      : {...x, replies: x.replies ? patch(x.replies) : x.replies});
+    setComments(cs => patch(cs));
+    try {
+      await fetch('/api/comments', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'vote', commentId:c.id, value }),
+      });
+    } catch {}
+  }
+
+  async function del(c) {
+    const remove = list => list
+      .filter(x => x.id!==c.id)
+      .map(x => ({...x, replies: x.replies ? remove(x.replies) : x.replies}));
+    setComments(cs => remove(cs));
+    try {
+      await fetch('/api/comments', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'delete', commentId:c.id }),
+      });
+    } catch {}
+  }
+
+  const totalCount = comments.reduce((n,c)=>n+1+(c.replies?.length||0), 0);
+
+  return (
+    <div style={{marginTop:20}}>
+      <div className="sec-hdr" style={{marginBottom:14}}>
+        <div className="sec-bar"/>
+        <h2 className="sec-title">💬 Comments{!loading && totalCount>0 ? ` (${totalCount})` : ''}</h2>
+      </div>
+
+      {currentUser ? (
+        <div style={{display:'flex',gap:8,marginBottom:18}}>
+          <input value={text} onChange={e=>setText(e.target.value)}
+            onKeyDown={e=>{ if(e.key==='Enter') post(); }}
+            placeholder={`Comment as ${currentUser.username}…`}
+            style={{flex:1,fontFamily:'inherit',fontSize:13,background:'rgba(255,255,255,.04)',
+              border:'1px solid var(--border)',color:'var(--txt)',padding:'10px 14px',borderRadius:9,outline:'none'}}/>
+          <button onClick={post} disabled={posting} className="btn-play" style={{padding:'10px 18px',fontSize:12,opacity:posting?.6:1}}>
+            {posting?'…':'Post'}
+          </button>
+        </div>
+      ) : (
+        <button onClick={onLogin} className="btn-info" style={{marginBottom:18,fontSize:12.5}}>
+          Login with AniList to comment
+        </button>
+      )}
+
+      {loading ? (
+        <div style={{display:'flex',justifyContent:'center',padding:'2rem'}}><div className="spin-ring"/></div>
+      ) : comments.length===0 ? (
+        <p style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--txt3)'}}>No comments yet — be the first to say something.</p>
+      ) : (
+        comments.map(c=>(
+          <CommentRow key={c.id} c={c} currentUser={currentUser} onLogin={onLogin}
+            onReply={reply} onVote={vote} onDelete={del}/>
+        ))
+      )}
+    </div>
+  );
+}
+
+function WatchPage({anime, startTab, onBack, currentUser, onLogin}) {
   const toast    = useToast();
   const totalEps = anime.airedEps || anime.eps || 12;
 
@@ -1613,10 +1760,9 @@ function WatchPage({anime, startTab, onBack}) {
           </div>
         </div>
 
-        <CusdisComments
-          identifier={`anime-${anime.id}`}
-          url={`https://jsanime.site/anime/${anime.id}/${makeSlug(anime.title)}`}
-          title={anime.title}
+        <CommentSection
+          contentType="anime" contentId={anime.id} episode={curEp}
+          title={anime.title} currentUser={currentUser} onLogin={onLogin}
         />
       </div>
     </div>
@@ -2229,7 +2375,30 @@ function SidebarPromo({expanded}) {
   );
 }
 
-function Sidebar({page, setPage, goHome, expanded, onToggle}) {
+function UserIco() {
+  return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>);
+}
+
+function SidebarAccount({currentUser, onLogin, onLogout, expanded}) {
+  if (!currentUser) {
+    return (
+      <button className="sb-btn" onClick={onLogin} title="Login with AniList">
+        <UserIco/><span>Login</span>
+      </button>
+    );
+  }
+  return (
+    <button className="sb-btn" onClick={onLogout} title={`Logout (${currentUser.username})`}>
+      {currentUser.avatarUrl
+        ? <img src={currentUser.avatarUrl} alt={currentUser.username}
+            style={{width:20,height:20,borderRadius:5,objectFit:'cover',flexShrink:0}}/>
+        : <UserIco/>}
+      <span>{expanded ? currentUser.username : 'Logout'}</span>
+    </button>
+  );
+}
+
+function Sidebar({page, setPage, goHome, expanded, onToggle, currentUser, onLogin, onLogout}) {
   return (
     <div className={'sidebar'+(expanded?' expanded':'')}>
       <button className="sb-hamburger" onClick={onToggle} title={expanded?'Collapse menu':'Expand menu'}>
@@ -2261,6 +2430,8 @@ function Sidebar({page, setPage, goHome, expanded, onToggle}) {
         onClick={()=>setPage('manga')} title="Read Manga">
         <BookIco/><span>Read</span>
       </button>
+      <div className="sb-divider"/>
+      <SidebarAccount currentUser={currentUser} onLogin={onLogin} onLogout={onLogout} expanded={expanded}/>
       <SidebarPromo expanded={expanded}/>
     </div>
   );
@@ -2966,7 +3137,7 @@ function MangaBrowsePage({onOpen}) {
 }
 
 // ── MANGA DETAIL PAGE ─────────────────────────────────────────────────────────
-function MangaDetailPage({manga, onBack, onRead, onChaptersLoaded}) {
+function MangaDetailPage({manga, onBack, onRead, onChaptersLoaded, currentUser, onLogin}) {
   const [chapters, setChapters] = useState([]);
   const [chLoading, setChLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -3120,10 +3291,9 @@ function MangaDetailPage({manga, onBack, onRead, onChaptersLoaded}) {
           }
         </div>
 
-        <CusdisComments
-          identifier={`manga-${manga.id}`}
-          url={`https://jsanime.site/manga/${manga.id}/${makeSlug(manga.title)}`}
-          title={manga.title}
+        <CommentSection
+          contentType="manga" contentId={manga.id}
+          title={manga.title} currentUser={currentUser} onLogin={onLogin}
         />
       </div>
     </div>
@@ -3363,6 +3533,18 @@ function App() {
   const [srItems,   setSrItems]  = useState([]);
   const [srLoading, setSrLoading]= useState(false);
   const [navPage,   setNavPage]  = useState('home');
+  const [currentUser, setCurrentUser] = useState(null);
+  useEffect(() => {
+    fetch('/api/auth/session').then(r=>r.json()).then(d=>setCurrentUser(d.user||null)).catch(()=>{});
+  }, []);
+  const loginWithAniList = useCallback(() => { window.location.href = '/api/auth/anilist'; }, []);
+  const logoutUser = useCallback(() => {
+    fetch('/api/auth/session', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'logout'}),
+    }).then(()=>setCurrentUser(null)).catch(()=>{});
+  }, []);
+
   const [sbExpanded, setSbExpanded] = useState(() => {
     try { return localStorage.getItem('jsa_sidebar_expanded') === '1'; } catch { return false; }
   });
@@ -3485,7 +3667,7 @@ function App() {
   if (view==='watch' && watching) {
     return (
       <ToastProvider>
-        <WatchPage anime={watching} startTab={wTab} onBack={()=>{ goHome(); setCwList(loadCW()); }}/>
+        <WatchPage anime={watching} startTab={wTab} onBack={()=>{ goHome(); setCwList(loadCW()); }} currentUser={currentUser} onLogin={loginWithAniList}/>
         <BackToTop/>
       </ToastProvider>
     );
@@ -3498,7 +3680,7 @@ function App() {
   return (
     <ToastProvider>
       <div className="layout">
-        <Sidebar page={navPage} setPage={goNav} goHome={goHome} expanded={sbExpanded} onToggle={()=>setSbExpanded(e=>!e)}/>
+        <Sidebar page={navPage} setPage={goNav} goHome={goHome} expanded={sbExpanded} onToggle={()=>setSbExpanded(e=>!e)} currentUser={currentUser} onLogin={loginWithAniList} onLogout={logoutUser}/>
         <div className="main">
           <SearchBar onSel={openWatch} onSelManga={openManga} onSearch={doSearch} onClear={()=>{setSrView(false);setSrQuery('');}}/>
 
@@ -3526,6 +3708,7 @@ function App() {
             <MangaDetailPage
               manga={selectedManga}
               onChaptersLoaded={setMangaChapters}
+              currentUser={currentUser} onLogin={loginWithAniList}
               onBack={()=>{ setMangaView('browse'); writePath('manga',{}); }}
               onRead={(m,ch)=>{
                 setSelectedChapter(ch);
