@@ -157,6 +157,13 @@
     .logo-mark{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px var(--glow)}
     .logo-name{font-size:clamp(13px,3.5vw,16px);font-weight:900;letter-spacing:-.025em;white-space:nowrap}
     .logo-name em{color:var(--red);font-style:normal}
+    .top-bar{display:flex;align-items:center;gap:9px;padding:clamp(.6rem,2vw,.85rem) clamp(.75rem,3.5vw,2.5rem) 0}
+    .top-account-btn{flex-shrink:0;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);
+      background:rgba(255,255,255,.04);color:var(--txt2);display:flex;align-items:center;justify-content:center;
+      cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent;overflow:hidden}
+    .top-account-btn:hover{background:rgba(255,255,255,.09);color:var(--txt);border-color:rgba(255,255,255,.2)}
+    .top-account-btn img{width:100%;height:100%;object-fit:cover}
+    .top-account-btn svg{width:18px;height:18px}
     .nav-search{flex:1;min-width:0;position:relative}
     .nav-inp{width:100%;font-family:var(--mono);font-size:clamp(11px,2.5vw,13px);background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--txt);padding:8px 12px 8px 34px;border-radius:9px;outline:none;transition:border-color .2s,background .2s}
     .nav-inp:focus{border-color:rgba(225,29,72,.45);background:rgba(255,255,255,.07)}
@@ -1127,6 +1134,23 @@ function Hero({items, onPlay}) {
         </div>
       </div>
     </div>
+  );
+}
+
+function TopBarAccount({currentUser, onLogin, onLogout}) {
+  if (!currentUser) {
+    return (
+      <button className="top-account-btn" onClick={onLogin} title="Login with AniList">
+        <UserIco/>
+      </button>
+    );
+  }
+  return (
+    <button className="top-account-btn" onClick={onLogout} title={`Logout (${currentUser.username})`}>
+      {currentUser.avatarUrl
+        ? <img src={currentUser.avatarUrl} alt={currentUser.username}/>
+        : <UserIco/>}
+    </button>
   );
 }
 
@@ -3537,7 +3561,10 @@ function App() {
   useEffect(() => {
     fetch('/api/auth/session').then(r=>r.json()).then(d=>setCurrentUser(d.user||null)).catch(()=>{});
   }, []);
-  const loginWithAniList = useCallback(() => { window.location.href = '/api/auth/anilist'; }, []);
+  const loginWithAniList = useCallback(() => {
+    const from = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.href = `/api/auth/anilist?from=${from}`;
+  }, []);
   const logoutUser = useCallback(() => {
     fetch('/api/auth/session', {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -3682,7 +3709,10 @@ function App() {
       <div className="layout">
         <Sidebar page={navPage} setPage={goNav} goHome={goHome} expanded={sbExpanded} onToggle={()=>setSbExpanded(e=>!e)} currentUser={currentUser} onLogin={loginWithAniList} onLogout={logoutUser}/>
         <div className="main">
-          <SearchBar onSel={openWatch} onSelManga={openManga} onSearch={doSearch} onClear={()=>{setSrView(false);setSrQuery('');}}/>
+          <div className="top-bar">
+            <TopBarAccount currentUser={currentUser} onLogin={loginWithAniList} onLogout={logoutUser}/>
+            <SearchBar onSel={openWatch} onSelManga={openManga} onSearch={doSearch} onClear={()=>{setSrView(false);setSrQuery('');}}/>
+          </div>
 
           {srView ? (
             <SearchResultsPage
