@@ -66,7 +66,6 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
   res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
 
   const qs     = new URLSearchParams(req.url.includes('?') ? req.url.split('?')[1] : '');
   const action = qs.get('action') || 'list';
@@ -77,6 +76,17 @@ module.exports = async function handler(req, res) {
   const genre  = qs.get('genre') || '';
   const limit  = 24;
   const offset = (page - 1) * limit;
+
+  // IMPORTANT: MangaDex's /at-home/server/:id endpoint returns page image URLs
+  // with short-lived tokens meant to be fetched fresh every time a chapter is
+  // opened. Caching that response causes readers to be served stale/expired
+  // tokens whose images then fail to load from MangaDex's CDN. Every other
+  // action (browse lists, chapter lists, manga detail) is safe to cache.
+  if (action === 'pages') {
+    res.setHeader('Cache-Control', 'no-store');
+  } else {
+    res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+  }
 
   try {
     // ── LIST / BROWSE ────────────────────────────────────────────────────────
@@ -98,7 +108,7 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    // ── LATEST (chapter feed - for New Chapters row) ────────────────────────
+    // ── LATEST UPDATES (new chapters feed) ──────────────────────────────────
     if (action === 'latest') {
       const p = new URLSearchParams();
       p.append('limit', 20); p.append('order[readableAt]', 'desc');
@@ -164,7 +174,7 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    // ── PAGES (at-home server) ────────────────────────────────────────────────
+    // ── PAGES (at-home server — NEVER cached, see comment above) ─────────────
     if (action === 'pages' && id) {
       const d = await mdxFetch(`/at-home/server/${id}`);
       if (!d?.chapter) { res.statusCode = 404; res.end('{}'); return; }
