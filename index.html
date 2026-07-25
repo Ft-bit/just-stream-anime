@@ -164,6 +164,18 @@
     .top-account-btn:hover{background:rgba(255,255,255,.09);color:var(--txt);border-color:rgba(255,255,255,.2)}
     .top-account-btn img{width:100%;height:100%;object-fit:cover}
     .top-account-btn svg{width:18px;height:18px}
+    .acct-dropdown{position:absolute;min-width:190px;background:#12121f;border:1px solid var(--border2);
+      border-radius:12px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.65);z-index:700}
+    .acct-dropdown.pos-topbar{top:calc(100% + 8px);right:0}
+    .acct-dropdown.pos-sidebar{left:calc(100% + 8px);bottom:0}
+    .acct-dd-user{padding:12px 14px;font-size:13px;font-weight:800;color:#fff;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .acct-dd-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;background:none;border:none;
+      color:var(--txt2);font-size:12.5px;font-weight:600;cursor:pointer;text-align:left;transition:background .15s;
+      text-decoration:none;-webkit-tap-highlight-color:transparent}
+    .acct-dd-item:hover{background:rgba(255,255,255,.06);color:var(--txt)}
+    .acct-dd-item svg{width:15px;height:15px;flex-shrink:0}
+    .acct-dd-item.danger{color:#fb7185}
+    .acct-dd-item.danger:hover{background:rgba(225,29,72,.1);color:#fb7185}
     .nav-search{flex:1;min-width:0;position:relative}
     .nav-inp{width:100%;font-family:var(--mono);font-size:clamp(11px,2.5vw,13px);background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--txt);padding:8px 12px 8px 34px;border-radius:9px;outline:none;transition:border-color .2s,background .2s}
     .nav-inp:focus{border-color:rgba(225,29,72,.45);background:rgba(255,255,255,.07)}
@@ -573,7 +585,7 @@
     .side-item-meta{font-family:var(--mono);font-size:10px;color:var(--txt3);margin-top:3px}
     .side-item-sk{display:flex;align-items:center;gap:10px;padding:8px}
     .side-item-sk::before{content:'';width:44px;height:62px;border-radius:6px;flex-shrink:0;background:linear-gradient(90deg,#1a1a2e 25%,#20203a 50%,#1a1a2e 75%);background-size:200% 100%;animation:shimmer 1.7s infinite}
-    .side-ad-slot{margin:8px 0;min-height:120px;border-radius:10px;border:1px dashed var(--border2);background:rgba(255,255,255,.02);display:flex;align-items:center;justify-content:center}
+    .side-ad-slot{margin:8px 0;min-height:1px;display:flex;align-items:center;justify-content:center;overflow:hidden}
     .side-ad-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--txt3);text-transform:uppercase}
 
     /* ── SITE PROMO BANNER (shown right after the hero, both mobile/desktop) ── */
@@ -1137,7 +1149,46 @@ function Hero({items, onPlay}) {
   );
 }
 
+function GearIco() {
+  return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09A1.65 1.65 0 0015 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>);
+}
+function LogoutIco() {
+  return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>);
+}
+
+function AccountDropdownMenu({currentUser, onLogout, onClose, position}) {
+  const toast = useToast();
+  return (
+    <div className={`acct-dropdown pos-${position}`} onClick={e=>e.stopPropagation()}>
+      <div className="acct-dd-user">{currentUser.username}</div>
+      <a className="acct-dd-item" href={`https://anilist.co/user/${encodeURIComponent(currentUser.username)}`}
+        target="_blank" rel="noopener noreferrer" onClick={onClose}>
+        <UserIco/><span>Profile</span>
+      </a>
+      <button className="acct-dd-item" onClick={()=>{ toast('Settings coming soon'); onClose(); }}>
+        <GearIco/><span>Settings</span>
+      </button>
+      <button className="acct-dd-item danger" onClick={()=>{ onLogout(); onClose(); }}>
+        <LogoutIco/><span>Logout</span>
+      </button>
+    </div>
+  );
+}
+
 function TopBarAccount({currentUser, onLogin, onLogout}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('touchstart', onDocClick);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('touchstart', onDocClick);
+    };
+  }, [open]);
+
   if (!currentUser) {
     return (
       <button className="top-account-btn" onClick={onLogin} title="Login with AniList">
@@ -1146,11 +1197,17 @@ function TopBarAccount({currentUser, onLogin, onLogout}) {
     );
   }
   return (
-    <button className="top-account-btn" onClick={onLogout} title={`Logout (${currentUser.username})`}>
-      {currentUser.avatarUrl
-        ? <img src={currentUser.avatarUrl} alt={currentUser.username}/>
-        : <UserIco/>}
-    </button>
+    <div style={{position:'relative'}} ref={ref}>
+      <button className="top-account-btn" onClick={()=>setOpen(o=>!o)} title={currentUser.username}>
+        {currentUser.avatarUrl
+          ? <img src={currentUser.avatarUrl} alt={currentUser.username}/>
+          : <UserIco/>}
+      </button>
+      {open && (
+        <AccountDropdownMenu currentUser={currentUser} onLogout={onLogout}
+          onClose={()=>setOpen(false)} position="topbar"/>
+      )}
+    </div>
   );
 }
 
@@ -2404,6 +2461,19 @@ function UserIco() {
 }
 
 function SidebarAccount({currentUser, onLogin, onLogout, expanded}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('touchstart', onDocClick);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('touchstart', onDocClick);
+    };
+  }, [open]);
+
   if (!currentUser) {
     return (
       <button className="sb-btn" onClick={onLogin} title="Login with AniList">
@@ -2412,13 +2482,19 @@ function SidebarAccount({currentUser, onLogin, onLogout, expanded}) {
     );
   }
   return (
-    <button className="sb-btn" onClick={onLogout} title={`Logout (${currentUser.username})`}>
-      {currentUser.avatarUrl
-        ? <img src={currentUser.avatarUrl} alt={currentUser.username}
-            style={{width:20,height:20,borderRadius:5,objectFit:'cover',flexShrink:0}}/>
-        : <UserIco/>}
-      <span>{expanded ? currentUser.username : 'Logout'}</span>
-    </button>
+    <div style={{position:'relative'}} ref={ref}>
+      <button className="sb-btn" onClick={()=>setOpen(o=>!o)} title={currentUser.username}>
+        {currentUser.avatarUrl
+          ? <img src={currentUser.avatarUrl} alt={currentUser.username}
+              style={{width:20,height:20,borderRadius:5,objectFit:'cover',flexShrink:0}}/>
+          : <UserIco/>}
+        <span>{expanded ? currentUser.username : 'Account'}</span>
+      </button>
+      {open && (
+        <AccountDropdownMenu currentUser={currentUser} onLogout={onLogout}
+          onClose={()=>setOpen(false)} position="sidebar"/>
+      )}
+    </div>
   );
 }
 
@@ -2559,6 +2635,30 @@ function MegaphoneIco() {
   return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 11-5.8-1.6"/></svg>);
 }
 
+// ── AD SLOT — injects the ad network's own script/container dynamically.
+// Scripts inside JSX never execute on their own, so we build the real DOM
+// nodes by hand in an effect, matching how the network's snippet expects
+// to be embedded on a normal (non-React) page.
+function AdSlot() {
+  const containerRef = useRef(null);
+  useEffect(() => {
+    if (!containerRef.current) return;
+    containerRef.current.innerHTML = '';
+
+    const adDiv = document.createElement('div');
+    adDiv.id = 'container-f1949bf3dcf0a0cc2e55e0e3159e7fbe';
+    containerRef.current.appendChild(adDiv);
+
+    const script = document.createElement('script');
+    script.async = true;
+    script.setAttribute('data-cfasync', 'false');
+    script.src = 'https://pl27305987.effectivegatecpm.com/f1949bf3dcf0a0cc2e55e0e3159e7fbe/invoke.js';
+    containerRef.current.appendChild(script);
+  }, []);
+
+  return <div ref={containerRef} className="side-ad-slot"/>;
+}
+
 function SideListItem({a, onPlay}) {
   return (
     <div className="side-item" onClick={()=>onPlay(a)}
@@ -2600,10 +2700,7 @@ function SideRail({onPlay}) {
         ? Array(4).fill(0).map((_,i)=><div key={i} className="side-item-sk"/>)
         : completed.map(a=><SideListItem key={a.id} a={a} onPlay={onPlay}/>)}
 
-      <div className="side-ad-slot">
-        {/* Paste ad script/embed here later */}
-        <span className="side-ad-label">Advertisement</span>
-      </div>
+      <AdSlot/>
 
       <div className="side-rail-hdr"><MegaphoneIco/><span>Top Upcoming</span></div>
       {uLoad
