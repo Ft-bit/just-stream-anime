@@ -2912,10 +2912,71 @@ const PROFILE_TABS = [
   { status:'DROPPED',   label:'Dropped' },
 ];
 
+function BarChartIco() {
+  return (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>);
+}
+
+function LifeOnAnimeModal({user, stats, onClose}) {
+  const minutes = stats?.minutesWatched || 0;
+  const hours   = minutes / 60;
+  const days    = hours / 24;
+  const weeks   = days / 7;
+  const months  = days / 30.44;
+  const years   = days / 365.25;
+  const pct = Math.max(2, Math.min(100, (minutes / 10000) * 100)); // decorative progress toward a 10,000-min milestone
+
+  const fmt = n => n < 10 ? n.toFixed(1) : Math.round(n).toLocaleString();
+
+  return (
+    <div className="share-overlay" onClick={e=>{ if(e.target===e.currentTarget) onClose(); }}>
+      <div className="share-sheet" onClick={e=>e.stopPropagation()} style={{maxWidth:460}}>
+        <div style={{position:'relative',textAlign:'center',marginBottom:22}}>
+          <button className="share-sheet-close" onClick={onClose} style={{position:'absolute',top:-4,right:-4}}>✕</button>
+          <h2 style={{fontSize:'1.5rem',fontWeight:900,color:'#fff',letterSpacing:'-.02em'}}>Life on Anime</h2>
+          <p style={{fontFamily:'var(--mono)',fontSize:11.5,color:'var(--txt3)',marginTop:4}}>{user.username}'s journey so far</p>
+        </div>
+
+        <div style={{height:8,borderRadius:99,background:'rgba(255,255,255,.08)',overflow:'hidden',marginBottom:20}}>
+          <div style={{height:'100%',width:`${pct}%`,borderRadius:99,background:'linear-gradient(90deg,var(--red),var(--red2))',transition:'width .6s ease'}}/>
+        </div>
+
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'14px 6px',marginBottom:20,textAlign:'center'}}>
+          {[
+            ['MINUTES', fmt(minutes)], ['HOURS', fmt(hours)], ['DAYS', fmt(days)],
+            ['WEEK', fmt(weeks)], ['MONTHS', fmt(months)], ['YEARS', fmt(years)],
+          ].map(([label,val])=>(
+            <div key={label}>
+              <div style={{fontSize:'1.3rem',fontWeight:900,color:'#fff'}}>{val}</div>
+              <div style={{fontFamily:'var(--mono)',fontSize:9,color:'var(--txt3)',letterSpacing:'.08em',marginTop:2}}>{label}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+          <div style={{background:'rgba(255,255,255,.04)',border:'1px solid var(--border)',borderRadius:12,padding:14}}>
+            <div style={{display:'flex',alignItems:'center',gap:6,fontFamily:'var(--mono)',fontSize:9,color:'var(--txt3)',letterSpacing:'.06em',textTransform:'uppercase',marginBottom:6}}>
+              <BarChartIco/> Total Shows
+            </div>
+            <div style={{fontSize:'1.5rem',fontWeight:900,color:'#fff'}}>{stats?.count || 0}</div>
+          </div>
+          <div style={{background:'rgba(255,255,255,.04)',border:'1px solid var(--border)',borderRadius:12,padding:14}}>
+            <div style={{display:'flex',alignItems:'center',gap:6,fontFamily:'var(--mono)',fontSize:9,color:'var(--txt3)',letterSpacing:'.06em',textTransform:'uppercase',marginBottom:6}}>
+              <PIco s={12}/> Episodes Watched
+            </div>
+            <div style={{fontSize:'1.5rem',fontWeight:900,color:'#fff'}}>{stats?.episodesWatched || 0}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ProfilePage({user, onBack, onPlay}) {
   const [byStatus, setByStatus] = useState(null);
   const [loading,  setLoading]  = useState(true);
   const [tab,      setTab]      = useState('CURRENT');
+  const [stats,    setStats]    = useState(null);
+  const [showLife, setShowLife] = useState(false);
 
   useEffect(() => {
     if (!user?.anilistId) return;
@@ -2930,6 +2991,11 @@ function ProfilePage({user, onBack, onPlay}) {
       setByStatus(grouped);
       setLoading(false);
     }).catch(()=>setLoading(false));
+
+    const statsQuery = `query($userId:Int){User(id:$userId){statistics{anime{count episodesWatched minutesWatched}}}}`;
+    gql(statsQuery, {userId: user.anilistId}).then(d => {
+      setStats(d.data?.User?.statistics?.anime || null);
+    }).catch(()=>{});
   }, [user?.anilistId]);
 
   const items = byStatus ? (byStatus[tab]||[]) : [];
@@ -2947,12 +3013,19 @@ function ProfilePage({user, onBack, onPlay}) {
           </div>
           <div>
             <h1 style={{fontSize:'clamp(1.4rem,4vw,2rem)',fontWeight:900,color:'#fff',letterSpacing:'-.03em'}}>{user.username}</h1>
-            <a href={`https://anilist.co/user/${encodeURIComponent(user.username)}`} target="_blank" rel="noopener noreferrer"
-              className="ext-link" style={{marginTop:8,display:'inline-flex'}}>
-              <ExtLinkIco/> View on AniList
-            </a>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:8}}>
+              <button className="ext-link" onClick={()=>setShowLife(true)}>
+                <BarChartIco/> Your Life on Anime
+              </button>
+              <a href={`https://anilist.co/user/${encodeURIComponent(user.username)}`} target="_blank" rel="noopener noreferrer"
+                className="ext-link">
+                <ExtLinkIco/> View on AniList
+              </a>
+            </div>
           </div>
         </div>
+
+        {showLife && <LifeOnAnimeModal user={user} stats={stats} onClose={()=>setShowLife(false)}/>}
 
         <div className="tabs" style={{borderBottom:'1px solid var(--border)',marginBottom:'1.2rem',overflowX:'auto',scrollbarWidth:'none'}}>
           {PROFILE_TABS.map(t=>(
