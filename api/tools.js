@@ -1,7 +1,7 @@
 // api/tools.js — replaces the separate sitemap.js, feed.js, and indexnow.js
 // files (merged to save Vercel Hobby-plan function slots; cap is 12 total).
 // Routes on ?tool=sitemap|feed|indexnow — each behaves exactly as its
-// original standalone file did, just living under one function now.
+// original standalone file did, just living under one function now
 //
 // Routing (set in vercel.json):
 //   /sitemap.xml        -> /api/tools?tool=sitemap
