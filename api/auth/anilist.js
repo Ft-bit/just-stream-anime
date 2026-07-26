@@ -10,11 +10,14 @@
 //     -> AniList sends the user back here after they approve -> exchange
 //        code, log them in, then send them back to that exact page
 //
+// NOTE: as of this version, we now also STORE the AniList access token in
+// the users table (anilist_access_token column). This lets other backend
+// routes (e.g. api/anilist-sync.js) update the user's AniList list on
+// their behalf later — marking anime as Watching/Completed/etc. The token
+// is never sent to the frontend or included in the session cookie.
+//
 // IMPORTANT: your AniList OAuth app's "Redirect URL" must be set to EXACTLY:
 //   https://jsanime.site/api/auth/anilist
-// (not /api/auth/anilist/callback — double check this in your AniList app
-// settings at anilist.co/settings/developer, this is a common cause of
-// "nothing happens after I approve" bugs)
 
 const { setSessionCookie } = require('../_lib/session');
 const { sbFetch } = require('../_lib/supabase');
@@ -22,8 +25,6 @@ const { sbFetch } = require('../_lib/supabase');
 const SITE_URL = 'https://jsanime.site';
 const REDIRECT_URI = `${SITE_URL}/api/auth/anilist`;
 
-// Only ever redirect back to a path on our own site — never trust an
-// external URL here, or this becomes an open-redirect vulnerability.
 function safeReturnPath(raw) {
   if (!raw) return '/';
   try {
@@ -36,7 +37,6 @@ function safeReturnPath(raw) {
 module.exports = async function handler(req, res) {
   const code = req.query.code;
 
-  // ── No code yet: this is the "Login with AniList" click -> send them off ──
   if (!code) {
     const clientId = process.env.ANILIST_CLIENT_ID;
     if (!clientId) {
@@ -44,9 +44,6 @@ module.exports = async function handler(req, res) {
       return res.end('Missing ANILIST_CLIENT_ID env var');
     }
 
-    // Where should we send the user back to after they log in?
-    // Prefer an explicit ?from= param; fall back to the page they clicked
-    // the login link from (Referer header); fall back to the homepage.
     let returnPath = '/';
     const fromParam = req.query.from;
     if (fromParam) {
@@ -69,7 +66,6 @@ module.exports = async function handler(req, res) {
     return res.end();
   }
 
-  // ── Has a code: this is AniList sending the user back after approval ──────
   const returnPath = safeReturnPath(req.query.state);
 
   try {
@@ -102,6 +98,8 @@ module.exports = async function handler(req, res) {
     const viewer = viewerJson?.data?.Viewer;
     if (!viewer) throw new Error('Could not fetch AniList profile: ' + JSON.stringify(viewerJson));
 
+    // Store the access token so future requests can update this user's
+    // AniList list on their behalf (marking anime Watching/Completed/etc).
     const upserted = await sbFetch('/users?on_conflict=anilist_id', {
       method: 'POST',
       headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
@@ -109,6 +107,7 @@ module.exports = async function handler(req, res) {
         anilist_id: viewer.id,
         username: viewer.name,
         avatar_url: viewer.avatar?.medium || null,
+        anilist_access_token: accessToken,
         last_login_at: new Date().toISOString(),
       }),
     });
@@ -121,7 +120,6 @@ module.exports = async function handler(req, res) {
       avatarUrl: userRow.avatar_url,
     });
 
-    // Send the user back to the exact page they clicked "Login" from
     res.writeHead(302, { Location: `${SITE_URL}${returnPath}` });
     res.end();
   } catch (err) {
