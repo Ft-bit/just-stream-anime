@@ -2647,27 +2647,42 @@ function MegaphoneIco() {
 // React does) — no error, it just renders nothing. Loading it inside an
 // isolated iframe via srcdoc gives the script its own fresh document to
 // write into, exactly like it expects on a normal static page.
+// Loads a real static page (ad-frame.html) hosted on our own domain into a
+// normal iframe. This matters for two reasons: (1) the ad network's script
+// uses document.write(), which only works reliably on a genuine page load,
+// not a script injected into an already-running page; (2) many ad networks
+// verify the request comes from their approved domain — a plain iframe src=
+// shows the ad script a real jsanime.site URL, whereas the earlier srcdoc
+// approach showed it a placeholder "about:srcdoc" address that likely
+// looked unrecognized and caused inconsistent/no fill, especially desktop.
 function AdSlot() {
   const iframeRef = useRef(null);
 
   useEffect(() => {
     const frame = iframeRef.current;
     if (!frame) return;
-    const doc = frame.contentDocument;
-    if (!doc) return;
-    doc.open();
-    doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8"/>
-      <style>html,body{margin:0;padding:0;background:transparent;display:flex;align-items:center;justify-content:center;min-height:100%;overflow:hidden}</style>
-      </head><body>
-      <div id="container-f1949bf3dcf0a0cc2e55e0e3159e7fbe"></div>
-      <script async data-cfasync="false" src="https://pl27305987.effectivegatecpm.com/f1949bf3dcf0a0cc2e55e0e3159e7fbe/invoke.js"><\/script>
-      </body></html>`);
-    doc.close();
+
+    function resize() {
+      try {
+        const h = frame.contentWindow?.document?.body?.scrollHeight;
+        if (h && h > 40) frame.style.height = h + 'px';
+      } catch {}
+    }
+
+    const onLoad = () => {
+      resize();
+      const iv = setInterval(resize, 1200);
+      // Ads finish rendering within a few seconds; stop polling after that
+      // so this doesn't run forever in the background.
+      setTimeout(() => clearInterval(iv), 15000);
+    };
+    frame.addEventListener('load', onLoad);
+    return () => frame.removeEventListener('load', onLoad);
   }, []);
 
   return (
-    <iframe ref={iframeRef} title="Advertisement" className="side-ad-slot"
-      style={{width:'100%',border:'none',minHeight:260,display:'block'}}
+    <iframe ref={iframeRef} src="/ad-frame.html" title="Advertisement" className="side-ad-slot"
+      style={{width:'100%',border:'none',minHeight:100,display:'block'}}
       scrolling="no"/>
   );
 }
