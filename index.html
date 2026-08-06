@@ -722,6 +722,38 @@
     .mob-nav-btn.on .book-page-anim,
     .sb-btn.on .book-page-anim { animation: none; }
 
+    
+    /* ── DOWNLOAD MODAL ─────────────────────────────────────────────────────── */
+    .dl-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);
+      display:flex;align-items:flex-end;justify-content:center;animation:ovIn .2s ease}
+    @media(min-width:600px){.dl-overlay{align-items:center}}
+    .dl-sheet{background:var(--bg2);border:1px solid var(--border2);border-radius:20px 20px 0 0;
+      padding:20px 20px 32px;width:100%;max-width:440px;animation:sheetUp .3s cubic-bezier(.34,1.4,.64,1)}
+    @media(min-width:600px){.dl-sheet{border-radius:18px;margin:16px}}
+    .dl-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .dl-title{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.02em}
+    .dl-close{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.08);
+      border:none;color:var(--txt2);font-size:15px;cursor:pointer;display:flex;
+      align-items:center;justify-content:center;transition:background .15s}
+    .dl-close:hover{background:rgba(255,255,255,.14);color:#fff}
+    .dl-section{margin-bottom:16px}
+    .dl-section-title{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--txt3);
+      text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}
+    .dl-btn{display:flex;align-items:center;justify-content:space-between;width:100%;
+      padding:11px 14px;border-radius:10px;border:1px solid var(--border);
+      background:rgba(255,255,255,.04);color:var(--txt);margin-bottom:6px;
+      cursor:pointer;transition:all .15s;text-decoration:none;font-family:inherit}
+    .dl-btn:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.18)}
+    .dl-btn.primary{background:rgba(225,29,72,.12);border-color:rgba(225,29,72,.3)}
+    .dl-btn.primary:hover{background:rgba(225,29,72,.2);border-color:rgba(225,29,72,.5)}
+    .dl-quality{font-family:var(--mono);font-size:11px;font-weight:800;color:var(--red)}
+    .dl-label{font-size:13px;font-weight:600;color:var(--txt)}
+    .dl-arrow{font-size:14px;color:var(--txt3)}
+    .dl-ext-icon{font-size:16px;margin-right:8px}
+    .dl-loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px 0}
+    .dl-note{font-family:var(--mono);font-size:10px;color:var(--txt3);
+      text-align:center;line-height:1.6;margin-top:12px}
+
     </style>
   <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
@@ -1521,6 +1553,7 @@ function WatchPage({anime, startTab, onBack, currentUser, onLogin}) {
   const [spin,     setSpin]   = useState(true);
   const [fil,      setFil]    = useState('');
   const [shareOpen,setShareOpen] = useState(false);
+  const [dlOpen,setDlOpen] = useState(false);
   const [jikanEps, setJikanEps]  = useState({});
   const [jikanDone,setJikanDone] = useState(false);
   const [jikanDesc,setJikanDesc] = useState('');
@@ -1783,6 +1816,7 @@ function WatchPage({anime, startTab, onBack, currentUser, onLogin}) {
                 {anime.siteUrl&&<a href={anime.siteUrl} target="_blank" rel="noopener noreferrer" className="ext-link"><ExtLinkIco/> AniList</a>}
                 {anime.malId&&<a href={`https://myanimelist.net/anime/${anime.malId}`} target="_blank" rel="noopener noreferrer" className="ext-link"><ExtLinkIco/> MAL</a>}
               </div>
+              {dlOpen&&<DownloadModal anime={anime} curEp={curEp} lang={lang} onClose={()=>setDlOpen(false)}/>}
               {shareOpen&&<ShareModal url={`https://jsanime.site/anime/${anime.id}/${makeSlug(anime.title)}`} hashUrl={window.location.href}
                 title={anime.title} image={anime.banner||anime.image||''} desc={anime.desc||''}
                 onClose={()=>setShareOpen(false)} toast={toast}/>}
@@ -1793,6 +1827,13 @@ function WatchPage({anime, startTab, onBack, currentUser, onLogin}) {
                     <path d="M4.5 7.1L11.5 3.4M4.5 8.9L11.5 12.6" strokeLinecap="round"/>
                   </svg>
                   Share
+                </button>
+                <button className="share-trigger" onClick={()=>setDlOpen(true)}
+                  style={{borderColor:'rgba(34,197,94,.28)',color:'#4ade80',background:'rgba(34,197,94,.06)'}}>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" style={{width:11,height:11}}>
+                    <path d="M8 2v8M5 7l3 3 3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Download
                 </button>
                 {/* Previous / Next quick buttons */}
                 {curEp > 1 && (
@@ -3850,6 +3891,70 @@ function MangaReaderPage({manga, chapter, chapters, onBack, onChapter}) {
             onClick={e=>{e.stopPropagation();onChapter(nextCh);}}>Next Ch. →</button>}
         </div>
       )}
+    </div>
+  );
+}
+
+
+// ── DOWNLOAD MODAL ────────────────────────────────────────────────────────────
+function DownloadModal({anime, curEp, lang, onClose}) {
+  const [state,  setState]  = React.useState('loading');
+  const [data,   setData]   = React.useState(null);
+  const toast = useToast();
+  React.useEffect(() => {
+    const params = new URLSearchParams({
+      title: anime.romaji || anime.title,
+      ep:    String(curEp),
+      malId: String(anime.malId || ''),
+      dub:   String(lang === 'dub'),
+    });
+    fetch(`/api/download?${params.toString()}`)
+      .then(r => r.json())
+      .then(d => { setData(d); setState(d.found && d.downloads?.length > 0 ? 'found' : 'notfound'); })
+      .catch(() => setState('notfound'));
+  }, [anime.id, curEp, lang]);
+  const onOverlay = e => { if (e.target === e.currentTarget) onClose(); };
+  return (
+    <div className="dl-overlay" onClick={onOverlay}>
+      <div className="dl-sheet" onClick={e => e.stopPropagation()}>
+        <div className="dl-hdr">
+          <span className="dl-title">⬇ Download Episode {curEp}</span>
+          <button className="dl-close" onClick={onClose}>✕</button>
+        </div>
+        {state === 'loading' && (
+          <div className="dl-loading">
+            <div className="spin-ring"/>
+            <p style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--txt3)'}}>Finding download links…</p>
+          </div>
+        )}
+        {state === 'found' && data?.downloads?.length > 0 && (
+          <div className="dl-section">
+            <div className="dl-section-title">Direct Download</div>
+            {data.downloads.filter(d => !d.isM3U8).map((d, i) => (
+              <a key={i} href={d.url} target="_blank" rel="noopener noreferrer"
+                className={'dl-btn' + (i === 0 ? ' primary' : '')}
+                onClick={() => { toast('⬇ Downloading ' + d.quality); onClose(); }}>
+                <span className="dl-quality">{d.quality}</span>
+                <span className="dl-label">Download</span>
+                <span className="dl-arrow">↓</span>
+              </a>
+            ))}
+          </div>
+        )}
+        {data?.externals?.length > 0 && (
+          <div className="dl-section">
+            <div className="dl-section-title">{state === 'found' ? 'More Sources' : 'Download From'}</div>
+            {data.externals.map((ext, i) => (
+              <a key={i} href={ext.url} target="_blank" rel="noopener noreferrer"
+                className="dl-btn" onClick={onClose}>
+                <span><span className="dl-ext-icon">{ext.icon}</span><span className="dl-label">{ext.name}</span></span>
+                <span className="dl-arrow">→</span>
+              </a>
+            ))}
+          </div>
+        )}
+        <p className="dl-note">Direct downloads via GoGoAnime CDN.<br/>Use an ad blocker on external sites.</p>
+      </div>
     </div>
   );
 }
