@@ -1,0 +1,27 @@
+name: Keep Supabase Alive
+
+# Supabase's free tier pauses a project after 7 days with no database
+# activity. This runs twice a week (Sunday and Wednesday) — comfortably
+# inside that window even if one run happens to fail — and just makes a
+# lightweight request to your REST API, which counts as activity and
+# resets the inactivity timer. Costs nothing, uses no Vercel function slot.
+
+on:
+  schedule:
+    - cron: '0 0 * * 0,3'   # 00:00 UTC every Sunday and Wednesday
+  workflow_dispatch: {}      # lets you also trigger it manually from the Actions tab
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/users?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}")
+          echo "Supabase responded with status: $STATUS"
+          if [ "$STATUS" -ge 500 ]; then
+            echo "::warning::Supabase returned a server error — check if the project needs manual restoring."
+          fi
