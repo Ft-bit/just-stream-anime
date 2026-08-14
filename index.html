@@ -723,36 +723,49 @@
     .sb-btn.on .book-page-anim { animation: none; }
 
     
+    
     /* ── DOWNLOAD MODAL ─────────────────────────────────────────────────────── */
-    .dl-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);
+    .dl-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.72);backdrop-filter:blur(12px);
       display:flex;align-items:flex-end;justify-content:center;animation:ovIn .2s ease}
     @media(min-width:600px){.dl-overlay{align-items:center}}
-    .dl-sheet{background:var(--bg2);border:1px solid var(--border2);border-radius:20px 20px 0 0;
-      padding:20px 20px 32px;width:100%;max-width:440px;animation:sheetUp .3s cubic-bezier(.34,1.4,.64,1)}
-    @media(min-width:600px){.dl-sheet{border-radius:18px;margin:16px}}
-    .dl-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-    .dl-title{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.02em}
-    .dl-close{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.08);
+    .dl-sheet{background:linear-gradient(180deg,var(--bg2) 0%,var(--bg3) 100%);
+      border:1px solid var(--border2);border-radius:22px 22px 0 0;
+      padding:22px 20px 28px;width:100%;max-width:460px;
+      animation:sheetUp .32s cubic-bezier(.34,1.4,.64,1);
+      box-shadow:0 -20px 60px rgba(0,0,0,.5)}
+    @media(min-width:600px){.dl-sheet{border-radius:20px;margin:16px}}
+    .dl-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+    .dl-title{font-size:16px;font-weight:900;color:#fff;letter-spacing:-.02em;line-height:1.2}
+    .dl-subtitle{font-family:var(--mono);font-size:11px;color:var(--txt3);margin-top:4px;
+      max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .dl-close{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.08);
       border:none;color:var(--txt2);font-size:15px;cursor:pointer;display:flex;
-      align-items:center;justify-content:center;transition:background .15s}
-    .dl-close:hover{background:rgba(255,255,255,.14);color:#fff}
-    .dl-section{margin-bottom:16px}
-    .dl-section-title{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--txt3);
-      text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}
-    .dl-btn{display:flex;align-items:center;justify-content:space-between;width:100%;
-      padding:11px 14px;border-radius:10px;border:1px solid var(--border);
-      background:rgba(255,255,255,.04);color:var(--txt);margin-bottom:6px;
-      cursor:pointer;transition:all .15s;text-decoration:none;font-family:inherit}
-    .dl-btn:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.18)}
-    .dl-btn.primary{background:rgba(225,29,72,.12);border-color:rgba(225,29,72,.3)}
-    .dl-btn.primary:hover{background:rgba(225,29,72,.2);border-color:rgba(225,29,72,.5)}
-    .dl-quality{font-family:var(--mono);font-size:11px;font-weight:800;color:var(--red)}
-    .dl-label{font-size:13px;font-weight:600;color:var(--txt)}
-    .dl-arrow{font-size:14px;color:var(--txt3)}
-    .dl-ext-icon{font-size:16px;margin-right:8px}
-    .dl-loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px 0}
-    .dl-note{font-family:var(--mono);font-size:10px;color:var(--txt3);
-      text-align:center;line-height:1.6;margin-top:12px}
+      align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+    .dl-close:hover{background:rgba(255,255,255,.16);color:#fff;transform:rotate(90deg)}
+    .dl-source-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+    .dl-source-card{position:relative;display:flex;flex-direction:column;align-items:center;
+      gap:6px;padding:20px 12px 14px;border-radius:16px;
+      background:rgba(255,255,255,.035);border:1px solid var(--border2);
+      text-decoration:none;cursor:pointer;overflow:hidden;
+      transition:transform .22s cubic-bezier(.34,1.4,.64,1),border-color .22s,background .22s}
+    .dl-source-card::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(circle at 50% 0%,var(--src-color,#e11d48) 0%,transparent 70%);
+      opacity:0;transition:opacity .25s}
+    .dl-source-card:hover{transform:translateY(-4px);border-color:var(--src-color,#e11d48)}
+    .dl-source-card:hover::before{opacity:.14}
+    .dl-source-card:active{transform:translateY(-1px) scale(.97)}
+    .dl-source-icon{font-size:26px;position:relative;z-index:1;
+      filter:drop-shadow(0 2px 8px rgba(0,0,0,.4))}
+    .dl-source-name{font-size:13px;font-weight:800;color:#fff;position:relative;z-index:1;
+      letter-spacing:-.01em}
+    .dl-source-arrow{position:absolute;top:10px;right:12px;font-size:12px;
+      color:var(--txt3);opacity:0;transition:opacity .2s,transform .2s;z-index:1}
+    .dl-source-card:hover .dl-source-arrow{opacity:1;transform:translateX(2px)}
+    .dl-info-box{display:flex;align-items:flex-start;gap:9px;
+      background:rgba(255,255,255,.04);border:1px solid var(--border);
+      border-radius:12px;padding:12px 14px;font-family:var(--mono);
+      font-size:11px;color:var(--txt3);line-height:1.6}
+    .dl-info-box svg{color:var(--txt3);margin-top:1px}
 
     </style>
   <script type="text/javascript">
@@ -3896,68 +3909,57 @@ function MangaReaderPage({manga, chapter, chapters, onBack, onChapter}) {
 }
 
 
-// ── DOWNLOAD MODAL ────────────────────────────────────────────────────────────
+// ── DOWNLOAD MODAL (JustAnime.to style) ────────────────────────────────────
 function DownloadModal({anime, curEp, lang, onClose}) {
-  const [state,  setState]  = React.useState('loading');
-  const [data,   setData]   = React.useState(null);
   const toast = useToast();
-  React.useEffect(() => {
-    const params = new URLSearchParams({
-      title: anime.romaji || anime.title,
-      ep:    String(curEp),
-      malId: String(anime.malId || ''),
-      dub:   String(lang === 'dub'),
-    });
-    fetch(`/api/download?${params.toString()}`)
-      .then(r => r.json())
-      .then(d => { setData(d); setState(d.found && d.downloads?.length > 0 ? 'found' : 'notfound'); })
-      .catch(() => setState('notfound'));
-  }, [anime.id, curEp, lang]);
+  const sources = [
+    { name:'GoGoAnime', icon:'🎬', color:'#e11d48',
+      url:`https://anitaku.pe/${makeSlug(anime.romaji||anime.title)}-episode-${curEp}` },
+    { name:'AnimePahe', icon:'📺', color:'#4ade80',
+      url:`https://animepahe.ru/anime/${makeSlug(anime.romaji||anime.title)}` },
+    { name:'AniWave', icon:'⚡', color:'#38bdf8',
+      url:`https://aniwave.to/filter?keyword=${encodeURIComponent(anime.romaji||anime.title)}` },
+    { name:'AnimeOut', icon:'⬇️', color:'#fbbf24',
+      url:`https://www.animeout.xyz/?s=${encodeURIComponent(anime.title)}` },
+  ];
   const onOverlay = e => { if (e.target === e.currentTarget) onClose(); };
+
   return (
     <div className="dl-overlay" onClick={onOverlay}>
       <div className="dl-sheet" onClick={e => e.stopPropagation()}>
         <div className="dl-hdr">
-          <span className="dl-title">⬇ Download Episode {curEp}</span>
+          <div>
+            <div className="dl-title">Download Episode {curEp}</div>
+            <div className="dl-subtitle">{anime.title}</div>
+          </div>
           <button className="dl-close" onClick={onClose}>✕</button>
         </div>
-        {state === 'loading' && (
-          <div className="dl-loading">
-            <div className="spin-ring"/>
-            <p style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--txt3)'}}>Finding download links…</p>
-          </div>
-        )}
-        {state === 'found' && data?.downloads?.length > 0 && (
-          <div className="dl-section">
-            <div className="dl-section-title">Direct Download</div>
-            {data.downloads.filter(d => !d.isM3U8).map((d, i) => (
-              <a key={i} href={d.url} target="_blank" rel="noopener noreferrer"
-                className={'dl-btn' + (i === 0 ? ' primary' : '')}
-                onClick={() => { toast('⬇ Downloading ' + d.quality); onClose(); }}>
-                <span className="dl-quality">{d.quality}</span>
-                <span className="dl-label">Download</span>
-                <span className="dl-arrow">↓</span>
-              </a>
-            ))}
-          </div>
-        )}
-        {data?.externals?.length > 0 && (
-          <div className="dl-section">
-            <div className="dl-section-title">{state === 'found' ? 'More Sources' : 'Download From'}</div>
-            {data.externals.map((ext, i) => (
-              <a key={i} href={ext.url} target="_blank" rel="noopener noreferrer"
-                className="dl-btn" onClick={onClose}>
-                <span><span className="dl-ext-icon">{ext.icon}</span><span className="dl-label">{ext.name}</span></span>
-                <span className="dl-arrow">→</span>
-              </a>
-            ))}
-          </div>
-        )}
-        <p className="dl-note">Direct downloads via GoGoAnime CDN.<br/>Use an ad blocker on external sites.</p>
+
+        <div className="dl-source-grid">
+          {sources.map((s, i) => (
+            <a key={i} href={s.url} target="_blank" rel="noopener noreferrer"
+              className="dl-source-card"
+              style={{'--src-color': s.color}}
+              onClick={() => { toast(`Opening ${s.name}…`); onClose(); }}>
+              <div className="dl-source-icon">{s.icon}</div>
+              <div className="dl-source-name">{s.name}</div>
+              <div className="dl-source-arrow">→</div>
+            </a>
+          ))}
+        </div>
+
+        <div className="dl-info-box">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"
+            style={{width:14,height:14,flexShrink:0}}>
+            <circle cx="10" cy="10" r="8"/><path d="M10 6v5M10 14h.01" strokeLinecap="round"/>
+          </svg>
+          <span>Pick a source above — it'll open with this episode ready to download.</span>
+        </div>
       </div>
     </div>
   );
 }
+
 
 class ErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { hasError: false, error: null }; }
