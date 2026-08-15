@@ -3909,19 +3909,22 @@ function MangaReaderPage({manga, chapter, chapters, onBack, onChapter}) {
 }
 
 
-// ── DOWNLOAD MODAL (JustAnime.to style) ────────────────────────────────────
+// ── DOWNLOAD SOURCES — centralized config, edit here when a domain changes ──
+// Each entry needs: label (shown to user, e.g. "Server 1"), and a url(anime, ep)
+// function returning the destination. Add/remove entries here only — nothing
+// else in the component needs to change.
+const DOWNLOAD_SOURCES = [
+  {
+    label: 'Server 1',
+    url: (anime, ep) => `https://anitaku.pe/search.html?keyword=${encodeURIComponent(anime.romaji || anime.title)}`,
+  },
+  // Add more sources here as they're found/verified, e.g.:
+  // { label: 'Server 2', url: (anime, ep) => `https://example.com/search?q=${encodeURIComponent(anime.title)}` },
+];
+
+// ── DOWNLOAD MODAL ────────────────────────────────────────────────────────────
 function DownloadModal({anime, curEp, lang, onClose}) {
   const toast = useToast();
-  const sources = [
-    { name:'GoGoAnime', icon:'🎬', color:'#e11d48',
-      url:`https://anitaku.pe/${makeSlug(anime.romaji||anime.title)}-episode-${curEp}` },
-    { name:'AnimePahe', icon:'📺', color:'#4ade80',
-      url:`https://animepahe.ru/anime/${makeSlug(anime.romaji||anime.title)}` },
-    { name:'AniWave', icon:'⚡', color:'#38bdf8',
-      url:`https://aniwave.to/filter?keyword=${encodeURIComponent(anime.romaji||anime.title)}` },
-    { name:'AnimeOut', icon:'⬇️', color:'#fbbf24',
-      url:`https://www.animeout.xyz/?s=${encodeURIComponent(anime.title)}` },
-  ];
   const onOverlay = e => { if (e.target === e.currentTarget) onClose(); };
 
   return (
@@ -3936,13 +3939,17 @@ function DownloadModal({anime, curEp, lang, onClose}) {
         </div>
 
         <div className="dl-source-grid">
-          {sources.map((s, i) => (
-            <a key={i} href={s.url} target="_blank" rel="noopener noreferrer"
+          {DOWNLOAD_SOURCES.map((s, i) => (
+            <a key={i} href={s.url(anime, curEp)} target="_blank" rel="noopener noreferrer"
               className="dl-source-card"
-              style={{'--src-color': s.color}}
-              onClick={() => { toast(`Opening ${s.name}…`); onClose(); }}>
-              <div className="dl-source-icon">{s.icon}</div>
-              <div className="dl-source-name">{s.name}</div>
+              onClick={() => { toast(`Opening ${s.label}…`); onClose(); }}>
+              <div className="dl-source-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
+                  strokeLinecap="round" strokeLinejoin="round" style={{width:22,height:22}}>
+                  <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>
+                </svg>
+              </div>
+              <div className="dl-source-name">{s.label}</div>
               <div className="dl-source-arrow">→</div>
             </a>
           ))}
@@ -3953,7 +3960,7 @@ function DownloadModal({anime, curEp, lang, onClose}) {
             style={{width:14,height:14,flexShrink:0}}>
             <circle cx="10" cy="10" r="8"/><path d="M10 6v5M10 14h.01" strokeLinecap="round"/>
           </svg>
-          <span>Pick a source above — it'll open with this episode ready to download.</span>
+          <span>Pick a server above — search for "{anime.title}" and select Episode {curEp} to download.</span>
         </div>
       </div>
     </div>
