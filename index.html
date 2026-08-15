@@ -3915,7 +3915,7 @@ function MangaReaderPage({manga, chapter, chapters, onBack, onChapter}) {
 const DOWNLOAD_SOURCES = [
   {
     label: 'Server 1',
-    url: (anime, ep) => `https://anitaku.pe/search.html?keyword=${encodeURIComponent(anime.romaji || anime.title)}`,
+    url: (anime, ep) => `https://www.animekaizoku.xyz/?s=${encodeURIComponent(anime.romaji || anime.title)}`,
   },
   // Add more sources here as they're found/verified, e.g.:
   // { label: 'Server 2', url: (anime, ep) => `https://example.com/search?q=${encodeURIComponent(anime.title)}` },
