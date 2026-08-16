@@ -1,28 +1,29 @@
-"functions": {
-  "api/proxy.js":        { "maxDuration": 30 },
-  "api/share.js":        { "maxDuration": 15 },
-  "api/manga.js":        { "maxDuration": 30 },
-  "api/content-page.js": { "maxDuration": 15 },
-  "api/tools.js":        { "maxDuration": 30 },
-  "api/auth/anilist.js": { "maxDuration": 15 },
-  "api/auth/session.js": { "maxDuration": 10 },
-  "api/comments.js":     { "maxDuration": 15 },
-  "api/anilist-sync.js": { "maxDuration": 15 },
-  "api/download.js":     { "maxDuration": 30 }
-}
+{
+  "functions": {
+    "api/proxy.js":        { "maxDuration": 30 },
+    "api/share.js":        { "maxDuration": 15 },
+    "api/manga.js":        { "maxDuration": 30 },
+    "api/content-page.js": { "maxDuration": 15 },
+    "api/tools.js":        { "maxDuration": 30 },
+    "api/auth/anilist.js": { "maxDuration": 15 },
+    "api/auth/session.js": { "maxDuration": 10 },
+    "api/comments.js":     { "maxDuration": 15 },
+    "api/anilist-sync.js": { "maxDuration": 15 },
+    "api/download.js":     { "maxDuration": 30 }
+  },
   "rewrites": [
-    { "source": "/sitemap.xml",                            "destination": "/api/tools?tool=sitemap"              },
-    { "source": "/sitemap-anime.xml",                      "destination": "/api/tools?tool=sitemap&type=anime"   },
-    { "source": "/sitemap-index.xml",                      "destination": "/api/tools?tool=sitemap&type=index"   },
-    { "source": "/share",                                  "destination": "/api/share"                           },
-    { "source": "/feed",                                   "destination": "/api/tools?tool=feed"                 },
-    { "source": "/indexnow",                               "destination": "/api/tools?tool=indexnow"             },
-    { "source": "/959052f29efd46f2b6c6ca540fd7c0ee.txt",  "destination": "/959052f29efd46f2b6c6ca540fd7c0ee.txt"},
-    { "source": "/anime/([^/]+)/([^/]+)",                  "destination": "/api/content-page?type=anime&id=$1"   },
-    { "source": "/anime/([^/]+)",                          "destination": "/api/content-page?type=anime&id=$1"   },
-    { "source": "/manga/([^/]+)/([^/]+)/read/([^/]+)",    "destination": "/api/content-page?type=manga&id=$1"   },
-    { "source": "/manga/([^/]+)/([^/]+)",                  "destination": "/api/content-page?type=manga&id=$1"   },
-    { "source": "/manga/([^/]+)",                          "destination": "/api/content-page?type=manga&id=$1"   },
-    { "source": "/(.*)",                                   "destination": "/index.html"                          }
+    { "source": "/sitemap.xml",                           "destination": "/api/tools?tool=sitemap"             },
+    { "source": "/sitemap-anime.xml",                     "destination": "/api/tools?tool=sitemap&type=anime"  },
+    { "source": "/sitemap-index.xml",                     "destination": "/api/tools?tool=sitemap&type=index"  },
+    { "source": "/share",                                 "destination": "/api/share"                          },
+    { "source": "/feed",                                  "destination": "/api/tools?tool=feed"                },
+    { "source": "/indexnow",                              "destination": "/api/tools?tool=indexnow"            },
+    { "source": "/959052f29efd46f2b6c6ca540fd7c0ee.txt", "destination": "/959052f29efd46f2b6c6ca540fd7c0ee.txt"},
+    { "source": "/anime/([^/]+)/([^/]+)",                 "destination": "/api/content-page?type=anime&id=$1"  },
+    { "source": "/anime/([^/]+)",                         "destination": "/api/content-page?type=anime&id=$1"  },
+    { "source": "/manga/([^/]+)/([^/]+)/read/([^/]+)",   "destination": "/api/content-page?type=manga&id=$1"  },
+    { "source": "/manga/([^/]+)/([^/]+)",                 "destination": "/api/content-page?type=manga&id=$1"  },
+    { "source": "/manga/([^/]+)",                         "destination": "/api/content-page?type=manga&id=$1"  },
+    { "source": "/(.*)",                                  "destination": "/index.html"                         }
   ]
 }
