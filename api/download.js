@@ -1,146 +1,80 @@
 // api/download.js
-// Gets direct anime episode download links via Consumet/GoGoAnime API
-// Falls back to external download site links if API unavailable
-const https = require('https');
-
-function httpsGet(url) {
-  return new Promise((resolve) => {
-    const req = https.get(url, {
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      },
-      timeout: 8000,
-    }, (res) => {
-      let data = '';
-      res.on('data', c => data += c);
-      res.on('end', () => {
-        try { resolve({ ok: res.statusCode < 400, data: JSON.parse(data), status: res.statusCode }); }
-        catch { resolve({ ok: false, data: null, status: res.statusCode }); }
-      });
-    });
-    req.on('timeout', () => { req.destroy(); resolve({ ok: false, data: null }); });
-    req.on('error', () => resolve({ ok: false, data: null }));
-  });
-}
-
-// Convert anime title + episode to GoGoAnime episode ID
-// e.g. "Solo Leveling", 5 → "solo-leveling-episode-5"
-function makeGogoId(title, ep, isDub = false) {
-  const slug = title.toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-  return isDub ? `${slug}-dub-episode-${ep}` : `${slug}-episode-${ep}`;
-}
-
-// Try multiple Consumet public instances
-const CONSUMET_INSTANCES = [
-  'https://api.consumet.org',
-  'https://consumet.amanoteam.com',
-  'https://consumet-api-pied.vercel.app',
-];
-
-async function getDownloadLinks(gogoId) {
-  for (const base of CONSUMET_INSTANCES) {
-    const url = `${base}/anime/gogoanime/watch/${encodeURIComponent(gogoId)}`;
-    const res = await httpsGet(url);
-    if (res.ok && res.data?.sources) {
-      return res.data;
-    }
-  }
-  return null;
-}
+// Fetches direct MP4 download links via self-hosted anbuanime API.
+// Usage: GET /api/download?title=One+Piece&ep=1000&lang=sub
+//
+// Requires env var: ANBUANIME_URL (e.g. https://anbuanime-xxxx.onrender.com)
+//
+// Flow:
+//  1. Search anbuanime for the anime title → get animeId
+//  2. Get anime details → find episodeId for the requested episode number
+//  3. Hit /vidcdn/watch/{episodeId} → returns direct CDN .mp4 links
+//  4. Return quality options to the frontend
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin',  '*');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', '*');
-  if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
-  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const qs    = new URLSearchParams(req.url.includes('?') ? req.url.split('?')[1] : '');
-  const title  = qs.get('title') || '';
-  const ep     = qs.get('ep')    || '1';
-  const malId  = qs.get('malId') || '';
-  const isDub  = qs.get('dub') === 'true';
+  const { title, ep, lang = 'sub' } = req.query;
+  const API = (process.env.ANBUANIME_URL || '').replace(/\/$/, '');
 
-  if (!title) {
-    res.statusCode = 400;
-    res.end(JSON.stringify({ error: 'title required' }));
-    return;
+  if (!title || !ep) {
+    return res.status(400).json({ error: 'title and ep are required' });
+  }
+  if (!API) {
+    return res.status(500).json({ error: 'ANBUANIME_URL env var not set' });
   }
 
-  // ── Try GoGoAnime via Consumet ────────────────────────────────────────────
-  const gogoId = makeGogoId(title, ep, isDub);
-  const data   = await getDownloadLinks(gogoId);
+  try {
+    // 1. Search for the anime — append (Dub) for dub requests
+    const isDub = lang === 'dub';
+    const keyw = isDub ? `${title} (Dub)` : title;
+    const sr = await fetch(`${API}/search?keyw=${encodeURIComponent(keyw)}`);
+    if (!sr.ok) throw new Error(`Search failed: ${sr.status}`);
+    const results = await sr.json();
 
-  // External fallback links (always included)
-  const titleSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  const externals = [
-    {
-      name:  'GoGoAnime',
-      url:   `https://anitaku.pe/${titleSlug}-episode-${ep}`,
-      icon:  '🎬',
-    },
-    {
-      name:  'AnimePahe',
-      url:   `https://animepahe.ru/anime/${titleSlug}`,
-      icon:  '📺',
-    },
-    {
-      name:  'AnimeOut',
-      url:   `https://www.animeout.xyz/?s=${encodeURIComponent(title)}`,
-      icon:  '⬇️',
-    },
-  ];
-
-  if (!data?.sources) {
-    // API failed — return external links only
-    res.statusCode = 200;
-    res.end(JSON.stringify({
-      found: false,
-      gogoId,
-      externals,
-    }));
-    return;
-  }
-
-  // ── Parse download links by quality ──────────────────────────────────────
-  const downloads = [];
-
-  // Consumet returns sources array with quality labels
-  for (const src of (data.sources || [])) {
-    if (src.url && src.quality) {
-      downloads.push({
-        quality: src.quality,
-        url:     src.url,
-        isM3U8:  src.isM3U8 || src.url.includes('.m3u8'),
-      });
+    if (!Array.isArray(results) || !results.length) {
+      return res.status(404).json({ error: 'Anime not found on gogoanime' });
     }
+
+    const match = results[0];
+
+    // 2. Get full episode list for this anime
+    const dr = await fetch(`${API}/anime-details/${encodeURIComponent(match.animeId)}`);
+    if (!dr.ok) throw new Error(`Details failed: ${dr.status}`);
+    const details = await dr.json();
+
+    const epNum = parseInt(ep, 10);
+    const episode = (details.episodesList || []).find(
+      e => parseInt(e.episodeNum, 10) === epNum
+    );
+
+    if (!episode) {
+      return res.status(404).json({ error: `Episode ${ep} not found on gogoanime` });
+    }
+
+    // 3. Get VIDCDN sources — these are direct .mp4 CDN links, not HLS
+    const wr = await fetch(`${API}/vidcdn/watch/${encodeURIComponent(episode.episodeId)}`);
+    if (!wr.ok) throw new Error(`Watch failed: ${wr.status}`);
+    const watch = await wr.json();
+
+    // Filter to mp4 only, normalize label format (e.g. "360 P" → "360p")
+    const sources = (watch.data || [])
+      .filter(s => s.type === 'mp4' && s.file)
+      .map(s => ({
+        quality: s.label.replace(/\s+/g, '').toLowerCase(),
+        url: s.file
+      }));
+
+    if (!sources.length) {
+      return res.status(404).json({ error: 'No direct MP4 links available for this episode' });
+    }
+
+    return res.status(200).json({ sources });
+
+  } catch (err) {
+    console.error('[api/download]', err.message);
+    return res.status(500).json({ error: 'Failed to fetch download links' });
   }
-
-  // Also check download property if present
-  if (data.download) {
-    downloads.push({ quality: 'Direct', url: data.download, isM3U8: false });
-  }
-
-  // Sort by quality descending: 1080p, 720p, 480p, 360p
-  const ORDER = ['1080p', '720p', '480p', '360p', 'default', 'backup'];
-  downloads.sort((a, b) => {
-    const ai = ORDER.indexOf(a.quality);
-    const bi = ORDER.indexOf(b.quality);
-    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-  });
-
-  res.statusCode = 200;
-  res.end(JSON.stringify({
-    found:     downloads.length > 0,
-    gogoId,
-    title,
-    episode:   ep,
-    downloads,
-    externals,
-  }));
 };
