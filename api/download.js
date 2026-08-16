@@ -1,19 +1,10 @@
 // api/download.js
 // Gets direct MP4 download URLs via AnimePahe + kwik.si token extraction.
-// No npm deps — pure Node.js built-in fetch only.
-//
-// Flow:
-//  1. Search AnimePahe for the anime  → get anime session
-//  2. Get episodes (paginated)        → find episode session
-//  3. Get sources                     → get kwik.si URLs per quality
-//  4. For each kwik URL: decrypt obfuscated JS → POST form → get MP4 redirect
-//  5. Return quality options to frontend
 
 const ANIMEPAHE_API = process.env.ANIMEPAHE_URL || 'https://animepahe-api-liard.vercel.app';
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36';
 
-// ── Kwik.si decryption (ported from anime-downloader/extractors/kwik.py) ────
-
+// ── Kwik.si decryption ────────────────────────────────────────────────────────
 const CHAR_MAP = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/';
 
 function getString(content, s1, s2) {
@@ -33,16 +24,12 @@ function getString(content, s1, s2) {
 }
 
 function decryptKwik(fullStr, key, v1, v2) {
-  v1 = parseInt(v1, 10);
-  v2 = parseInt(v2, 10);
-  let result = '';
-  let i = 0;
+  v1 = parseInt(v1, 10); v2 = parseInt(v2, 10);
+  let result = '', i = 0;
   while (i < fullStr.length) {
     let s = '';
     while (fullStr[i] !== key[v2]) { s += fullStr[i++]; }
-    for (let j = 0; j < key.length; j++) {
-      s = s.split(key[j]).join(String(j));
-    }
+    for (let j = 0; j < key.length; j++) s = s.split(key[j]).join(String(j));
     result += String.fromCharCode(parseInt(getString(s, v2, 10), 10) - v1);
     i++;
   }
@@ -50,28 +37,21 @@ function decryptKwik(fullStr, key, v1, v2) {
 }
 
 async function getKwikDownloadUrl(kwikUrl) {
-  // Step 1: Fetch the kwik embed page
   const pageRes = await fetch(kwikUrl, {
     headers: { 'Referer': 'https://animepahe.ru/', 'User-Agent': UA }
   });
-  if (!pageRes.ok) throw new Error(`kwik page returned ${pageRes.status}`);
-
+  if (!pageRes.ok) throw new Error(`kwik page ${pageRes.status}`);
   const html = await pageRes.text();
   const cookies = pageRes.headers.get('set-cookie') || '';
 
-  // Step 2: Find the obfuscated JS params
   const m = html.match(/\("(\w+)",\d+,"(\w+)",(\d+),(\d+),\d+\)/);
-  if (!m) throw new Error('kwik: obfuscated params not found');
+  if (!m) throw new Error('kwik: params pattern not found');
 
-  // Step 3: Decrypt to get the download form HTML
   const decrypted = decryptKwik(m[1], m[2], m[3], m[4]);
-
-  // Step 4: Extract form action URL and CSRF token
   const actionM = decrypted.match(/action="([^"]+)"/);
   const tokenM  = decrypted.match(/value="([^"]+)"/);
-  if (!actionM || !tokenM) throw new Error('kwik: download form not found in decrypted content');
+  if (!actionM || !tokenM) throw new Error('kwik: form not found in decrypted content');
 
-  // Step 5: POST to download endpoint — don't follow the redirect
   const dlRes = await fetch(actionM[1], {
     method: 'POST',
     redirect: 'manual',
@@ -84,93 +64,97 @@ async function getKwikDownloadUrl(kwikUrl) {
     body: `_token=${encodeURIComponent(tokenM[1])}`
   });
 
-  // Step 6: The Location header on the 302/303 is the actual MP4 URL
   const location = dlRes.headers.get('location');
-  if (!location) throw new Error('kwik: no redirect location in download response');
+  if (!location) throw new Error('kwik: no redirect location');
   return location;
 }
 
-// ── Main handler ─────────────────────────────────────────────────────────────
-
+// ── Main handler ──────────────────────────────────────────────────────────────
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const { title, ep, lang = 'sub' } = req.query;
-  if (!title || !ep) return res.status(400).json({ error: 'title and ep are required' });
+  if (!title || !ep) return res.status(400).json({ error: 'title and ep required' });
 
   try {
     const epNum = parseInt(ep, 10);
     const wantDub = lang === 'dub';
 
-    // 1. Search AnimePahe for the anime
+    // 1. Search
     const sr = await fetch(`${ANIMEPAHE_API}/search?q=${encodeURIComponent(title)}`);
-    if (!sr.ok) throw new Error(`AnimePahe search: ${sr.status}`);
-    const search = await sr.json();
-    const results = search.data || search;
+    const searchRaw = await sr.json();
+    // Handle both { data: [...] } and [...] response shapes
+    const results = searchRaw.data || searchRaw;
     if (!Array.isArray(results) || !results.length) {
       return res.status(404).json({ error: 'Anime not found on AnimePahe' });
     }
-
     const anime = results[0];
-    const animeSession = anime.session;
+    const animeSession = anime.session || anime.id;
+    console.log('[download] anime found:', anime.title, 'session:', animeSession);
 
-    // 2. Get episodes — AnimePahe paginates at 30 per page
+    // 2. Episodes — AnimePahe paginates at 30/page
     const page = Math.ceil(epNum / 30);
     const er = await fetch(`${ANIMEPAHE_API}/episodes?session=${animeSession}&page=${page}`);
-    if (!er.ok) throw new Error(`AnimePahe episodes: ${er.status}`);
-    const epData = await er.json();
-    const episodes = epData.data || epData;
+    const epRaw = await er.json();
+    const episodes = epRaw.data || epRaw;
+    const epArr = Array.isArray(episodes) ? episodes : Object.values(episodes);
+    console.log('[download] episodes on page', page, ':', epArr.length, 'found');
 
-    const episode = (Array.isArray(episodes) ? episodes : Object.values(episodes))
-      .find(e => parseInt(e.episode, 10) === epNum);
-    if (!episode) return res.status(404).json({ error: `Episode ${ep} not found on AnimePahe` });
-
-    // 3. Get sources (kwik URLs per quality)
-    const srcr = await fetch(
-      `${ANIMEPAHE_API}/sources?anime_session=${animeSession}&episode_session=${episode.session}`
+    // Match by number or episode field — APIs use different names
+    const episode = epArr.find(e =>
+      parseInt(e.number, 10) === epNum ||
+      parseInt(e.episode, 10) === epNum ||
+      parseInt(e.ep, 10) === epNum
     );
-    if (!srcr.ok) throw new Error(`AnimePahe sources: ${srcr.status}`);
-    const srcData = await srcr.json();
+    if (!episode) return res.status(404).json({ error: `Episode ${ep} not found` });
+    const epSession = episode.session || episode.id;
+    console.log('[download] episode session:', epSession);
 
-    // Normalise to array regardless of response shape
+    // 3. Sources
+    const srcr = await fetch(
+      `${ANIMEPAHE_API}/sources?anime_session=${animeSession}&episode_session=${epSession}`
+    );
+    const srcRaw = await srcr.json();
+    // Sources can be { data: [...] } or [...] or { "0": {...}, "1": {...} }
     let sources = [];
-    if (Array.isArray(srcData.data))         sources = srcData.data;
-    else if (srcData.data)                   sources = Object.values(srcData.data);
-    else if (Array.isArray(srcData))         sources = srcData;
-    else                                     sources = Object.values(srcData);
+    if (Array.isArray(srcRaw.data))       sources = srcRaw.data;
+    else if (Array.isArray(srcRaw))       sources = srcRaw;
+    else if (srcRaw.data)                 sources = Object.values(srcRaw.data);
+    else                                  sources = Object.values(srcRaw);
+    console.log('[download] sources raw count:', sources.length, JSON.stringify(sources[0]));
 
-    // Prefer correct audio language; fall back to all sources
+    // Filter by audio language
     const byLang = sources.filter(s => wantDub ? s.audio === 'eng' : s.audio === 'jpn');
     const toProcess = byLang.length ? byLang : sources;
 
-    if (!toProcess.length) return res.status(404).json({ error: 'No sources found for this episode' });
+    if (!toProcess.length) return res.status(404).json({ error: 'No sources for this episode' });
 
-    // 4. Extract direct MP4 download URLs from kwik (process up to 4 qualities)
+    // 4. Extract MP4 download URLs from kwik
+    // Field name varies: url, kwik, source, link
     const downloadLinks = [];
     for (const src of toProcess.slice(0, 4)) {
-      if (!src.kwik) continue;
+      const kwikUrl = src.url || src.kwik || src.source || src.link;
+      const quality  = src.quality || src.resolution || src.fansub || '?';
+      if (!kwikUrl) { console.warn('[download] no kwik URL in source:', src); continue; }
+      console.log('[download] processing kwik:', kwikUrl);
       try {
-        const url = await getKwikDownloadUrl(src.kwik);
-        downloadLinks.push({
-          quality: `${src.resolution || src.quality || '?'}p`,
-          url
-        });
+        const mp4 = await getKwikDownloadUrl(kwikUrl);
+        downloadLinks.push({ quality: quality.toString().replace(/p$/,'') + 'p', url: mp4 });
       } catch (e) {
-        console.warn(`[download] kwik failed (${src.resolution}p):`, e.message);
+        console.warn('[download] kwik failed:', e.message);
       }
     }
 
     if (!downloadLinks.length) {
-      return res.status(404).json({ error: 'Could not extract download links from kwik' });
+      return res.status(404).json({ error: 'kwik extraction failed for all qualities' });
     }
 
     return res.status(200).json({ sources: downloadLinks });
 
   } catch (err) {
     console.error('[api/download]', err.message);
-    return res.status(500).json({ error: 'Failed to fetch download links' });
+    return res.status(500).json({ error: err.message });
   }
 };
