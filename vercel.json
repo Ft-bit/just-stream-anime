@@ -10,6 +10,7 @@
     "api/comments.js":      { "maxDuration": 15 },
     "api/anilist-sync.js":  { "maxDuration": 15 },
     "api/download.js":      { "maxDuration": 15 }
+    "api/download.js": { "maxDuration": 30 }
   },
   "rewrites": [
     { "source": "/sitemap.xml",                            "destination": "/api/tools?tool=sitemap"              },
