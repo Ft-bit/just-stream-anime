@@ -766,6 +766,10 @@
       border-radius:12px;padding:12px 14px;font-family:var(--mono);
       font-size:11px;color:var(--txt3);line-height:1.6}
     .dl-info-box svg{color:var(--txt3);margin-top:1px}
+    .dl-loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:32px 0 24px;color:var(--txt3);font-size:13px}
+    .dl-spinner{width:28px;height:28px;border:2.5px solid rgba(255,255,255,.1);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .dl-error-msg{display:flex;align-items:flex-start;gap:9px;background:rgba(225,29,72,.07);border:1px solid rgba(225,29,72,.18);border-radius:12px;padding:12px 14px;font-size:12px;color:var(--txt2);line-height:1.55;margin-bottom:14px}
 
     </style>
   <script type="text/javascript">
@@ -3924,7 +3928,31 @@ const DOWNLOAD_SOURCES = [
 // ── DOWNLOAD MODAL ────────────────────────────────────────────────────────────
 function DownloadModal({anime, curEp, lang, onClose}) {
   const toast = useToast();
+  const [dlState, setDlState] = React.useState('loading'); // 'loading' | 'ready' | 'error'
+  const [sources, setSources] = React.useState([]);
   const onOverlay = e => { if (e.target === e.currentTarget) onClose(); };
+
+  React.useEffect(() => {
+    const title = anime.romaji || anime.title;
+    fetch(`/api/download?title=${encodeURIComponent(title)}&ep=${curEp}&lang=${lang}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.sources && data.sources.length) {
+          setSources(data.sources);
+          setDlState('ready');
+        } else {
+          setDlState('error');
+        }
+      })
+      .catch(() => setDlState('error'));
+  }, []);
+
+  const DownloadIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
+      strokeLinecap="round" strokeLinejoin="round" style={{width:22,height:22}}>
+      <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>
+    </svg>
+  );
 
   return (
     <div className="dl-overlay" onClick={onOverlay}>
@@ -3937,29 +3965,56 @@ function DownloadModal({anime, curEp, lang, onClose}) {
           <button className="dl-close" onClick={onClose}>✕</button>
         </div>
 
-        <div className="dl-source-grid">
-          {DOWNLOAD_SOURCES.map((s, i) => (
-            <a key={i} href={s.url(anime, curEp)} target="_blank" rel="noopener noreferrer"
-              className="dl-source-card"
-              onClick={() => { toast(`Opening ${s.label}…`); onClose(); }}>
-              <div className="dl-source-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
-                  strokeLinecap="round" strokeLinejoin="round" style={{width:22,height:22}}>
-                  <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>
-                </svg>
-              </div>
-              <div className="dl-source-name">{s.label}</div>
-              <div className="dl-source-arrow">→</div>
-            </a>
-          ))}
-        </div>
+        {dlState === 'loading' && (
+          <div className="dl-loading">
+            <div className="dl-spinner"/>
+            <span>Finding download links…</span>
+          </div>
+        )}
+
+        {dlState === 'ready' && (
+          <div className="dl-source-grid">
+            {sources.map((s, i) => (
+              <a key={i} href={s.url} download target="_blank" rel="noopener noreferrer"
+                className="dl-source-card"
+                onClick={() => toast(`Downloading ${s.quality}…`)}>
+                <div className="dl-source-icon"><DownloadIcon/></div>
+                <div className="dl-source-name">{s.quality}</div>
+                <div className="dl-source-arrow">↓</div>
+              </a>
+            ))}
+          </div>
+        )}
+
+        {dlState === 'error' && (
+          <>
+            <div className="dl-error-msg">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"
+                style={{width:16,height:16,flexShrink:0,marginTop:1}}>
+                <circle cx="10" cy="10" r="8"/><path d="M10 6v5M10 14h.01" strokeLinecap="round"/>
+              </svg>
+              <span>Couldn't find direct links. Search manually on Anime Kaizoku — select Episode {curEp} there.</span>
+            </div>
+            <div className="dl-source-grid">
+              {DOWNLOAD_SOURCES.map((s, i) => (
+                <a key={i} href={s.url(anime, curEp)} target="_blank" rel="noopener noreferrer"
+                  className="dl-source-card"
+                  onClick={() => { toast(`Opening ${s.label}…`); onClose(); }}>
+                  <div className="dl-source-icon"><DownloadIcon/></div>
+                  <div className="dl-source-name">{s.label}</div>
+                  <div className="dl-source-arrow">→</div>
+                </a>
+              ))}
+            </div>
+          </>
+        )}
 
         <div className="dl-info-box">
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"
             style={{width:14,height:14,flexShrink:0}}>
             <circle cx="10" cy="10" r="8"/><path d="M10 6v5M10 14h.01" strokeLinecap="round"/>
           </svg>
-          <span>Pick a server above — search for "{anime.title}" and select Episode {curEp} to download.</span>
+          <span>{dlState === 'ready' ? 'Direct MP4 — pick a quality to start downloading.' : `Episode ${curEp} · ${anime.title}`}</span>
         </div>
       </div>
     </div>
