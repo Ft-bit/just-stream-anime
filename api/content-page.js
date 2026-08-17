@@ -43,7 +43,8 @@ async function fetchAnime(id) {
   const query = `query($id:Int){Media(id:$id,type:ANIME){
     id idMal title{romaji english} description(asHtml:false)
     coverImage{extraLarge large} bannerImage episodes genres
-    season seasonYear format status averageScore
+    season seasonYear format status averageScore popularity
+    startDate{year month day}
   }}`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 6000);
@@ -86,6 +87,10 @@ function renderAnimeHtml(baseHtml, anime) {
   html = html.replace(/(name="twitter:description"\s+content=")[^"]*(")/,            `$1${esc(desc)}$2`);
   html = html.replace(/(id="tw-image"\s+name="twitter:image"\s+content=")[^"]*(")/,  `$1${esc(image)}$2`);
 
+  const startDate = anime.startDate?.year
+    ? `${anime.startDate.year}-${String(anime.startDate.month||1).padStart(2,'0')}-${String(anime.startDate.day||1).padStart(2,'0')}`
+    : undefined;
+
   const schema = {
     "@context": "https://schema.org",
     "@graph": [
@@ -97,11 +102,13 @@ function renderAnimeHtml(baseHtml, anime) {
         "description": desc,
         "genre": (anime.genres || []).slice(0, 5),
         "numberOfEpisodes": anime.episodes || undefined,
+        "datePublished": startDate,
         "aggregateRating": anime.averageScore ? {
           "@type": "AggregateRating",
           "ratingValue": (anime.averageScore / 10).toFixed(1),
           "bestRating": "10",
-          "ratingCount": 1000
+          "worstRating": "0",
+          "ratingCount": anime.popularity || 100
         } : undefined,
         "potentialAction": { "@type": "WatchAction", "target": canonicalUrl }
       },
@@ -109,7 +116,8 @@ function renderAnimeHtml(baseHtml, anime) {
         "@type": "BreadcrumbList",
         "itemListElement": [
           { "@type": "ListItem", "position": 1, "name": "Home",  "item": "https://jsanime.site/" },
-          { "@type": "ListItem", "position": 2, "name": title,   "item": canonicalUrl }
+          { "@type": "ListItem", "position": 2, "name": "Anime", "item": "https://jsanime.site/anime" },
+          { "@type": "ListItem", "position": 3, "name": title,   "item": canonicalUrl }
         ]
       }
     ]
