@@ -3742,14 +3742,43 @@ function MangaReaderPage({manga, chapter, chapters, onBack, onChapter}) {
     };
   }, []);
 
-  useEffect(()=>{
+  const nodeRetries = useRef(0);
+  const reportedFail = useRef(false);
+
+  const loadPages = () => {
     setLoading(true); setPages([]); setCurPage(0);
     mgApi('pages', { id: chapter.id }).then(d=>{
       if (!d?.pages) { setLoading(false); return; }
       setPages(dataSaver ? (d.dataSaver||d.pages) : d.pages);
       setLoading(false);
     }).catch(()=>setLoading(false));
+  };
+
+  useEffect(()=>{
+    nodeRetries.current = 0;
+    reportedFail.current = false;
+    loadPages();
   }, [chapter.id, dataSaver]);
+
+  // MangaDex @Home nodes occasionally go unhealthy — when that happens every
+  // page on the assigned node fails at once. Their own docs recommend
+  // reporting the failure and re-requesting /at-home/server for a new node.
+  // We retry that handoff up to twice before giving up.
+  const handleNodeFailure = (failedSrc) => {
+    if (reportedFail.current) return; // only trigger one retry cycle per chapter load
+    reportedFail.current = true;
+
+    // Best-effort report to MangaDex's network health endpoint (fire-and-forget)
+    fetch('https://api.mangadex.network/report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: failedSrc, success: false, bytes: 0, duration: 0 })
+    }).catch(()=>{});
+
+    if (nodeRetries.current >= 2) return; // give up after 2 attempts, show broken images as-is
+    nodeRetries.current += 1;
+    loadPages(); // re-fetch /at-home/server via backend → likely assigns a different node
+  };
 
   useEffect(()=>{
     clearTimeout(uiTimer.current);
@@ -3854,7 +3883,11 @@ function MangaReaderPage({manga, chapter, chapters, onBack, onChapter}) {
                     background:'#111'}}
                   loading={i<3?'eager':'lazy'}
                   onLoad={()=>{ if(i===0) setLoading(false); }}
-                  onError={e=>{ e.target.style.opacity='0.15'; e.target.style.border='1px solid rgba(255,255,255,.1)'; }}
+                  onError={e=>{
+                    e.target.style.opacity='0.15';
+                    e.target.style.border='1px solid rgba(255,255,255,.1)';
+                    handleNodeFailure(src);
+                  }}
                   onClick={e=>{ e.stopPropagation(); showUIBriefly(); }}
                 />
               </div>
